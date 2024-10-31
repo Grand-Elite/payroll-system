@@ -1,6 +1,7 @@
 package com.grandelite.payrollsystem.service.impl;
 
 import com.grandelite.payrollsystem.model.Employee;
+import com.grandelite.payrollsystem.repository.DepartmentRepository;
 import com.grandelite.payrollsystem.repository.EmployeeRepository;
 import com.grandelite.payrollsystem.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
