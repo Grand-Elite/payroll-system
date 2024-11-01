@@ -11,3 +11,12 @@ export const fetchEmployees = async () => {
     throw error;
   }
 };
+
+export const addEmployee = async (employeeData) => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/employee`, employeeData);
+      return response.data; // Return the response data for further handling if needed
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Error adding employee');
+    }
+  };

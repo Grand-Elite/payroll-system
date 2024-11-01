@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { fetchEmployees } from '../../services/api';
+import { Link } from 'react-router-dom';
+
 import './Employee.css'
 function Employee() {
     const [employees, setEmployees] = useState([]); // State to hold employee data
@@ -58,7 +60,9 @@ function Employee() {
             </tbody>
           </table>
           <div className="buttons">
-            <button>Add New Employee</button>
+            <Link to="/add-new-employee">
+                <button>Add New Employee</button>
+            </Link>
             <button>Update Employee</button>
             <button>Shift Assign</button>
           </div>
