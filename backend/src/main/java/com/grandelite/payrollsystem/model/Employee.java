@@ -7,6 +7,7 @@ import lombok.Data;
 @Data
 public class Employee {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "employee_id", nullable = false)
     private Long employeeId;
 

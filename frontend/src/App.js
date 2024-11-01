@@ -1,4 +1,6 @@
 import Employee from './components/Employee/Employee';
+import AddNewEmployee from './components/Employee/AddNewEmployee/AddNewEmployee';
+
 import Sidebar from './components/Sidebar/Sidebar';
 import { BrowserRouter as Router, Routes, Route,Navigate } from 'react-router-dom';
 
@@ -20,6 +22,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Navigate to="/employee" replace />} />
             <Route path="/employee" element={<Employee />} />
+            <Route path="/add-new-employee" element={<AddNewEmployee />}/>
           </Routes>
         </div>
       </div>
