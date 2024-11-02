@@ -6,7 +6,7 @@ import { BrowserRouter as Router, Routes, Route,Navigate } from 'react-router-do
 
 import './App.css';
 import UploadAttendanceExcel from './components/Attendance/UploadAttendanceExcel/UploadAttendanceExcel';
-import EmployeeAttendance from './components/Attendance/EmployeeAttendance';
+import Attendance from './components/Attendance/Attendance';
 
 function App() {
   return (
@@ -25,7 +25,7 @@ function App() {
             <Route path="/" element={<Navigate to="/employee" replace />} />
             <Route path="/employee" element={<Employee />} />
             <Route path="/add-new-employee" element={<AddNewEmployee />}/>
-            <Route path="/attendance" element={<EmployeeAttendance />}/>
+            <Route path="/attendance" element={<Attendance />}/>
             <Route path="/upload-attendance-excel" element={<UploadAttendanceExcel />}/>
           </Routes>
         </div>
