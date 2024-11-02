@@ -8,7 +8,9 @@ function Sidebar() {
       <Link to="/employee">
         <button>Employee</button>
       </Link>
-      <button>Attendance</button>
+      <Link to="/upload-attendance-excel">
+        <button>Attendance</button>
+      </Link>
       <button>Salary</button>
       <button>Salary Update</button>
       <button>Pay Slip</button>

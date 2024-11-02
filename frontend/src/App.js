@@ -5,6 +5,7 @@ import Sidebar from './components/Sidebar/Sidebar';
 import { BrowserRouter as Router, Routes, Route,Navigate } from 'react-router-dom';
 
 import './App.css';
+import UploadAttendanceExcel from './components/Attendance/UploadAttendanceExcel/UploadAttendanceExcel';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
             <Route path="/" element={<Navigate to="/employee" replace />} />
             <Route path="/employee" element={<Employee />} />
             <Route path="/add-new-employee" element={<AddNewEmployee />}/>
+            <Route path="/upload-attendance-excel" element={<UploadAttendanceExcel />}/>
           </Routes>
         </div>
       </div>
