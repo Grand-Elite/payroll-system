@@ -41,6 +41,11 @@ public class AttendanceServiceImpl implements AttendanceService {
         return "Success";
     }
 
+    @Override
+    public List<Attendance> findAttendanceByEmployeeId(Long employeeId) {
+        return attendanceRepository.findAttendanceByEmployeeId(employeeId);
+    }
+
     private List<Attendance> extractClockInOutTimes(List<Map<String, String>> records) {
         // Parse records and group by Person ID and Adjusted Date
         Map<String, Map<LocalDate, List<LocalDateTime>>> groupedRecords = new HashMap<>();

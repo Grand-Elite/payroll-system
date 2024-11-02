@@ -67,7 +67,7 @@ function Attendance() {
             <Typography variant="h8" align="left" gutterBottom style={{ width: '100%' }}>
             {`Employee Name: ${selectedEmployee.shortName}`}
             </Typography>
-            <AttendanceTable />
+            <AttendanceTable employeeId={selectedEmployee.employeeId}/>
           </>
         )}
       </Box>

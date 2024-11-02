@@ -13,12 +13,25 @@ import {
   Typography,
 } from '@mui/material';
 import dayjs from 'dayjs';
+import { fetchAttendance } from '../../services/api';
 
-function AttendanceTable() {
+
+function AttendanceTable(props) {
   const [daysInMonth, setDaysInMonth] = useState([]);
+  const [employeeAttendance, setEmployeeAttendance] = useState([]);
   
   // Get all days of the current month
   useEffect(() => {
+    const loadEmployeeAttendance = async () => {
+    try {
+        const employeeAttendanceList = await fetchAttendance(props.employeeId);
+        setEmployeeAttendance(employeeAttendanceList);
+    } catch (error) {
+        console.error("Error fetching employee attendance:", error);
+    }
+    };
+    loadEmployeeAttendance();
+
     const currentMonth = dayjs().month(); // get the current month (0-indexed)
     const currentYear = dayjs().year(); // get the current year
     const days = [];

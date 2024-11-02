@@ -1,7 +1,11 @@
 package com.grandelite.payrollsystem.service;
 
+import com.grandelite.payrollsystem.model.Attendance;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 public interface AttendanceService {
-    public String processExcelFile(MultipartFile file);
+    String processExcelFile(MultipartFile file);
+    List<Attendance> findAttendanceByEmployeeId(Long employeeId);
 }
