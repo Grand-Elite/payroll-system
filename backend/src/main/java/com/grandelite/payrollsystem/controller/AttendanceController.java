@@ -19,7 +19,7 @@ public class AttendanceController {
 
     @PostMapping("/upload-excel")
     public ResponseEntity<String> uploadExcelFile(@RequestParam("file") MultipartFile file) {
-        if (file.isEmpty() || !file.getOriginalFilename().endsWith(".xlsx")) {
+        if (file.isEmpty()  || !file.getOriginalFilename().endsWith(".csv")) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid file. Please upload an Excel file.");
         }
 

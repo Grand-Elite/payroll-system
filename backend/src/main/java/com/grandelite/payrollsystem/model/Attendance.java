@@ -1,27 +1,30 @@
 package com.grandelite.payrollsystem.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Objects;
 
 @Entity
 @Data
 public class Attendance {
     @Id
     @Column(name = "attendance_record_id", nullable = false)
-    private Long attendance_record_id;
+    private String attendanceRecordId;
 
     @Column(name = "date", nullable = false)
     private LocalDate date;
 
     @Column(name = "actual_start_time")
-    private LocalTime actualStartTime;
+    private LocalDateTime actualStartTime;
 
     @Column(name="actual_end_time")
-    private LocalTime actualEndTime;
+    private LocalDateTime actualEndTime;
 
     @Column(name="work_hours")
     private Long workHours;
