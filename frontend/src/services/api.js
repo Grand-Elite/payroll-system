@@ -20,3 +20,21 @@ export const addEmployee = async (employeeData) => {
       throw new Error(error.response?.data?.message || 'Error adding employee');
     }
   };
+
+  export const uploadAttendanceFile = async (file, onUploadProgress) => {
+    const formData = new FormData();
+    formData.append("file", file);
+  
+    try {
+      const response = await axios.post("/api/attendance/upload-excel", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        onUploadProgress,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      throw error;
+    }
+  };
