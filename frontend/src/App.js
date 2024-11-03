@@ -7,8 +7,20 @@ import { BrowserRouter as Router, Routes, Route,Navigate } from 'react-router-do
 import './App.css';
 import UploadAttendanceExcel from './components/Attendance/UploadAttendanceExcel/UploadAttendanceExcel';
 import Attendance from './components/Attendance/Attendance';
+import { useState } from 'react';
+import dayjs from 'dayjs';
 
 function App() {
+  // State for selected month and year
+  const [selectedMonth, setSelectedMonth] = useState(dayjs().format("MMMM"));
+  const [selectedYear, setSelectedYear] = useState(dayjs().year());
+
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+  const currentYear = dayjs().year();
+  const years = Array.from({ length: 10 }, (_, i) => currentYear - i);
   return (
     <Router>
       <div className="container">
@@ -19,13 +31,30 @@ function App() {
             <div className="title">
               <h1>GRAND ELITE</h1>
             </div>
-            <div className="date">Month - Year</div>
+            <div className="date">
+              <select
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(e.target.value)}
+              >
+                {months.map((month, index) => (
+                  <option key={index} value={month}>{month}</option>
+                ))}
+              </select>
+              <select
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(e.target.value)}
+              >
+                {years.map((year, index) => (
+                  <option key={index} value={year}>{year}</option>
+                ))}
+              </select>
+            </div>
           </header>
           <Routes>
             <Route path="/" element={<Navigate to="/employee" replace />} />
             <Route path="/employee" element={<Employee />} />
             <Route path="/add-new-employee" element={<AddNewEmployee />}/>
-            <Route path="/attendance" element={<Attendance />}/>
+            <Route path="/attendance" element={<Attendance selectedMonth={selectedMonth} selectedYear={selectedYear}/>}/>
             <Route path="/upload-attendance-excel" element={<UploadAttendanceExcel />}/>
           </Routes>
         </div>

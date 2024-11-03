@@ -21,8 +21,8 @@ function AttendanceTable(props) {
   
     // Get all days of the current month
     useEffect(() => {
-      const currentMonth = dayjs().month()-1; // get the current month (0-indexed)
-      const currentYear = dayjs().year(); // get the current year
+      const currentMonth = dayjs(`01 ${props.selectedMonth} 2000`, "DD MMMM YYYY").month(); 
+      const currentYear = props.selectedYear; // get the current year
       const days = [];
       const daysInCurrentMonth = dayjs().daysInMonth(); // number of days in the current month
   
@@ -77,7 +77,7 @@ function AttendanceTable(props) {
       };
   
       loadEmployeeAttendance();
-    }, [props.employeeId]);
+    }, [props.employeeId,props.selectedMonth,props.selectedYear]);
   
     // Handle change for attendance fields
     const handleFieldChange = (index, field, value) => {

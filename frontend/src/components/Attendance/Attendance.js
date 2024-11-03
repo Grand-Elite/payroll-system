@@ -10,9 +10,8 @@ import {
   InputLabel,
 } from '@mui/material';
 import { fetchEmployees } from '../../services/api';
-import dayjs from 'dayjs';
 
-function Attendance() {
+function Attendance({ selectedMonth, selectedYear }) {
     const [employees, setEmployees] = useState([]);
     const [selectedEmployee, setSelectedEmployee] = useState(null);
   
@@ -62,12 +61,12 @@ function Attendance() {
         {selectedEmployee && (
           <>
             <Typography variant="h6" align="center" gutterBottom>
-              {`Attendance for ${dayjs().format('MMMM YYYY')}`}
+              {`Attendance for ${selectedMonth} ${selectedYear}`}
             </Typography>
             <Typography variant="h8" align="left" gutterBottom style={{ width: '100%' }}>
             {`Employee Name: ${selectedEmployee.shortName}`}
             </Typography>
-            <AttendanceTable employeeId={selectedEmployee.employeeId}/>
+            <AttendanceTable employeeId={selectedEmployee.employeeId} selectedMonth={selectedMonth} selectedYear={selectedYear} />
           </>
         )}
       </Box>
