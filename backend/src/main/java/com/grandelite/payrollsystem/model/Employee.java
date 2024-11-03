@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Entity
 @Data
+@Table(uniqueConstraints={@UniqueConstraint(columnNames={"short_name"})})
 public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
