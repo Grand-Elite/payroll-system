@@ -38,3 +38,13 @@ export const addEmployee = async (employeeData) => {
       throw error;
     }
   };
+
+  export const fetchAttendance = async (employeeId) => {
+    try {
+      const response =await axios.get(`${API_BASE_URL}/employee/${employeeId}/attendance`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching employee attendance:', error);
+      throw error;
+    }
+  };
