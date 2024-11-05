@@ -11,83 +11,127 @@ import {
   Select,
   MenuItem,
   Typography,
+  Button,
 } from '@mui/material';
 import dayjs from 'dayjs';
-import { fetchAttendance } from '../../services/api';
-
+import { fetchAttendance, updateAttendanceStatus } from '../../services/api'; // Ensure your api service has the updateAttendanceStatus method
 
 function AttendanceTable(props) {
-    const [daysInMonth, setDaysInMonth] = useState([]);
-  
-    // Get all days of the current month
-    useEffect(() => {
-      const currentMonth = dayjs(`01 ${props.selectedMonth} 2000`, "DD MMMM YYYY").month(); 
-      const currentYear = props.selectedYear; // get the current year
-      const days = [];
-      const daysInCurrentMonth = dayjs().daysInMonth(); // number of days in the current month
-  
-      // Create an array of days for the current month
-      for (let i = 1; i <= daysInCurrentMonth; i++) {
-        const date = dayjs(new Date(currentYear, currentMonth, i));
-        const dayOfWeek = date.day(); // day of the week (0 = Sunday, 6 = Saturday)
-        days.push({
-          date: date.format('YYYY-MM-DD'),
-          day: date.format('dddd'),
-          dayOfWeek,
-          timeIn: '',
-          timeOut: '',
-          attendanceStatus: '',
-          workHours: '',
-          leaveType: '',
-        });
-      }
-  
-      setDaysInMonth(days); // Set the days in the current month
-  
-      // Load employee attendance after setting up the days
-      const loadEmployeeAttendance = async () => {
-        try {
-          const employeeAttendanceList = await fetchAttendance(props.employeeId);
-          
-          // Create a lookup map for quick access by date
-          const attendanceMap = {};
-          employeeAttendanceList.forEach(record => {
-              attendanceMap[record.date] = record;
-          });
-          // Update daysInMonth using the attendance map
-          const updatedDays = days.map(day => {
-              const attendanceRecord = attendanceMap[day.date];
-              if (attendanceRecord) {
-                  return {
-                      ...day,
-                      timeIn: attendanceRecord.actualStartTime || '',
-                      timeOut: attendanceRecord.actualEndTime || '',
-                      attendanceStatus: attendanceRecord.attendanceStatus || '',
-                      workHours: attendanceRecord.workHours || '',
-                      leaveType: attendanceRecord.leaveType || '',
-                  };
-              }
-              return day;
-          });
+  const [daysInMonth, setDaysInMonth] = useState([]);
 
-          setDaysInMonth(updatedDays); // Update the state with the fetched data
-        } catch (error) {
-          console.error("Error fetching employee attendance:", error);
-        }
-      };
-  
-      loadEmployeeAttendance();
-    }, [props.employeeId,props.selectedMonth,props.selectedYear]);
-  
-    // Handle change for attendance fields
-    const handleFieldChange = (index, field, value) => {
-      const updatedDays = [...daysInMonth];
-      updatedDays[index][field] = value;
-      setDaysInMonth(updatedDays);
+  useEffect(() => {
+    const currentMonth = dayjs(`01 ${props.selectedMonth} 2000`, "DD MMMM YYYY").month(); 
+    const currentYear = props.selectedYear;
+    const days = [];
+    const daysInCurrentMonth = dayjs().daysInMonth();
+
+    for (let i = 1; i <= daysInCurrentMonth; i++) {
+      const date = dayjs(new Date(currentYear, currentMonth, i));
+      const dayOfWeek = date.day();
+      days.push({
+        date: date.format('YYYY-MM-DD'),
+        day: date.format('dddd'),
+        dayOfWeek,
+        timeIn: '',
+        timeOut: '',
+        attendanceStatus: 'ab',
+        originalAttendanceStatus: 'ab', // Store the original status
+        workHours: '',
+        leaveType: '',
+      });
+    }
+
+    setDaysInMonth(days);
+
+    const loadEmployeeAttendance = async () => {
+      try {
+        const employeeAttendanceList = await fetchAttendance(props.employeeId);
+        
+        const attendanceMap = {};
+        employeeAttendanceList.forEach(record => {
+            attendanceMap[record.date] = record;
+        });
+        console.log(attendanceMap)
+        const updatedDays = days.map(day => {
+            const attendanceRecord = attendanceMap[day.date];
+            if (attendanceRecord) {
+                return {
+                    ...day,
+                    attendanceRecordId:attendanceRecord.attendanceRecordId,
+                    timeIn: attendanceRecord.actualStartTime || '',
+                    timeOut: attendanceRecord.actualEndTime || '',
+                    attendanceStatus: attendanceRecord.attendance || '',
+                    originalAttendanceStatus: attendanceRecord.attendance || '', 
+                    workHours: attendanceRecord.workHours || '',
+                    leaveType: attendanceRecord.leaveType || '',
+                };
+            }
+            return day;
+        });
+        setDaysInMonth(updatedDays);
+      } catch (error) {
+        console.error("Error fetching employee attendance:", error);
+      }
     };
 
+    loadEmployeeAttendance();
+  }, [props.employeeId, props.selectedMonth, props.selectedYear]);
+
+  const handleFieldChange = (index, field, value) => {
+    const updatedDays = [...daysInMonth];
+    updatedDays[index][field] = value;
+
+    // If the attendance status is changed, set the new status
+    if (field === 'attendanceStatus') {
+        updatedDays[index].attendanceStatus = value;
+    }
+
+    setDaysInMonth(updatedDays);
+};
+
+/* WORKING HANDLE SAVE FUNCTION
+  const handleSave = async (index) => {
+    const day = daysInMonth[index];
+    if (day.attendanceStatus !== day.originalAttendanceStatus) {
+        try {
+            await updateAttendanceStatus(props.employeeId,day.date, day.attendanceStatus);
+            // Update the original status after saving
+            const updatedDays = [...daysInMonth];
+            updatedDays[index].originalAttendanceStatus = day.attendanceStatus;
+            setDaysInMonth(updatedDays);
+            alert('Attendance status updated successfully');
+        } catch (error) {
+            console.error('Error updating attendance status:', error);
+            alert('Failed to update attendance status');
+        }
+    }
+};
+*/
+
+const handleSave = async (index) => {
+  const day = daysInMonth[index];
+  if (day.attendanceStatus !== day.originalAttendanceStatus) {
+      try {
+          await updateAttendanceStatus(day.attendanceRecordId, day.attendanceStatus);
+          // Update the original status after saving
+          const updatedDays = [...daysInMonth];
+          updatedDays[index].originalAttendanceStatus = day.attendanceStatus;
+          setDaysInMonth(updatedDays);
+          alert('Attendance status updated successfully');
+      } catch (error) {
+          console.error('Error updating attendance status:', error);
+          alert('Failed to update attendance status');
+      }
+  }
+};
+
+
+
+
+
+
   return (
-    <TableContainer component={Paper} style={{ maxWidth: 800, margin: 'auto' }}>
+    <TableContainer component={Paper} style={{ margin: 'auto' }}>
       <Table>
         <TableHead>
           <TableRow>
@@ -105,7 +149,7 @@ function AttendanceTable(props) {
               key={index}
               style={{
                 backgroundColor:
-                  day.dayOfWeek === 0 || day.dayOfWeek === 6 ? '#f5f5f5' : 'inherit', // Different color for weekends
+                  day.dayOfWeek === 0 || day.dayOfWeek === 6 ? '#f5f5f5' : 'inherit',
               }}
             >
               <TableCell>
@@ -127,22 +171,23 @@ function AttendanceTable(props) {
                   size="small"
                 />
               </TableCell>
+
+              <TableCell>
+                  <Select
+                      value={day.attendanceStatus}
+                      onChange={(e) => handleFieldChange(index, "attendanceStatus", e.target.value)}
+                      size="small"
+                      displayEmpty
+                  >
+                      <MenuItem value="ab">ab</MenuItem>
+                      <MenuItem value="0.5">0.5</MenuItem>
+                      <MenuItem value="1">1</MenuItem>
+                  </Select>
+                </TableCell>
+
               <TableCell>
                 <TextField
-                  type="number"
-                  value={day.attendanceStatus}
-                  onChange={(e) => handleFieldChange(index, 'attendanceStatus', e.target.value)}
-                  size="small"
-                  inputProps={{ min: 0, max: 1, step: 0.5 }}
-                />
-              </TableCell>
-              <TableCell>
-                <TextField
-                  type="number"
                   value={day.workHours}
-                  onChange={(e) => handleFieldChange(index, 'workHours', e.target.value)}
-                  size="small"
-                  inputProps={{ min: 0, step: 0.5 }}
                 />
               </TableCell>
               <TableCell>
@@ -161,6 +206,19 @@ function AttendanceTable(props) {
                   <MenuItem value="holiday">Holiday</MenuItem>
                 </Select>
               </TableCell>
+              <TableCell>
+                  {/* Only show the save button if the status has changed */}
+                  {day.attendanceStatus !== day.originalAttendanceStatus && (
+                      <Button
+                          variant="contained"
+                          color="primary"
+                          size="small"
+                          onClick={() => handleSave(index)}
+                      >
+                          Save
+                      </Button>
+                  )}
+                </TableCell>
             </TableRow>
           ))}
         </TableBody>

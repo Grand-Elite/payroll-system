@@ -45,4 +45,8 @@ public class Attendance {
     private Shift shift;
 
 
+    @OneToOne
+    @JoinColumn(name="attendance_record_id")
+    private OverwrittenAttendanceStatus overwrittenAttendanceStatus;
+
 }

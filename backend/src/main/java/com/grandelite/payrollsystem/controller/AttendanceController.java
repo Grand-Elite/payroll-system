@@ -2,6 +2,7 @@ package com.grandelite.payrollsystem.controller;
 
 import com.grandelite.payrollsystem.model.Attendance;
 import com.grandelite.payrollsystem.model.Employee;
+import com.grandelite.payrollsystem.model.OverwrittenAttendanceStatus;
 import com.grandelite.payrollsystem.service.AttendanceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,4 +33,11 @@ public class AttendanceController {
     public List<Attendance> findAttendanceByEmployeeId(@PathVariable Long employeeId) {
         return attendanceService.findAttendanceByEmployeeId(employeeId);
     }
+
+    @PatchMapping("/attendance/overwritten-attendance")
+    public OverwrittenAttendanceStatus overwriteAttendanceStatus(@RequestBody OverwrittenAttendanceStatus overwrittenAttendanceStatus){
+        return attendanceService.overwriteAttendanceStatus(overwrittenAttendanceStatus);
+    }
+
+
 }

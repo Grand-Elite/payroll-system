@@ -48,3 +48,34 @@ export const addEmployee = async (employeeData) => {
       throw error;
     }
   };
+
+  /*
+export const updateAttendanceStatus = async (employeeId, date, status) => {
+  try {
+    const response = await axios.patch("/api/attendance/overwritten-attendance", {
+      employeeId,
+      date,
+      attendanceStatus: status,
+    });
+    return response.data; // Return the response data if needed
+  } catch (error) {
+    throw new Error('Failed to update attendance status: ' + error.message);
+  }
+};
+*/
+
+
+const updateAttendanceStatus = async (attendanceRecordId, updatedStatus) => {
+    try {
+        const response = await axios.patch("api/attendance/overwritten-attendance", {
+            attendanceRecordId,
+            updatedAttendanceStatus: updatedStatus
+        });
+        console.log("Update Successful:", response.data);
+    } catch (error) {
+        console.error("Error updating attendance:", error);
+    }
+};
+
+export { updateAttendanceStatus };
+

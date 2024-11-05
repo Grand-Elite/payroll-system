@@ -2,9 +2,11 @@ package com.grandelite.payrollsystem.service.impl;
 
 import com.grandelite.payrollsystem.model.Attendance;
 import com.grandelite.payrollsystem.model.Employee;
+import com.grandelite.payrollsystem.model.OverwrittenAttendanceStatus;
 import com.grandelite.payrollsystem.repository.AttendanceRepository;
 import com.grandelite.payrollsystem.repository.EmployeeRepository;
 import com.grandelite.payrollsystem.service.AttendanceService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -44,6 +46,30 @@ public class AttendanceServiceImpl implements AttendanceService {
     @Override
     public List<Attendance> findAttendanceByEmployeeId(Long employeeId) {
         return attendanceRepository.findAttendanceByEmployeeId(employeeId);
+    }
+
+//    public List<Attendance> overwriteAttendanceStatus(String attendance_record_id){
+//        return attendanceRepository.
+//
+//    }
+
+
+    @Override
+    @Transactional
+    public OverwrittenAttendanceStatus overwriteAttendanceStatus(OverwrittenAttendanceStatus overwrittenAttendanceStatus) {
+        // Update or insert into the overwritten_attendance_status table using String for attendanceRecordId
+
+        System.out.println(overwrittenAttendanceStatus);
+
+        System.out.println(overwrittenAttendanceStatus.getUpdatedAttendanceStatus());
+        System.out.println("Updating attendance record ID: " + overwrittenAttendanceStatus.getAttendanceRecordId() +
+                " with status: " + overwrittenAttendanceStatus.getUpdatedAttendanceStatus());
+        attendanceRepository.updateOrInsertOverwrittenStatus(
+                overwrittenAttendanceStatus.getAttendanceRecordId(), // This is now a String
+                overwrittenAttendanceStatus.getUpdatedAttendanceStatus()
+        );
+
+        return overwrittenAttendanceStatus;
     }
 
     private List<Attendance> extractClockInOutTimes(List<Map<String, String>> records) {
@@ -88,6 +114,7 @@ public class AttendanceServiceImpl implements AttendanceService {
                         attendance.setActualStartTime(clockIn);
                         attendance.setActualEndTime(clockOut);
                         attendance.setWorkHours(Duration.between(clockIn, clockOut).toHours());
+                        attendance.setAttendance(calcAttendance(employee,clockIn,clockOut));
                         summaries.add(attendance);
                     }
                 }
@@ -96,8 +123,25 @@ public class AttendanceServiceImpl implements AttendanceService {
         return summaries;
     }
 
+    private String calcAttendance(Employee employee, LocalDateTime clockIn, LocalDateTime clockOut) {
+        // Calculate the work hours in minutes
+        long workMinutes = Duration.between(clockIn, clockOut).toMinutes();
+
+        // Determine the attendance status based on the workMinutes
+        if (workMinutes > 540) {
+            return "1"; // Full day
+        } else if (workMinutes >= 330) {
+            return "0.5"; // Half day
+        } else if (workMinutes == 0) {
+            return "ab"; // Absent
+        } else {
+            return "???"; // Incomplete or irregular attendance
+        }
+    }
+
     public List<Map<String, String>> parseCsvFile(MultipartFile file) {
         List<Map<String, String>> dataList = new ArrayList<>();
+
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             String headerLine = reader.readLine(); // Read and skip the header line
