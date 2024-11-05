@@ -12,4 +12,7 @@ import java.util.List;
 public interface EmployeeRepository extends JpaRepository<Employee,Long> {
     @Query("SELECT u FROM Employee u WHERE u.shortName = :shortName")
     Employee findByShortName(@Param("shortName") String shortName);
+
+    @Query("SELECT MAX(e.employeeId) FROM Employee e")
+    Long findLastEmployeeId();
 }

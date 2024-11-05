@@ -8,7 +8,7 @@ import lombok.Data;
 @Table(uniqueConstraints={@UniqueConstraint(columnNames={"short_name"})})
 public class Employee {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    // @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "employee_id", nullable = false)
     private Long employeeId;
 

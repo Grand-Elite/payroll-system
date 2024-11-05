@@ -29,4 +29,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     public Employee save(Employee employee) {
         return employeeRepository.save(employee);
     }
+
+    public Long getLastEmployeeId() {
+        return employeeRepository.findLastEmployeeId();
+    }
+
 }

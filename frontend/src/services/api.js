@@ -49,6 +49,16 @@ export const addEmployee = async (employeeData) => {
     }
   };
 
+  export const getLastEmployeeId = async () => {
+    try {
+        const response = await axios.get('/api/employee/last-id'); // Adjust the endpoint as necessary
+        return response.data.employeeId;
+    } catch (error) {
+        console.error("Error fetching last employee ID:", error);
+        throw error;
+    }
+};
+
   /*
 export const updateAttendanceStatus = async (employeeId, date, status) => {
   try {
