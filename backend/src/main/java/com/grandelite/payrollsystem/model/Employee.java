@@ -15,6 +15,9 @@ public class Employee {
     @Column(name = "short_name",nullable = false)
     private String shortName;
 
+    @Column(name = "full_name", nullable = false)
+    private String fullName;
+
     @ManyToOne
     @JoinColumn(name = "department_id")
     private Department department;

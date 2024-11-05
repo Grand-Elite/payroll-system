@@ -25,7 +25,7 @@ table {
   .buttons button {
     padding: 10px;
     border: none;
-    background-color: #007bff;
+    background-color: #0026ff;
     color: white;
     cursor: pointer;
   }
@@ -33,3 +33,43 @@ table {
   .buttons button:hover {
     background-color: #0056b3;
   }
+
+  .add-button {
+    background-color: rgba(0, 4, 255, 0.705);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .add-button:hover {
+    background-color: darkblue; /* Darker shade on hover */
+  }
+
+  .form-container .add-new-employee {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px; /* Space between rows */
+    padding: 10px; /* Padding around each input box */
+}
+
+.form-container .add-new-employee label {
+    display: flex;
+    align-items: center;
+    width: 400px; /* Adjust the label width as needed */
+    margin-right: 10px;
+}
+
+.form-container .add-new-employee label span {
+    display: inline-block;
+    width: 200px; /* Label text width */
+    text-align: left; /* Align label text to the left */
+}
+
+.form-container .add-new-employee input,
+.form-container .add-new-employee select {
+    max-width: 1000px; /* Control the max width */
+    flex: 1; /* Allow input to take up remaining space in the flex container */
+}
