@@ -15,5 +15,8 @@ public interface EmployeeService {
 
     Long getLastEmployeeId();
 
+    void deactivateEmployee(Long id);
+
+    Employee updateEmployee(Long id, Employee employee);
 
 }

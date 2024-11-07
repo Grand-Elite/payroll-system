@@ -2,6 +2,7 @@ package com.grandelite.payrollsystem.repository;
 
 import com.grandelite.payrollsystem.model.Employee;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -15,4 +16,9 @@ public interface EmployeeRepository extends JpaRepository<Employee,Long> {
 
     @Query("SELECT MAX(e.employeeId) FROM Employee e")
     Long findLastEmployeeId();
+
+    @Modifying
+    @Query("UPDATE Employee e SET e.status = 'INACTIVE' WHERE e.id = :id")
+    void deactivateEmployee(@Param("id") Long id);
+
 }

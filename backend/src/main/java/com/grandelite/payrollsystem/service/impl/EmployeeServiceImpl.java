@@ -4,6 +4,7 @@ import com.grandelite.payrollsystem.model.Employee;
 import com.grandelite.payrollsystem.repository.DepartmentRepository;
 import com.grandelite.payrollsystem.repository.EmployeeRepository;
 import com.grandelite.payrollsystem.service.EmployeeService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +33,29 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     public Long getLastEmployeeId() {
         return employeeRepository.findLastEmployeeId();
+    }
+
+    @Transactional
+    public void deactivateEmployee(Long id) {
+        employeeRepository.deactivateEmployee(id);
+    }
+
+    public Employee updateEmployee(Long id, Employee employee) {
+        // Fetch the employee from the database
+        Employee existingEmployee = employeeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Employee not found"));
+
+        // Update employee fields (only the fields provided in the request body)
+        if (employee.getShortName() != null) existingEmployee.setShortName(employee.getShortName());
+        if (employee.getFullName() != null) existingEmployee.setFullName(employee.getFullName());
+        if (employee.getDepartment() != null) existingEmployee.setDepartment(employee.getDepartment());
+        if (employee.getDesignation() != null) existingEmployee.setDesignation(employee.getDesignation());
+        if (employee.getNicNo() != null) existingEmployee.setNicNo(employee.getNicNo());
+        if (employee.getEmployeeType() != null) existingEmployee.setEmployeeType(employee.getEmployeeType());
+        if (employee.getEpfNo() != null) existingEmployee.setEpfNo(employee.getEpfNo());
+
+        // Save the updated employee back to the database
+        return employeeRepository.save(existingEmployee);
     }
 
 }

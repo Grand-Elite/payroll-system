@@ -32,7 +32,7 @@ public class Employee {
 
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private Status status = Status.ACTIVE;     //set the default employee's status as ACTIVE
 
     public enum EmployeeType {
         TEMPORARY,
