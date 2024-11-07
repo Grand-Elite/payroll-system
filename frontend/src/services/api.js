@@ -87,5 +87,52 @@ const updateAttendanceStatus = async (attendanceRecordId, updatedStatus) => {
     }
 };
 
-export { updateAttendanceStatus };
+// Deactivate an employee by sending a PATCH request
+export const deactivateEmployee = async (employeeId) => {
+  await axios.patch(`/api/employee/${employeeId}/deactivate`);
+};
+
+export const updateEmployee = async (employeeId, updatedData) => {
+  try {
+    const response = await axios.put(`${API_BASE_URL}/employee/${employeeId}`, updatedData);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating employee:", error);
+    throw error;
+  }
+};
+
+/*
+export const getEmployeeById = async (employeeId) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/employee/${employeeId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching employee details:", error);
+    throw error;
+  }
+};
+*/
+
+export const getEmployeeById = async (employeeId) => {
+  try {
+    const response = await fetch(`/api/employee/${employeeId}`); // Ensure the endpoint is correct
+    if (!response.ok) {
+      throw new Error(`Failed to fetch: ${response.statusText}`);
+    }
+    
+    const data = await response.json(); // Assuming the response body is JSON
+    return data;
+  } catch (error) {
+    console.error('Error fetching employee details:', error);
+    throw error; // Re-throw the error for higher-level handling
+  }
+};
+
+
+
+
+
+
+export {updateAttendanceStatus };
 

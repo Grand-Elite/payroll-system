@@ -20,6 +20,7 @@ table {
   .buttons {
     display: flex;
     gap: 10px;
+    border-radius: 10;
   }
   
   .buttons button {
@@ -28,6 +29,7 @@ table {
     background-color: #0026ff;
     color: white;
     cursor: pointer;
+    border-radius: 10px;
   }
   
   .buttons button:hover {
@@ -72,4 +74,24 @@ table {
 .form-container .add-new-employee select {
     max-width: 1000px; /* Control the max width */
     flex: 1; /* Allow input to take up remaining space in the flex container */
+}
+
+.btn-custom-delete {
+  padding: 5px 5px; /* Decrease padding to make the button smaller */
+  font-size: 0.85rem; /* Adjust font size to make the text smaller */
+  font-weight:bold;
+  border-radius: 5px;
+  border: #dc3545;
+  background-color: #dc3545;
+  color: #ffffff;
+}
+
+.btn-custom-update {
+  padding: 5px 5px; /* Decrease padding to make the button smaller */
+  font-size: 0.85rem; /* Adjust font size to make the text smaller */
+  font-weight:bold;
+  border-radius: 5px;
+  border: #007bff;
+  background-color: #007bff;
+  color: #ffffff;
 }

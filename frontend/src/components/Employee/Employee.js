@@ -1,71 +1,104 @@
 import React, { useEffect, useState } from 'react';
-import { fetchEmployees } from '../../services/api';
+import { fetchEmployees, deactivateEmployee } from '../../services/api'; // Import API services
 import { Link } from 'react-router-dom';
-import './Employee.css'
+import './Employee.css';
+
 function Employee() {
-    const [employees, setEmployees] = useState([]); // State to hold employee data
-    const [loading, setLoading] = useState(true); // Loading state
-  
-    // Fetch employees data from API
-    useEffect(() => {
-      const fetchEmployeeData = async () => {
-        try {
-          const response = await fetchEmployees();
-          setEmployees(response);
-        } catch (error) {
-          console.error('Error fetching employee data:', error);
-        } finally {
-          setLoading(false);
-        }
-      };
-  
-      fetchEmployeeData();
-    }, []);
-  
-    return (
-        <div>
-            <header>
-                <h2>Employee Details</h2>
-            </header>
-          <table>
-            <thead>
-              <tr>
-                <th>Employee ID</th>
-                <th>Department</th>
-                <th>Name</th>
+  const [employees, setEmployees] = useState([]); // State to hold employee data
+  const [loading, setLoading] = useState(true); // Loading state
+
+  // Fetch employees data from API
+  useEffect(() => {
+    const fetchEmployeeData = async () => {
+      try {
+        const response = await fetchEmployees();
+        // Filter only employees with 'ACTIVE' status
+        const activeEmployees = response.filter(employee => employee.status === 'ACTIVE');
+        setEmployees(activeEmployees);
+      } catch (error) {
+        console.error('Error fetching employee data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEmployeeData();
+  }, []);
+
+  const handleDeactivate = async (employeeId) => {
+    // Ask for confirmation
+    const confirm = window.confirm("Are you sure you want to delete this employee?");
+    if (!confirm) return; // If user cancels, exit the function
+
+    try {
+      await deactivateEmployee(employeeId); // Call API to deactivate employee
+      // Remove the deactivated employee from the list
+      setEmployees((prevEmployees) =>
+        prevEmployees.filter((employee) => employee.employeeId !== employeeId)
+      );
+    } catch (error) {
+      console.error('Error deleting the employee:', error);
+    }
+  };
+
+  return (
+    <div>
+      <header>
+        <h2>Employee Details</h2>
+      </header>
+      <table>
+        <thead>
+          <tr>
+            <th>Employee ID</th>
+            <th>Department</th>
+            <th>Name</th>
+          </tr>
+        </thead>
+        <tbody>
+          {loading ? (
+            <tr>
+              <td colSpan="5" style={{ textAlign: 'center' }}>Loading...</td>
+            </tr>
+          ) : employees.length > 0 ? (
+            employees.map((employee) => (
+              <tr key={employee.employeeId}>
+                <td>{employee.employeeId}</td>
+                <td>{employee.department.name}</td>
+                <td>{employee.shortName}</td>
+                <td>
+                  {employee.status === 'ACTIVE' ? (
+                    <div>
+                        <button className="btn btn-danger btn-custom-delete" onClick={() => handleDeactivate(employee.employeeId)} >
+                          Delete
+                        </button>
+                        <Link to={`/update-employee/${employee.employeeId}`}>
+                        <button className="btn-custom-update" style={{ marginLeft: '10px' }}>
+                        Update
+                      </button>
+                      </Link>
+                    </div>
+                  ) : (
+                    <span>Inactive</span>
+                  )}
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan="15" style={{ textAlign: 'center' }}>Loading...</td>
-                </tr>
-              ) : employees.length > 0 ? (
-                employees.map((employee) => (
-                  <tr key={employee.employeeId}>
-                    <td>{employee.employeeId}</td>
-                    <td>{employee.department.name}</td>
-                    <td>{employee.shortName}</td>
-                    <td>
-                      <button>Delete</button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="15" style={{ textAlign: 'center' }}>No Data</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-          <div className="buttons">
-            <Link to="/add-new-employee">
-                <button>Add New Employee</button>
-            </Link>
-            <button>Update Employee</button>
-            <button>Shift Assign</button>
-          </div>
-        </div>
-    );
+            ))
+          ) : (
+            <tr>
+              <td colSpan="5" style={{ textAlign: 'center' }}>No Data</td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+      <div className="buttons" style={{ marginTop: '20px' }}>
+        <Link to="/add-new-employee">
+          <button>Add New Employee</button>
+        </Link>
+        {/*<button>Update Employee</button>*/}
+        <button>Shift Assign</button>
+      </div>
+    </div>
+  );
 }
+
 export default Employee;

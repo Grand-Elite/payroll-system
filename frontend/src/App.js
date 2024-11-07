@@ -1,14 +1,17 @@
 import Employee from './components/Employee/Employee';
 import AddNewEmployee from './components/Employee/AddNewEmployee/AddNewEmployee';
-
+import UpdateEmployee from './components/Employee/UpdateEmployee/UpdateEmployee'
+//import 'bootstrap/dist/css/bootstrap.min.css';
 import Sidebar from './components/Sidebar/Sidebar';
 import { BrowserRouter as Router, Routes, Route,Navigate } from 'react-router-dom';
 
 import './App.css';
 import UploadAttendanceExcel from './components/Attendance/UploadAttendanceExcel/UploadAttendanceExcel';
 import Attendance from './components/Attendance/Attendance';
+//import 'bootstrap/dist/css/bootstrap.min.css';
 import { useState } from 'react';
 import dayjs from 'dayjs';
+
 
 function App() {
   // State for selected month and year
@@ -54,6 +57,7 @@ function App() {
             <Route path="/" element={<Navigate to="/employee" replace />} />
             <Route path="/employee" element={<Employee />} />
             <Route path="/add-new-employee" element={<AddNewEmployee />}/>
+            <Route path="/update-employee/:employeeId" element={<UpdateEmployee />}/>
             <Route path="/attendance" element={<Attendance selectedMonth={selectedMonth} selectedYear={selectedYear}/>}/>
             <Route path="/upload-attendance-excel" element={<UploadAttendanceExcel />}/>
           </Routes>
