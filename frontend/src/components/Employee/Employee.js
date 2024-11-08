@@ -41,6 +41,7 @@ function Employee() {
     }
   };
 
+  
   return (
     <div>
       <header>
@@ -50,8 +51,12 @@ function Employee() {
         <thead>
           <tr>
             <th>Employee ID</th>
+            <th>EPF No.</th>
             <th>Department</th>
-            <th>Name</th>
+            <th>Short Name</th>
+            <th>Full Name</th>
+            <th>NIC No.</th>
+            
           </tr>
         </thead>
         <tbody>
@@ -63,8 +68,11 @@ function Employee() {
             employees.map((employee) => (
               <tr key={employee.employeeId}>
                 <td>{employee.employeeId}</td>
+                <td>{employee.epfNo}</td>
                 <td>{employee.department.name}</td>
                 <td>{employee.shortName}</td>
+                <td>{employee.fullName}</td>
+                <td>{employee.nicNo}</td>
                 <td>
                   {employee.status === 'ACTIVE' ? (
                     <div>

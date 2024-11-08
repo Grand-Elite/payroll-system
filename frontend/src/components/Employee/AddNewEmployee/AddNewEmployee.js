@@ -29,19 +29,31 @@ function AddNewEmployee() {
             try {
                 const lastId = await getLastEmployeeId();
                 setLastEmployeeId(lastId || 0); // If lastId is null or undefined, set it to 0
+                setEmployeeId((lastId || 0) + 1); // Set the next employee ID
             } catch (error) {
                 console.error('Error fetching last employee ID:', error);
                 setLastEmployeeId(0); // Set lastEmployeeId to 0 in case of an error
+                setEmployeeId(1); // Start from 1 if there’s an error
             }
         };
         fetchLastEmployeeId();
     }, []);
 
+    const validateNIC = (nicNumber) => {
+        const nicRegex = /^([1-9][0-9]{11}|[1-9][0-9]{9}|[0-9]{9}[vVxX])$/;
+        return nicRegex.test(nicNumber);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        if (!validateNIC(nicNo)) {
+            setError('Invalid NIC number format!');
+            return;
+        }
+
         const employeeData = {
-            employeeId,
+            employeeId: employeeId || (lastEmployeeId + 1), // Auto-generate employee ID based on last employee ID
             shortName,
             fullName,
             department,
@@ -65,7 +77,7 @@ function AddNewEmployee() {
             setSuccess(null);
         }
 
-        // Clear the form
+        // Clear the form after submission
         setEmployeeId('');
         setShortName('');
         setFullName('');
@@ -81,7 +93,7 @@ function AddNewEmployee() {
             <form onSubmit={handleSubmit}>
                 <div className='add-new-employee'>
                     <label>
-                        <span>Last Employee ID: {lastEmployeeId !== null ? lastEmployeeId : 'Loading...'}</span>
+                       {/* <span>Last Employee ID: {lastEmployeeId !== null ? lastEmployeeId : 'Loading...'}</span> */}
                     </label>
                 </div>
 
@@ -209,3 +221,7 @@ function AddNewEmployee() {
 }
 
 export default AddNewEmployee;
+
+
+
+

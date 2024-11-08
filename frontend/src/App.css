@@ -37,6 +37,11 @@ header {
   font-weight: bold;
 }
 
+.logo img {
+  width: 50px;
+  height: 50px;
+}
+
 .title h1 {
   font-size: 24px;
 }

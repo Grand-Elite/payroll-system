@@ -95,3 +95,8 @@ table {
   background-color: #007bff;
   color: #ffffff;
 }
+
+
+header {
+  margin-bottom: 20px; /* Adds space between header and table */
+}

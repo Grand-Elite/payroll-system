@@ -30,7 +30,7 @@ function App() {
         <Sidebar />
         <div className="content">
           <header>
-            <div className="logo">Logo</div>
+            <div className="logo"><img src="/favicon.ico" alt="Company Logo" /></div>
             <div className="title">
               <h1>GRAND ELITE</h1>
             </div>

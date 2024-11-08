@@ -3,6 +3,9 @@ package com.grandelite.payrollsystem.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Entity
 @Data
 @Table(uniqueConstraints={@UniqueConstraint(columnNames={"short_name"})})
@@ -48,5 +51,5 @@ public class Employee {
 
     @Column(name = "epf_no")
     private Long epfNo;
-
+    
 }

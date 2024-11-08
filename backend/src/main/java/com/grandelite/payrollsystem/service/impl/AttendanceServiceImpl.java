@@ -123,7 +123,33 @@ public class AttendanceServiceImpl implements AttendanceService {
         return summaries;
     }
 
+//    private String calcAttendance(Employee employee, LocalDateTime clockIn, LocalDateTime clockOut) {
+//        // Calculate the work hours in minutes
+//        long workMinutes = Duration.between(clockIn, clockOut).toMinutes();
+//
+//        // Determine the attendance status based on the workMinutes
+//        if (workMinutes > 540) {
+//            return "1"; // Full day
+//        } else if (workMinutes >= 330) {
+//            return "0.5"; // Half day
+//        } else if (workMinutes == 0) {
+//            return "ab"; // Absent
+//        } else {
+//            return "???"; // Incomplete or irregular attendance
+//        }
+//    }
+
     private String calcAttendance(Employee employee, LocalDateTime clockIn, LocalDateTime clockOut) {
+        // Check if either clockIn or clockOut is null, indicating no record found
+        if (clockIn == null || clockOut == null) {
+            return "ab"; // Absent due to no record found
+        }
+
+        // Check if clockIn and clockOut are the same, indicating incomplete or irregular attendance
+        if (clockIn.equals(clockOut)) {
+            return "?"; // Incomplete or irregular attendance
+        }
+
         // Calculate the work hours in minutes
         long workMinutes = Duration.between(clockIn, clockOut).toMinutes();
 
@@ -132,12 +158,11 @@ public class AttendanceServiceImpl implements AttendanceService {
             return "1"; // Full day
         } else if (workMinutes >= 330) {
             return "0.5"; // Half day
-        } else if (workMinutes == 0) {
-            return "ab"; // Absent
         } else {
-            return "???"; // Incomplete or irregular attendance
+            return "ab"; // Absent due to insufficient work hours
         }
     }
+
 
     public List<Map<String, String>> parseCsvFile(MultipartFile file) {
         List<Map<String, String>> dataList = new ArrayList<>();
@@ -163,4 +188,8 @@ public class AttendanceServiceImpl implements AttendanceService {
 
         return dataList;
     }
+
+
 }
+
+
