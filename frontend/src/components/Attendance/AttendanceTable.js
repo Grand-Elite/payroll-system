@@ -40,7 +40,9 @@ function AttendanceTable(props) {
         originalAttendanceStatus: 'ab', // Store the original status
         workHours: '',
         otHours: 0,
+        originalOtHours: 0,
         lateHours: 0,
+        originalLateHours: 0,
         leaveType: '',
       });
     }
@@ -68,7 +70,9 @@ function AttendanceTable(props) {
                     originalAttendanceStatus: attendanceRecord.attendance || '', 
                     workHours: attendanceRecord.workHours || '',
                     otHours: attendanceRecord.otHours || '',
+                    originalOtHours: attendanceRecord.otHours || '', 
                     lateHours: attendanceRecord.lateHours || '',
+                    originalLateHours: attendanceRecord.lateHours || '', 
                     leaveType: attendanceRecord.leaveType || '',
                 };
             }
@@ -222,7 +226,10 @@ const handleSave = async (index) => {
               </TableCell> */}
               <TableCell>
                   {/* Only show the save button if the status has changed */}
-                  {day.attendanceStatus !== day.originalAttendanceStatus && (
+                  {(day.attendanceStatus !== day.originalAttendanceStatus 
+                  || day.otHours !== day.originalOtHours 
+                  || day.lateHours !== day.originalLateHours )
+                  && (
                       <Button
                           variant="contained"
                           color="primary"
