@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import dayjs from 'dayjs';
 import { fetchAttendance, updateAttendanceStatus } from '../../services/api'; // Ensure your api service has the updateAttendanceStatus method
+import OTHoursCell from './OTHoursCell';
 
 function AttendanceTable(props) {
   const [daysInMonth, setDaysInMonth] = useState([]);
@@ -37,6 +38,7 @@ function AttendanceTable(props) {
         attendanceStatus: 'ab',
         originalAttendanceStatus: 'ab', // Store the original status
         workHours: '',
+        otHours: 0,
         leaveType: '',
       });
     }
@@ -63,6 +65,7 @@ function AttendanceTable(props) {
                     attendanceStatus: attendanceRecord.attendance || '',
                     originalAttendanceStatus: attendanceRecord.attendance || '', 
                     workHours: attendanceRecord.workHours || '',
+                    otHours: attendanceRecord.otHours || '',
                     leaveType: attendanceRecord.leaveType || '',
                 };
             }
@@ -127,9 +130,6 @@ const handleSave = async (index) => {
 
 
 
-
-
-
   return (
     <TableContainer component={Paper} style={{ margin: 'auto' }}>
       <Table>
@@ -138,9 +138,10 @@ const handleSave = async (index) => {
             <TableCell>Date</TableCell>
             <TableCell>Time In</TableCell>
             <TableCell>Time Out</TableCell>
-            <TableCell>Attendance Status</TableCell>
             <TableCell>Work Hours</TableCell>
-            <TableCell>Leave Type</TableCell>
+            <TableCell>OT Hours</TableCell>
+            <TableCell>Attendance Status</TableCell>
+            {/* <TableCell>Leave Type</TableCell> */}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -171,6 +172,14 @@ const handleSave = async (index) => {
                   size="small"
                 />
               </TableCell>
+              <TableCell>
+                <TextField
+                  value={day.workHours}
+                />
+              </TableCell>
+              <OTHoursCell day={day} index={index} handleFieldChange={handleFieldChange} />
+
+
 
               <TableCell>
                   <Select
@@ -184,13 +193,7 @@ const handleSave = async (index) => {
                       <MenuItem value="1">1</MenuItem>
                   </Select>
                 </TableCell>
-
-              <TableCell>
-                <TextField
-                  value={day.workHours}
-                />
-              </TableCell>
-              <TableCell>
+              {/* <TableCell>
                 <Select
                   value={day.leaveType}
                   onChange={(e) => handleFieldChange(index, 'leaveType', e.target.value)}
@@ -205,7 +208,7 @@ const handleSave = async (index) => {
                   <MenuItem value="no pay leave">No Pay Leave</MenuItem>
                   <MenuItem value="holiday">Holiday</MenuItem>
                 </Select>
-              </TableCell>
+              </TableCell> */}
               <TableCell>
                   {/* Only show the save button if the status has changed */}
                   {day.attendanceStatus !== day.originalAttendanceStatus && (
