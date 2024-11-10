@@ -39,6 +39,7 @@ function AttendanceTable(props) {
         attendanceStatus: 'ab',
         originalAttendanceStatus: 'ab', // Store the original status
         workHours: '',
+        shift: '',
         otHours: 0,
         originalOtHours: 0,
         lateHours: 0,
@@ -69,6 +70,7 @@ function AttendanceTable(props) {
                     attendanceStatus: attendanceRecord.attendance || '',
                     originalAttendanceStatus: attendanceRecord.attendance || '', 
                     workHours: attendanceRecord.workHours || '',
+                    shift: attendanceRecord.shift || 'M',
                     otHours: attendanceRecord.otHours || '',
                     originalOtHours: attendanceRecord.otHours || '', 
                     lateHours: attendanceRecord.lateHours || '',
@@ -146,6 +148,7 @@ const handleSave = async (index) => {
             <TableCell>Time In</TableCell>
             <TableCell>Time Out</TableCell>
             <TableCell>Work Hours</TableCell>
+            <TableCell>Shift</TableCell>
             <TableCell>OT Hours</TableCell>
             <TableCell>Late Hours</TableCell>
             <TableCell>Attendance Status</TableCell>
@@ -183,8 +186,20 @@ const handleSave = async (index) => {
               <TableCell>
                 <TextField
                   value={day.workHours}
+                  size="small"
                 />
               </TableCell>
+              <TableCell>
+                  <Select
+                      value={day.shift}
+                      onChange={(e) => handleFieldChange(index, "shift", e.target.value)}
+                      size="small"
+                      displayEmpty
+                  >
+                      <MenuItem value="M">M</MenuItem>
+                      <MenuItem value="E">E</MenuItem>
+                  </Select>
+                </TableCell>
               <OTHoursCell 
               day={day} 
               index={index} 
@@ -204,6 +219,7 @@ const handleSave = async (index) => {
                       displayEmpty
                   >
                       <MenuItem value="ab">ab</MenuItem>
+                      <MenuItem value="ab-nopay">ab-nopay</MenuItem>
                       <MenuItem value="0.5">0.5</MenuItem>
                       <MenuItem value="1">1</MenuItem>
                   </Select>
