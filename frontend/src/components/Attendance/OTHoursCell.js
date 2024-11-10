@@ -67,7 +67,7 @@ const OTHoursCell = ({ day, index, handleFieldChange }) => {
                 onChange={() => handleCheckboxChange('early')}
               />
               <TextField
-                label="Early Clock Ins"
+                label="Early Clock In hours"
                 type="number"
                 value={day.earlyClockIns || 0}
                 onChange={handleEarlyClockInsChange}

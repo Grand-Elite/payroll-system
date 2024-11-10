@@ -16,6 +16,7 @@ import {
 import dayjs from 'dayjs';
 import { fetchAttendance, updateAttendanceStatus } from '../../services/api'; // Ensure your api service has the updateAttendanceStatus method
 import OTHoursCell from './OTHoursCell';
+import LateHoursCell from './LateHoursCell';
 
 function AttendanceTable(props) {
   const [daysInMonth, setDaysInMonth] = useState([]);
@@ -39,6 +40,7 @@ function AttendanceTable(props) {
         originalAttendanceStatus: 'ab', // Store the original status
         workHours: '',
         otHours: 0,
+        lateHours: 0,
         leaveType: '',
       });
     }
@@ -66,6 +68,7 @@ function AttendanceTable(props) {
                     originalAttendanceStatus: attendanceRecord.attendance || '', 
                     workHours: attendanceRecord.workHours || '',
                     otHours: attendanceRecord.otHours || '',
+                    lateHours: attendanceRecord.lateHours || '',
                     leaveType: attendanceRecord.leaveType || '',
                 };
             }
@@ -140,6 +143,7 @@ const handleSave = async (index) => {
             <TableCell>Time Out</TableCell>
             <TableCell>Work Hours</TableCell>
             <TableCell>OT Hours</TableCell>
+            <TableCell>Late Hours</TableCell>
             <TableCell>Attendance Status</TableCell>
             {/* <TableCell>Leave Type</TableCell> */}
           </TableRow>
@@ -177,8 +181,15 @@ const handleSave = async (index) => {
                   value={day.workHours}
                 />
               </TableCell>
-              <OTHoursCell day={day} index={index} handleFieldChange={handleFieldChange} />
+              <OTHoursCell 
+              day={day} 
+              index={index} 
+              handleFieldChange={handleFieldChange} />
 
+              <LateHoursCell 
+              day={day} 
+              index={index} 
+              handleFieldChange={handleFieldChange} />
 
 
               <TableCell>
