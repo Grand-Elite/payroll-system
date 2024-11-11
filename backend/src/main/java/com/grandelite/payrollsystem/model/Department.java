@@ -1,8 +1,6 @@
 package com.grandelite.payrollsystem.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -17,6 +15,7 @@ public class Department {
 
     @Column(name = "name",nullable = false)
     private String name;
+
 
     // Parameterized constructor
     public Department(Long departmentId, String name) {

@@ -1,35 +1,37 @@
 package com.grandelite.payrollsystem.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
-
-import java.time.LocalDateTime;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Data
+@NoArgsConstructor
 public class Shift {
+
     @Id
     @Column(name = "shift_id", nullable = false)
     private Long shiftId;
 
+    @Column(name="shift_type", nullable = false)
+    private String shiftType;
+
     @Column(name = "start_time", nullable = false)
-    private LocalDateTime startTime;
+    private String startTime;
 
-    @Column(name="end_time", nullable = false)
-    private LocalDateTime endTime;
+    @Column(name = "end_time", nullable = false)
+    private String endTime;
 
-    @Column(name = "employee_type", nullable = false)
-    private String employeeType;
+    @ManyToOne
+    @JoinColumn(name = "department_id", nullable = false)
+    private Department department;
 
-    @Column(name = "day_of_the_week", nullable = false)
-    private String dayOfTheWeek;
-
-    @Column(name = "no_of_hours", nullable = false)
-    private long noOfHours;
-
-    @Column(name ="ot_type", nullable = false)
-    private String otType;
-
+    // Constructor with all fields
+    public Shift(Long shiftId,String shiftType, String startTime, String endTime, Department department) {
+        this.shiftId = shiftId;
+        this.shiftType = shiftType;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.department = department;
+    }
 }

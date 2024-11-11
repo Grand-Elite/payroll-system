@@ -1,4 +1,7 @@
+
 import axios from 'axios';
+
+
 
 const API_BASE_URL = 'http://localhost:3000/api';
 
@@ -86,6 +89,19 @@ const updateAttendanceStatus = async (attendanceRecordId, updatedStatus) => {
         console.error("Error updating attendance:", error);
     }
 };
+
+
+export const updateShift = async (id, shiftData) => {
+  try {
+    const response = await axios.patch(`${API_BASE_URL}/shifts/${id}`, shiftData);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating shift:', error);
+    throw error;
+  }
+};
+
+
 
 // Deactivate an employee by sending a PATCH request
 export const deactivateEmployee = async (employeeId) => {

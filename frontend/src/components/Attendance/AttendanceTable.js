@@ -21,6 +21,21 @@ import LateHoursCell from './LateHoursCell';
 function AttendanceTable(props) {
   const [daysInMonth, setDaysInMonth] = useState([]);
 
+
+  // Utility function to calculate work hours as hours and minutes
+  const calculateWorkHours = (timeIn, timeOut) => {
+    if (timeIn && timeOut) {
+      const start = dayjs(timeIn, "HH:mm:ss");
+      const end = dayjs(timeOut, "HH:mm:ss");
+      const diffInMinutes = end.diff(start, 'minute');
+      const hours = Math.floor(diffInMinutes / 60);
+      const minutes = diffInMinutes % 60;
+      return `${hours}:${minutes}`;
+    }
+    return '';
+  };
+
+
   useEffect(() => {
     const currentMonth = dayjs(`01 ${props.selectedMonth} 2000`, "DD MMMM YYYY").month(); 
     const currentYear = props.selectedYear;
@@ -69,7 +84,7 @@ function AttendanceTable(props) {
                     timeOut: attendanceRecord.actualEndTime || '',
                     attendanceStatus: attendanceRecord.attendance || '',
                     originalAttendanceStatus: attendanceRecord.attendance || '', 
-                    workHours: attendanceRecord.workHours || '',
+                    workHours: calculateWorkHours(attendanceRecord.actualStartTime, attendanceRecord.actualEndTime),
                     shift: attendanceRecord.shift || 'M',
                     otHours: attendanceRecord.otHours || '',
                     originalOtHours: attendanceRecord.otHours || '', 

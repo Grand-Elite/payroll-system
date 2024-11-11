@@ -102,8 +102,7 @@ function Employee() {
         <Link to="/add-new-employee">
           <button>Add New Employee</button>
         </Link>
-        {/*<button>Update Employee</button>*/}
-        <button>Shift Assign</button>
+       
       </div>
     </div>
   );

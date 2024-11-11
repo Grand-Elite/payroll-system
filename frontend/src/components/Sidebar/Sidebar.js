@@ -11,6 +11,9 @@ function Sidebar() {
       <Link to="/attendance">
         <button>Attendance</button>
       </Link>
+      <Link to="/shift">
+        <button>Shift</button>
+      </Link>
       <button>Salary</button>
       <button>Salary Update</button>
       <button>Pay Slip</button>
