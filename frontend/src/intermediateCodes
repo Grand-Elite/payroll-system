@@ -1726,6 +1726,468 @@ const Shift = () => {
 export default Shift;
 */
 
+/*
+import React, { useEffect, useState } from 'react';
+import './Shift.css';
+//import { patch } from '@mui/material';
+import { updateShift } from '../../services/api'; // Adjust the path if `api.js` is located elsewhere
+
+
+const Shift = () => {
+  const [shifts, setShifts] = useState([]);  // Initialize as an empty array
+  const [loading, setLoading] = useState(true);  // To handle loading state
+  const [error, setError] = useState(null);  // To handle any errors
+  const [modifiedShifts, setModifiedShifts] = useState({});  // Track modified shifts
+
+  // Fetch shift data from the backend API
+  useEffect(() => {
+    const fetchShiftData = async () => {
+      try {
+        const response = await fetch('/api/shifts');
+        if (!response.ok) {
+          throw new Error('Failed to fetch shifts');
+        }
+        const data = await response.json();
+
+        // Ensure `data` is an array before setting it to `shifts`
+        setShifts(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error('Error fetching shift data:', error);
+        setError(error.message);  // Set the error message
+      } finally {
+        setLoading(false);  // Set loading to false once data is fetched
+      }
+    };
+
+    fetchShiftData();
+  }, []);
+
+  const handleTimeChange = (index, field, value) => {
+    const updatedShifts = [...shifts];
+    updatedShifts[index][field] = value;
+    setShifts(updatedShifts);
+
+    // Mark the shift as modified
+    setModifiedShifts((prevModified) => ({
+      ...prevModified,
+      [index]: true,
+    }));
+  };
+
+  /*
+  const handleSave = (index) => {
+    const shiftToSave = shifts[index];
+
+    console.log('Saving shift:', shiftToSave);
+
+    // After saving, reset the modified flag for the shift
+    setModifiedShifts((prevModified) => ({
+      ...prevModified,
+      [index]: false,
+    }));
+
+    // Here you could optionally update the UI after the save. In this case, we already updated the state
+    // when the time was changed, so the table will reflect the new times.
+  };
+  */
+ /*
+  const handleSave = async (index) => {
+    const shiftToSave = shifts[index];
+  
+    console.log('Saving shift:', shiftToSave);  // Log the shift to verify its structure
+  
+    // Check if the shift has a valid ID
+    if (!shiftToSave || !shiftToSave.id) {
+      console.error('Shift does not have a valid ID');
+      return;  // Prevent the save operation if there's no valid ID
+    }
+  
+    try {
+      const response = await fetch(`/api/shifts/${shiftToSave.id}`, {
+        method: 'PATCH',  // Use PATCH method to update a specific shift
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(shiftToSave),  // Sending the updated shift details as JSON
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to save shift');
+      }
+  
+      // After saving, reset the modified flag for the shift
+      setModifiedShifts((prevModified) => ({
+        ...prevModified,
+        [index]: false,
+      }));
+  
+      console.log('Shift saved successfully!');
+    } catch (error) {
+      console.error('Error saving shift:', error);
+      // Optionally, display an error message to the user
+    }
+  };
+  */
+
+/*
+  const handleSave = async (index) => {
+    const shiftToSave = shifts[index];
+  
+    const id = shiftToSave.shiftId; // Assign shiftId as id
+    const shiftData = {
+      shiftType: shiftToSave.shiftType,
+      startTime: shiftToSave.startTime,
+      endTime: shiftToSave.endTime,
+      department: shiftToSave.department,
+    };
+    // Show confirmation message
+    const confirmed = window.confirm("Are you sure you want to save the changes?");
+    if (!confirmed) return; // Cancel the save operation if the user clicks "Cancel"
+
+  
+    try {
+      const response = await updateShift(id, shiftData);
+      console.log('Shift saved successfully:', response);
+    } catch (error) {
+      console.error('Error saving shift:', error);
+    }
+  };
+  
+  
+  return (
+    <div>
+      <header>
+        <h2 style={{ marginBottom: '20px' }}>Shift Details</h2>
+      </header>
+
+      {loading && <p>Loading...</p>}  {/* Show loading message if data is being fetched 
+
+      {error && <p style={{ color: 'red' }}>{error}</p>}  {/* Show error message if there is an error 
+
+      {!loading && !error && (
+        <table border="1" style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr>
+              <th>Department</th>  
+              <th>Shift Type</th>
+              <th>Start Time</th>
+              <th>End Time</th>
+              <th></th>  {/* Column for the Save button 
+            </tr>
+          </thead>
+          <tbody>
+            {shifts.map((shift, index) => (
+              <tr key={index}>
+                <td></td>
+                <td>{shift.shiftType}</td> {/* Shift ID will be shown as Shift Type 
+                <td>
+                  <input
+                    type="time"
+                    value={shift.startTime}
+                    onChange={(e) => handleTimeChange(index, 'startTime', e.target.value)}
+                  />
+                </td>
+                <td>
+                  <input
+                    type="time"
+                    value={shift.endTime}
+                    onChange={(e) => handleTimeChange(index, 'endTime', e.target.value)}
+                  />
+                </td>
+                <td>
+                  {/* Display Save button only if the shift has been modified 
+                  {modifiedShifts[index] && (
+                    <button className="save-button" onClick={() => handleSave(index)}>
+                      Save
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+};
+
+export default Shift;
+*/
+
+/*
+import React, { useEffect, useState } from 'react';
+import './Shift.css';
+import { updateShift } from '../../services/api'; // Adjust the path if `api.js` is located elsewhere
+
+const Shift = () => {
+  const [shifts, setShifts] = useState([]);  // Initialize as an empty array
+  const [loading, setLoading] = useState(true);  // To handle loading state
+  const [error, setError] = useState(null);  // To handle any errors
+  const [modifiedShifts, setModifiedShifts] = useState({});  // Track modified shifts
+
+  // Fetch shift data from the backend API
+  useEffect(() => {
+    const fetchShiftData = async () => {
+      try {
+        const response = await fetch('/api/shifts');
+        if (!response.ok) {
+          throw new Error('Failed to fetch shifts');
+        }
+        const data = await response.json();
+
+        // Ensure `data` is an array before setting it to `shifts`
+        setShifts(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error('Error fetching shift data:', error);
+        setError(error.message);  // Set the error message
+      } finally {
+        setLoading(false);  // Set loading to false once data is fetched
+      }
+    };
+
+    fetchShiftData();
+  }, []);
+
+  const handleTimeChange = (index, field, value) => {
+    const updatedShifts = [...shifts];
+    updatedShifts[index][field] = value;
+    setShifts(updatedShifts);
+
+    // Mark the shift as modified
+    setModifiedShifts((prevModified) => ({
+      ...prevModified,
+      [index]: true,
+    }));
+  };
+
+  const handleSave = async (index) => {
+    const shiftToSave = shifts[index];
+  
+    const id = shiftToSave.shiftId; // Assign shiftId as id
+    const shiftData = {
+      shiftType: shiftToSave.shiftType,
+      startTime: shiftToSave.startTime,
+      endTime: shiftToSave.endTime,
+      department: shiftToSave.department,
+    };
+    // Show confirmation message
+    const confirmed = window.confirm("Are you sure you want to save the changes?");
+    if (!confirmed) return; // Cancel the save operation if the user clicks "Cancel"
+
+    try {
+      const response = await updateShift(id, shiftData);
+      console.log('Shift saved successfully:', response);
+    } catch (error) {
+      console.error('Error saving shift:', error);
+    }
+  };
+
+  return (
+    <div>
+      <header>
+        <h2 style={{ marginBottom: '20px' }}>Shift Details</h2>
+      </header>
+
+    
+      {error && <p style={{ color: 'red' }}>{error}</p>}  
+
+      {!loading && !error && (
+        <table border="1" style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr>
+              <th>Department</th>  
+              <th>Shift Type</th>
+              <th>Start Time</th>
+              <th>End Time</th>
+              <th></th>  
+            </tr>
+          </thead>
+          <tbody>
+            {shifts.map((shift, index) => (
+              <tr key={index}>
+                <td>{shift.department ? shift.department.name : 'N/A'}</td> 
+                <td>{shift.shiftType}</td>
+                <td>
+                  <input
+                    type="time"
+                    value={shift.startTime}
+                    onChange={(e) => handleTimeChange(index, 'startTime', e.target.value)}
+                  />
+                </td>
+                <td>
+                  <input
+                    type="time"
+                    value={shift.endTime}
+                    onChange={(e) => handleTimeChange(index, 'endTime', e.target.value)}
+                  />
+                </td>
+                <td>
+                  
+                  {modifiedShifts[index] && (
+                    <button className="save-button" onClick={() => handleSave(index)}>
+                      Save
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+};
+
+export default Shift;
+*/
+
+
+
+/*
+import React, { useEffect, useState } from 'react';
+import './Shift.css';
+import { updateShift } from '../../services/api'; // Adjust the path if `api.js` is located elsewhere
+
+const Shift = () => {
+  const [shifts, setShifts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [modifiedShifts, setModifiedShifts] = useState({});
+
+  // Fetch shift data from the backend API
+  useEffect(() => {
+    const fetchShiftData = async () => {
+      try {
+        const response = await fetch('/api/shifts');
+        if (!response.ok) {
+          throw new Error('Failed to fetch shifts');
+        }
+        const data = await response.json();
+
+        // Ensure `data` is an array before setting it to `shifts`
+        setShifts(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error('Error fetching shift data:', error);
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchShiftData();
+  }, []);
+
+  const handleTimeChange = (index, field, value) => {
+    const updatedShifts = [...shifts];
+    updatedShifts[index][field] = value;
+    setShifts(updatedShifts);
+
+    // Mark the shift as modified
+    setModifiedShifts((prevModified) => ({
+      ...prevModified,
+      [index]: true,
+    }));
+  };
+
+  // Function to calculate duration between startTime and endTime
+  const calculateDuration = (startTime, endTime) => {
+    const start = new Date(`1970-01-01T${startTime}:00`);
+    const end = new Date(`1970-01-01T${endTime}:00`);
+
+    // Handle case where end time is after midnight (e.g., 10:00 to 02:00)
+    if (end < start) {
+      end.setDate(end.getDate() + 1);
+    }
+
+    const diff = (end - start) / (1000 * 60); // Difference in minutes
+    const hours = Math.floor(diff / 60);
+    const minutes = diff % 60;
+    return `${hours}:${minutes}`;
+  };
+
+  const handleSave = async (index) => {
+    const shiftToSave = shifts[index];
+    const id = shiftToSave.shiftId;
+    const shiftData = {
+      shiftType: shiftToSave.shiftType,
+      startTime: shiftToSave.startTime,
+      endTime: shiftToSave.endTime,
+      department: shiftToSave.department,
+    };
+
+    const confirmed = window.confirm("Are you sure you want to save the changes?");
+    if (!confirmed) return;
+
+    try {
+      const response = await updateShift(id, shiftData);
+      console.log('Shift saved successfully:', response);
+    } catch (error) {
+      console.error('Error saving shift:', error);
+    }
+  };
+
+  return (
+    <div>
+      <header>
+        <h2 style={{ marginBottom: '20px' }}>Shift Details</h2>
+      </header>
+
+      {loading && <p>Loading...</p>}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+
+      {!loading && !error && (
+        <table border="1" style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr>
+              <th>Department</th>
+              <th>Shift Type</th>
+              <th>Start Time</th>
+              <th>End Time</th>
+              <th>Shift Duration</th> 
+              <th></th> 
+            </tr>
+          </thead>
+          <tbody>
+            {shifts.map((shift, index) => (
+              <tr key={index}>
+                <td>{shift.department ? shift.department.name : 'N/A'}</td>
+                <td>{shift.shiftType}</td>
+                <td>
+                  <input
+                    type="time"
+                    value={shift.startTime}
+                    onChange={(e) => handleTimeChange(index, 'startTime', e.target.value)}
+                  />
+                </td>
+                <td>
+                  <input
+                    type="time"
+                    value={shift.endTime}
+                    onChange={(e) => handleTimeChange(index, 'endTime', e.target.value)}
+                  />
+                </td>
+                <td>{calculateDuration(shift.startTime, shift.endTime)}</td> 
+                <td>
+                  
+                  {modifiedShifts[index] && (
+                    <button className="save-button" onClick={() => handleSave(index)}>
+                      Save
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+};
+
+export default Shift;
+
+*/
+
 
 
 

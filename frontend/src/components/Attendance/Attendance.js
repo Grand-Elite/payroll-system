@@ -11,6 +11,8 @@ import {
 } from '@mui/material';
 import { fetchEmployees } from '../../services/api';
 
+
+
 function Attendance({ selectedMonth, selectedYear }) {
     const [employees, setEmployees] = useState([]);
     const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -60,12 +62,23 @@ function Attendance({ selectedMonth, selectedYear }) {
         {/* Show the Attendance Table only if an employee is selected */}
         {selectedEmployee && (
           <>
-            <Typography variant="h6" align="center" gutterBottom>
+            <Typography variant="h6" align="center" gutterBottom fontWeight={"bold"}>
               {`Attendance for ${selectedMonth} ${selectedYear}`}
             </Typography>
-            <Typography variant="h8" align="left" gutterBottom style={{ width: '100%' }}>
-            {`Employee Name: ${selectedEmployee.shortName}`}
+            <br/>
+            <Typography 
+                    variant="h8" 
+                    align="left" 
+                    gutterBottom 
+                    style={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}
+                  >
+                    <span>{`Employee Name: ${selectedEmployee.shortName}`}</span>
+                    <span>{`Designated Time In: `}</span>
+                    <span>{`Designated Time Out:`}</span>
+                    <span>{`Designated Working hours:`}</span>
             </Typography>
+           <br/>
+
             <AttendanceTable employeeId={selectedEmployee.employeeId} selectedMonth={selectedMonth} selectedYear={selectedYear} />
           </>
         )}
