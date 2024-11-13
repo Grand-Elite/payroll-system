@@ -33,4 +33,8 @@ public class ShiftServiceImpl implements ShiftService { // Implement the interfa
     public Shift saveShift(Shift shift) {
         return shiftRepository.save(shift);
     }
+
+    public List<Shift> getShiftByDepartmentId(Long departmentId) {
+        return shiftRepository.findShiftByDepartmentId(departmentId);
+    }
 }

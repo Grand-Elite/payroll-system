@@ -14,4 +14,5 @@ public interface ShiftService {
 
     Shift saveShift(Shift shift);
 
+    List<Shift> getShiftByDepartmentId(Long departmentId);
 }

@@ -50,5 +50,10 @@ public class ShiftController {
     }
 
 
+    @GetMapping("/department/{departmentId}")
+    public List<Shift> getShiftByDepartmentId(@PathVariable Long departmentId) {
+        return shiftService.getShiftByDepartmentId(departmentId);
+    }
+
 
 }
