@@ -13,6 +13,11 @@ export const fetchEmployees = async () => {
   }
 };
 
+// API function to fetch shifts by departmentId
+export const fetchShiftsByDepartment = (departmentId) => {
+  return axios.get(`/api/shifts/department/${departmentId}`);
+};
+
 export const addEmployee = async (employeeData) => {
     try {
       const response = await axios.post(`${API_BASE_URL}/employee`, employeeData);

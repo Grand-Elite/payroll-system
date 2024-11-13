@@ -1,3 +1,4 @@
+// Attendance.js
 import { Link } from 'react-router-dom';
 import AttendanceTable from './AttendanceTable';
 import React, { useState, useEffect } from 'react';
@@ -9,8 +10,7 @@ import {
   FormControl,
   InputLabel,
 } from '@mui/material';
-import { fetchEmployees } from '../../services/api';
-import axios from 'axios';
+import { fetchEmployees, fetchShiftsByDepartment  } from '../../services/api';
 
 function Attendance({ selectedMonth, selectedYear }) {
     const [employees, setEmployees] = useState([]);
@@ -33,7 +33,7 @@ function Attendance({ selectedMonth, selectedYear }) {
     // Fetch shifts based on selected employee’s department
     useEffect(() => {
       if (selectedEmployee && selectedEmployee.department && selectedEmployee.department.departmentId) {
-        axios.get(`/api/shifts/department/${selectedEmployee.department.departmentId}`)
+        fetchShiftsByDepartment(selectedEmployee.department.departmentId) 
           .then(response => {
             setShifts(response.data); // Set array of shifts
           })
@@ -90,17 +90,17 @@ function Attendance({ selectedMonth, selectedYear }) {
             {shifts.length > 0 ? (
               shifts.map((shift, index) => (
                 <Typography key={index} variant="body1" align="left" gutterBottom>
-                <span>
+                  <span>
                     {`Shift ${index + 1}: Start Time - ${shift.startTime}, `}
                     &nbsp;&nbsp;
                     {`End Time - ${shift.endTime}, `}
                     &nbsp;&nbsp;
-                    
+
                     {/* Calculate shift duration */}
                     {(() => {
                       const start = new Date(`1970-01-01T${shift.startTime}`);
                       let end = new Date(`1970-01-01T${shift.endTime}`);
-                      
+
                       // If end time is earlier than start time, add 24 hours (86400000 ms) to end time
                       if (end < start) {
                         end = new Date(end.getTime() + 24 * 60 * 60 * 1000); // Add 24 hours
@@ -108,14 +108,14 @@ function Attendance({ selectedMonth, selectedYear }) {
 
                       // Calculate difference in milliseconds
                       const durationMs = Math.abs(end - start);
-                      
+
                       // Convert milliseconds to hours and minutes
                       const hours = Math.floor(durationMs / (1000 * 60 * 60));
                       const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
-                      
+
                       return `Shift Duration: ${hours}:${minutes}`;
                     })()}
-                </span>
+                  </span>
                 </Typography>
               ))
             ) : (
