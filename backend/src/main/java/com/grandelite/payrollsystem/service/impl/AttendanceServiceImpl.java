@@ -1,12 +1,10 @@
 package com.grandelite.payrollsystem.service.impl;
 
-import com.grandelite.payrollsystem.model.Attendance;
-import com.grandelite.payrollsystem.model.Department;
-import com.grandelite.payrollsystem.model.Employee;
-import com.grandelite.payrollsystem.model.OverwrittenAttendanceStatus;
+import com.grandelite.payrollsystem.model.*;
 import com.grandelite.payrollsystem.repository.AttendanceRepository;
 import com.grandelite.payrollsystem.repository.DepartmentRepository;
 import com.grandelite.payrollsystem.repository.EmployeeRepository;
+import com.grandelite.payrollsystem.repository.ShiftRepository;
 import com.grandelite.payrollsystem.service.AttendanceService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class AttendanceServiceImpl implements AttendanceService {
@@ -36,6 +35,9 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     @Autowired
     private DepartmentRepository departmentRepository;
+
+    @Autowired
+    private ShiftRepository shiftRepository;
 
     private final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final LocalTime DAY_CHANGE_TIME = LocalTime.of(3, 0);
@@ -111,16 +113,8 @@ public class AttendanceServiceImpl implements AttendanceService {
 
                 if (clockIn != null && clockOut != null) {
                     Employee employee = employeeRepository.findByShortName(personName);
-                    Department department = departmentRepository.findById(1l).orElseThrow(); //todo fix this
                     if(employee==null){
-                        Long lastEmployeeId = employeeRepository.findLastEmployeeId();
-                        employee = new Employee();
-                        employee.setEmployeeId(lastEmployeeId==null?1l:lastEmployeeId+1l);
-                        employee.setShortName(personName);
-                        employee.setFullName(personName);
-                        employee.setDepartment(department);
-                        employee.setEmployeeType(Employee.EmployeeType.TEMPORARY);
-                        employeeRepository.save(employee);
+                        employee = createEmployee(personName);
                     }
                     Attendance attendance = new Attendance();
                     attendance.setAttendanceRecordId(personName + date);
@@ -128,13 +122,67 @@ public class AttendanceServiceImpl implements AttendanceService {
                     attendance.setDate(date);
                     attendance.setActualStartTime(clockIn);
                     attendance.setActualEndTime(clockOut);
-                    attendance.setWorkHours(Duration.between(clockIn, clockOut).toHours());
+                    attendance.setWorkMins(Duration.between(clockIn, clockOut).toMinutes());
                     attendance.setAttendance(calcAttendance(employee,clockIn,clockOut));
+                    calcOtAndLateHours(employee,attendance);
                     summaries.add(attendance);
                 }
             }
         }
         return summaries;
+    }
+
+    private void calcOtAndLateHours(Employee employee, Attendance attendance) {
+        Map<Shift.ShiftPeriod,List<Shift>> shiftsMap =
+                shiftRepository.findShiftByDepartmentId(employee.getDepartment().getDepartmentId())
+                        .stream().collect(Collectors.groupingBy(Shift::getShiftPeriod));
+        Shift userShift = shiftsMap.get(Shift.ShiftPeriod.MORNING).get(0);
+        if(attendance.getActualStartTime().toLocalTime().isAfter(LocalTime.of(12,00))
+            && shiftsMap.get(Shift.ShiftPeriod.EVENING) != null
+        ){
+            userShift = shiftsMap.get(Shift.ShiftPeriod.EVENING).get(0);
+        }
+
+        attendance.setShift(userShift);
+        long earlyClockInOtMins = Duration.between(attendance.getActualStartTime().toLocalTime(),userShift.getStartTime()).toMinutes();
+        long lateClockOutOtMins = compansateDayChange(userShift.getEndTime(),attendance.getActualEndTime().toLocalTime()).toMinutes();
+        long totalOtMins = 0;
+        if(earlyClockInOtMins>0) {
+            attendance.setOtEarlyClockinMins(earlyClockInOtMins);
+            totalOtMins+=earlyClockInOtMins;
+        }else {
+            //todo late clockins
+        }
+        if(lateClockOutOtMins >0 ) {
+            attendance.setOtLateClockoutMins(lateClockOutOtMins);
+            totalOtMins+=lateClockOutOtMins;
+        }else {
+            //todo early clock outs
+        }
+        attendance.setOtMins(totalOtMins);
+
+    }
+
+    private Duration compansateDayChange(LocalTime shiftEndTime, LocalTime actualClockOutTime) {
+        Duration duration = Duration.between(shiftEndTime,actualClockOutTime);
+        if(actualClockOutTime.isAfter(LocalTime.of(00,00))
+                && actualClockOutTime.isBefore(LocalTime.of(03,00))){
+            return duration.plusHours(24);
+        }
+        return duration;
+    }
+
+    private Employee createEmployee(String personName) {
+        Department department = departmentRepository.findById(1l).orElseThrow(); //todo fix this
+        Long lastEmployeeId = employeeRepository.findLastEmployeeId();
+        Employee employee = new Employee();
+        employee.setEmployeeId(lastEmployeeId==null?1l:lastEmployeeId+1l);
+        employee.setShortName(personName);
+        employee.setFullName(personName);
+        employee.setDepartment(department);
+        employee.setEmployeeType(Employee.EmployeeType.TEMPORARY);
+        employeeRepository.save(employee);
+        return employee;
     }
 
 //    private String calcAttendance(Employee employee, LocalDateTime clockIn, LocalDateTime clockOut) {

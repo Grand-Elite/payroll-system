@@ -58,10 +58,10 @@ public class Shift {
     private String shiftType;
 
     @Column(name = "start_time", nullable = false)
-    private String startTime;
+    private LocalTime startTime;
 
     @Column(name = "end_time", nullable = false)
-    private String endTime;
+    private LocalTime endTime;
 
     @ManyToOne
     @JoinColumn(name = "department_id", nullable = false)
@@ -78,7 +78,7 @@ public class Shift {
     private ShiftPeriod shiftPeriod;
 
     // Constructor with all fields
-    public Shift(Long shiftId, String shiftType, String startTime, String endTime, Department department) {
+    public Shift(Long shiftId, String shiftType, LocalTime startTime, LocalTime endTime, Department department) {
         this.shiftId = shiftId;
         this.shiftType = shiftType;
         this.startTime = startTime;
@@ -88,11 +88,9 @@ public class Shift {
     }
 
     // Method to determine shift period based on start time
-    private ShiftPeriod determineShiftPeriod(String startTime) {
-        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+    private ShiftPeriod determineShiftPeriod(LocalTime startTime) {
         try {
-            LocalTime time = LocalTime.parse(startTime, timeFormatter);
-            return (time.isBefore(LocalTime.NOON)) ? ShiftPeriod.MORNING : ShiftPeriod.EVENING;
+            return (startTime.isBefore(LocalTime.NOON)) ? ShiftPeriod.MORNING : ShiftPeriod.EVENING;
         } catch (Exception e) {
             System.err.println("Error parsing startTime: " + startTime);
             e.printStackTrace();
@@ -101,7 +99,7 @@ public class Shift {
     }
 
     // Setter for startTime to automatically update shiftPeriod
-    public void setStartTime(String startTime) {
+    public void setStartTime(LocalTime startTime) {
         this.startTime = startTime;
         this.shiftPeriod = determineShiftPeriod(startTime);
     }

@@ -17,23 +17,10 @@ import dayjs from 'dayjs';
 import { fetchAttendance, updateAttendanceStatus } from '../../services/api'; // Ensure your api service has the updateAttendanceStatus method
 import OTHoursCell from './OTHoursCell';
 import LateHoursCell from './LateHoursCell';
+import { formatHourMins } from '../../util/DateTimeUtil';
 
 function AttendanceTable(props) {
   const [daysInMonth, setDaysInMonth] = useState([]);
-
-
-  // Utility function to calculate work hours as hours and minutes
-  const calculateWorkHours = (timeIn, timeOut) => {
-    if (timeIn && timeOut) {
-      const start = dayjs(timeIn, "HH:mm:ss");
-      const end = dayjs(timeOut, "HH:mm:ss");
-      const diffInMinutes = end.diff(start, 'minute');
-      const hours = Math.floor(diffInMinutes / 60);
-      const minutes = diffInMinutes % 60;
-      return `${hours}:${minutes}`;
-    }
-    return '';
-  };
 
 
   useEffect(() => {
@@ -55,8 +42,10 @@ function AttendanceTable(props) {
         originalAttendanceStatus: 'ab', // Store the original status
         workHours: '',
         shift: '',
-        otHours: 0,
-        originalOtHours: 0,
+        otMins: 0,
+        otEarlyClockinMins: 0,
+        otLateClockoutMins:0,
+        originalOtMins: 0,
         lateHours: 0,
         originalLateHours: 0,
         leaveType: '',
@@ -84,10 +73,12 @@ function AttendanceTable(props) {
                     timeOut: attendanceRecord.actualEndTime || '',
                     attendanceStatus: attendanceRecord.attendance || '',
                     originalAttendanceStatus: attendanceRecord.attendance || '', 
-                    workHours: calculateWorkHours(attendanceRecord.actualStartTime, attendanceRecord.actualEndTime),
-                    shift: attendanceRecord.shift || 'M',
-                    otHours: attendanceRecord.otHours || '',
-                    originalOtHours: attendanceRecord.otHours || '', 
+                    workMins: attendanceRecord.workMins || 0,
+                    shift: attendanceRecord.shift.shiftPeriod || 'MORNING',
+                    otMins: attendanceRecord.otMins || 0,
+                    otEarlyClockinMins: attendanceRecord.otEarlyClockinMins || 0,
+                    otLateClockoutMins: attendanceRecord.otLateClockoutMins || 0,
+                    originalOtMins: attendanceRecord.otMins || '', 
                     lateHours: attendanceRecord.lateHours || '',
                     originalLateHours: attendanceRecord.lateHours || '', 
                     leaveType: attendanceRecord.leaveType || '',
@@ -200,7 +191,7 @@ const handleSave = async (index) => {
               </TableCell>
               <TableCell>
                 <TextField
-                  value={day.workHours}
+                  value={formatHourMins(day.workMins)}
                   size="small"
                 />
               </TableCell>
@@ -211,8 +202,8 @@ const handleSave = async (index) => {
                       size="small"
                       displayEmpty
                   >
-                      <MenuItem value="M">M</MenuItem>
-                      <MenuItem value="E">E</MenuItem>
+                      <MenuItem value="MORNING">M</MenuItem>
+                      <MenuItem value="EVENING">E</MenuItem>
                   </Select>
                 </TableCell>
               <OTHoursCell 

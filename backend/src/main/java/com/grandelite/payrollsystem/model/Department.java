@@ -21,6 +21,5 @@ public class Department {
     public Department(Long departmentId, String name) {
         this.departmentId = departmentId;
         this.name = name;
-
     }
 }

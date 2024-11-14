@@ -26,11 +26,17 @@ public class Attendance {
     @Column(name="actual_end_time")
     private LocalDateTime actualEndTime;
 
-    @Column(name="work_hours")
-    private Long workHours;
+    @Column(name="work_mins")
+    private Long workMins;
 
-    @Column(name= "ot_hours")
-    private Long otHours;
+    @Column(name= "ot_mins")
+    private Long otMins;
+
+    @Column(name= "ot_early_clockin_mins")
+    private Long otEarlyClockinMins;
+
+    @Column(name= "ot_late_clockout_mins")
+    private Long otLateClockoutMins;
 
     @Column(name = "attendance")
     private String attendance;
@@ -47,9 +53,6 @@ public class Attendance {
     @OneToOne
     @JoinColumn(name="attendance_record_id")
     private OverwrittenAttendanceStatus overwrittenAttendanceStatus;
-
-
-
 
 
 }

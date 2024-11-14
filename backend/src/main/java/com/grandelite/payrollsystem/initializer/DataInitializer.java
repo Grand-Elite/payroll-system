@@ -41,16 +41,14 @@ public class DataInitializer {
             Department backOfficeDepartment = departmentRepository.findById(3L).orElseThrow(() -> new RuntimeException("Department not found"));
             Department cashierDepartment = departmentRepository.findById(4L).orElseThrow(() -> new RuntimeException("Department not found"));
 
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-
             if (shiftRepository.count() == 0) {
-                shiftRepository.save(new Shift(1L,"Kitchen Morning Shift", LocalTime.of(7, 30).format(formatter), LocalTime.of(16, 30).format(formatter), kitchenDepartment));
-                shiftRepository.save(new Shift(2L,"Kitchen Evening Shift", LocalTime.of(14, 30).format(formatter), LocalTime.of(23, 30).format(formatter), kitchenDepartment));
-                shiftRepository.save(new Shift(3L,"Steward Morning Shift", LocalTime.of(7, 00).format(formatter), LocalTime.of(16, 00).format(formatter), stewardDepartment));
-                shiftRepository.save(new Shift(4L,"Steward Evening Shift", LocalTime.of(15, 00).format(formatter), LocalTime.of(0, 00).format(formatter), stewardDepartment));
-                shiftRepository.save(new Shift(5L,"Back Office Shift", LocalTime.of(8, 00).format(formatter), LocalTime.of(17, 00).format(formatter), backOfficeDepartment));
-                shiftRepository.save(new Shift(6L,"Cashier & Bar Shift", LocalTime.of(10, 00).format(formatter), LocalTime.of(0, 00).format(formatter), cashierDepartment));
-                shiftRepository.save(new Shift(7L,"Cleaning & Maintenance Shift", LocalTime.of(7, 30).format(formatter), LocalTime.of(17, 00).format(formatter), cleaningDepartment));
+                shiftRepository.save(new Shift(1L,"Kitchen Morning Shift", LocalTime.of(7, 30), LocalTime.of(16, 30), kitchenDepartment));
+                shiftRepository.save(new Shift(2L,"Kitchen Evening Shift", LocalTime.of(14, 30), LocalTime.of(23, 30), kitchenDepartment));
+                shiftRepository.save(new Shift(3L,"Steward Morning Shift", LocalTime.of(7, 00), LocalTime.of(16, 00), stewardDepartment));
+                shiftRepository.save(new Shift(4L,"Steward Evening Shift", LocalTime.of(15, 00), LocalTime.of(0, 00), stewardDepartment));
+                shiftRepository.save(new Shift(5L,"Back Office Shift", LocalTime.of(8, 00), LocalTime.of(17, 00), backOfficeDepartment));
+                shiftRepository.save(new Shift(6L,"Cashier & Bar Shift", LocalTime.of(10, 00), LocalTime.of(0, 00), cashierDepartment));
+                shiftRepository.save(new Shift(7L,"Cleaning & Maintenance Shift", LocalTime.of(7, 30), LocalTime.of(17, 00), cleaningDepartment));
             }
         };
     }
