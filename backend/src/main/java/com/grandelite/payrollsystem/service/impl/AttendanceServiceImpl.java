@@ -1,9 +1,11 @@
 package com.grandelite.payrollsystem.service.impl;
 
 import com.grandelite.payrollsystem.model.Attendance;
+import com.grandelite.payrollsystem.model.Department;
 import com.grandelite.payrollsystem.model.Employee;
 import com.grandelite.payrollsystem.model.OverwrittenAttendanceStatus;
 import com.grandelite.payrollsystem.repository.AttendanceRepository;
+import com.grandelite.payrollsystem.repository.DepartmentRepository;
 import com.grandelite.payrollsystem.repository.EmployeeRepository;
 import com.grandelite.payrollsystem.service.AttendanceService;
 import jakarta.transaction.Transactional;
@@ -31,6 +33,9 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     @Autowired
     private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private DepartmentRepository departmentRepository;
 
     private final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final LocalTime DAY_CHANGE_TIME = LocalTime.of(3, 0);
@@ -106,17 +111,26 @@ public class AttendanceServiceImpl implements AttendanceService {
 
                 if (clockIn != null && clockOut != null) {
                     Employee employee = employeeRepository.findByShortName(personName);
-                    if(employee!=null) {
-                        Attendance attendance = new Attendance();
-                        attendance.setAttendanceRecordId(personName + date);
-                        attendance.setEmployee(employee);
-                        attendance.setDate(date);
-                        attendance.setActualStartTime(clockIn);
-                        attendance.setActualEndTime(clockOut);
-                        attendance.setWorkHours(Duration.between(clockIn, clockOut).toHours());
-                        attendance.setAttendance(calcAttendance(employee,clockIn,clockOut));
-                        summaries.add(attendance);
+                    Department department = departmentRepository.findById(1l).orElseThrow(); //todo fix this
+                    if(employee==null){
+                        Long lastEmployeeId = employeeRepository.findLastEmployeeId();
+                        employee = new Employee();
+                        employee.setEmployeeId(lastEmployeeId==null?1l:lastEmployeeId+1l);
+                        employee.setShortName(personName);
+                        employee.setFullName(personName);
+                        employee.setDepartment(department);
+                        employee.setEmployeeType(Employee.EmployeeType.TEMPORARY);
+                        employeeRepository.save(employee);
                     }
+                    Attendance attendance = new Attendance();
+                    attendance.setAttendanceRecordId(personName + date);
+                    attendance.setEmployee(employee);
+                    attendance.setDate(date);
+                    attendance.setActualStartTime(clockIn);
+                    attendance.setActualEndTime(clockOut);
+                    attendance.setWorkHours(Duration.between(clockIn, clockOut).toHours());
+                    attendance.setAttendance(calcAttendance(employee,clockIn,clockOut));
+                    summaries.add(attendance);
                 }
             }
         }
