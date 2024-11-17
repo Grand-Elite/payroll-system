@@ -19,10 +19,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -82,7 +79,7 @@ public class AttendanceServiceImpl implements AttendanceService {
     private List<Attendance> extractClockInOutTimes(List<Map<String, String>> records) {
         // Parse records and group by Person ID and Adjusted Date
         Map<String, Map<LocalDate, List<LocalDateTime>>> groupedRecords = new HashMap<>();
-
+        Map<String, String> employeeDepartment = new HashMap<>();
         for (Map<String, String> record : records) {
             String personName = record.get("Name");
             LocalDateTime timestamp = LocalDateTime.parse(record.get("Time"), DATE_TIME_FORMATTER);
@@ -98,8 +95,10 @@ public class AttendanceServiceImpl implements AttendanceService {
                     .computeIfAbsent(personName, k -> new HashMap<>())
                     .computeIfAbsent(adjustedDate, k -> new ArrayList<>())
                     .add(timestamp);
+            String departmentName = record.get("Department");
+            employeeDepartment.put(personName,departmentName);
         }
-
+        Map<String,Employee> employeeMap = new HashMap<>();
         // Process each group to find the clock-in and clock-out times
         List<Attendance> summaries = new ArrayList<>();
         for (String personName : groupedRecords.keySet()) {
@@ -112,9 +111,14 @@ public class AttendanceServiceImpl implements AttendanceService {
                         .reduce((first, second) -> second).orElse(null);
 
                 if (clockIn != null && clockOut != null) {
-                    Employee employee = employeeRepository.findByShortName(personName);
+                    Employee employee = employeeMap.get(personName);
+                    if (employee == null){
+                        employee =employeeRepository.findByShortName(personName);
+                        employeeMap.put(personName,employee);
+                    }
                     if(employee==null){
-                        employee = createEmployee(personName);
+                        employee = createEmployee(personName,employeeDepartment.get(personName));
+                        employeeMap.put(personName,employee);
                     }
                     Attendance attendance = new Attendance();
                     attendance.setAttendanceRecordId(personName + date);
@@ -136,6 +140,8 @@ public class AttendanceServiceImpl implements AttendanceService {
         Map<Shift.ShiftPeriod,List<Shift>> shiftsMap =
                 shiftRepository.findShiftByDepartmentId(employee.getDepartment().getDepartmentId())
                         .stream().collect(Collectors.groupingBy(Shift::getShiftPeriod));
+        //todo this is where the M/E overrriden status should be loaded.
+        // if overriden value is there, then directly use it instead of below logic
         Shift userShift = shiftsMap.get(Shift.ShiftPeriod.MORNING).get(0);
         if(attendance.getActualStartTime().toLocalTime().isAfter(LocalTime.of(12,00))
             && shiftsMap.get(Shift.ShiftPeriod.EVENING) != null
@@ -172,8 +178,8 @@ public class AttendanceServiceImpl implements AttendanceService {
         return duration;
     }
 
-    private Employee createEmployee(String personName) {
-        Department department = departmentRepository.findById(1l).orElseThrow(); //todo fix this
+    private Employee createEmployee(String personName, String departmentName) {
+        Department department = departmentRepository.findByDepartmentSystemName(departmentName);
         Long lastEmployeeId = employeeRepository.findLastEmployeeId();
         Employee employee = new Employee();
         employee.setEmployeeId(lastEmployeeId==null?1l:lastEmployeeId+1l);

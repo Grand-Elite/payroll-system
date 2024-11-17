@@ -1,13 +1,14 @@
 package com.grandelite.payrollsystem.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Data
 @NoArgsConstructor
-
+@AllArgsConstructor
 public class Department {
     @Id
     @Column(name = "department_id", nullable = false)
@@ -16,10 +17,6 @@ public class Department {
     @Column(name = "name",nullable = false)
     private String name;
 
-
-    // Parameterized constructor
-    public Department(Long departmentId, String name) {
-        this.departmentId = departmentId;
-        this.name = name;
-    }
+    @Column(name = "system_name",nullable = false)
+    private String systemName;
 }
