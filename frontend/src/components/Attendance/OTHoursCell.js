@@ -68,15 +68,18 @@ const OTHoursCell = ({ day, index, handleFieldChange }) => {
                 onChange={() => handleCheckboxChange('early')}
               />
               <TextField
-                label="Early Clock In hours"
-                type="string"
-                value={formatHourMins(day.otEarlyClockinMins)}
+                label="Early OT in minutes"
+                //type="string"
+                type="number"
+                //value={formatHourMins(day.otEarlyClockinMins)}
+                value={day.otEarlyClockinMins || 0}
                 onChange={handleEarlyClockInsChange}
                 disabled={!earlyClockInsChecked}
                 variant="outlined"
                 size="small"
                 fullWidth
                 margin="dense"
+                helperText={`hh:mm - ${formatHourMins(day.otEarlyClockinMins || 0)}`}
               />
             </Box>
             <Box display="flex" alignItems="center" mb={2}>
@@ -85,15 +88,18 @@ const OTHoursCell = ({ day, index, handleFieldChange }) => {
                 onChange={() => handleCheckboxChange('after')}
               />
               <TextField
-                label="After Hours"
-                type="string"
-                value={formatHourMins(day.otLateClockoutMins)}
+                label="After OT in minutes"
+                //type="string"    --Original code
+                type="number"
+                //value={formatHourMins(day.otLateClockoutMins)}   --original code
+                value={day.otLateClockoutMins || 0}
                 onChange={handleAfterHoursChange}
                 disabled={!afterHoursChecked}
                 variant="outlined"
                 size="small"
                 fullWidth
                 margin="dense"
+                helperText={`hh:mm - ${formatHourMins(day.otLateClockoutMins || 0)}`}
               />
             </Box>
           </AccordionDetails>

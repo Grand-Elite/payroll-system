@@ -51,22 +51,28 @@ const LateHoursCell = ({ day, index, handleFieldChange }) => {
   };
 
   const handleCheckboxChange = (type) => {
-    let newChecked;
+    let newCheckedLateClockIn = lcLateClockInChecked;
+    let newCheckedEarlyClockOut = lcEarlyClockOutChecked;
+  
     if (type === 'late') {
-      newChecked = !lcLateClockInChecked;
-      setLcLateClockInChecked(newChecked);
+      newCheckedLateClockIn = !lcLateClockInChecked;
+      setLcLateClockInChecked(newCheckedLateClockIn);
     } else if (type === 'early') {
-      newChecked = !lcEarlyClockOutChecked;
-      setLcEarlyClockOutChecked(newChecked);
+      newCheckedEarlyClockOut = !lcEarlyClockOutChecked;
+      setLcEarlyClockOutChecked(newCheckedEarlyClockOut);
     }
+  
+    // Recalculate total late minutes based on updated checkbox states
     const updatedTotal = calculateTotalLateMins(
       day.lcLateClockinMins || 0,
       day.lcEarlyClockoutMins || 0,
-      lcLateClockInChecked,
-      lcEarlyClockOutChecked
+      newCheckedLateClockIn,
+      newCheckedEarlyClockOut
     );
+  
     handleFieldChange(index, 'lateMins', updatedTotal);
   };
+  
 
   return (
     <TableCell>
@@ -74,6 +80,7 @@ const LateHoursCell = ({ day, index, handleFieldChange }) => {
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography>{formatHourMins(day.lateMins || 0)}</Typography>
         </AccordionSummary>
+        
         <AccordionDetails>
           <Box display="flex" alignItems="center" mb={2}>
             <Checkbox
@@ -82,14 +89,15 @@ const LateHoursCell = ({ day, index, handleFieldChange }) => {
             />
             <TextField
               label="Late Clock In Minutes"
-              type="string"
-              value={formatHourMins(day.lcLateClockinMins)}
+              type="number"
+              value={day.lcLateClockinMins || 0}
               onChange={handleLateClockinChange}
               disabled={!lcLateClockInChecked}
               variant="outlined"
               size="small"
               fullWidth
               margin="dense"
+              helperText={`hh:mm - ${formatHourMins(day.lcLateClockinMins || 0)}`}
             />
           </Box>
           <Box display="flex" alignItems="center" mb={2}>
@@ -99,14 +107,15 @@ const LateHoursCell = ({ day, index, handleFieldChange }) => {
             />
             <TextField
               label="Early Clock Out Minutes"
-              type="string"
-              value={formatHourMins(day.lcEarlyClockoutMins)}
+              type="number"
+              value={day.lcEarlyClockoutMins || 0}
               onChange={handleLcEarlyClockoutChange}
               disabled={!lcEarlyClockOutChecked}
               variant="outlined"
               size="small"
               fullWidth
               margin="dense"
+              helperText={`hh:mm - ${formatHourMins(day.lcEarlyClockoutMins || 0)}`}
             />
           </Box>
         </AccordionDetails>
