@@ -32,11 +32,21 @@ public class Attendance {
     @Column(name= "ot_mins")
     private Long otMins;
 
+    @Column(name ="lc_mins")
+    private Long lcMins;
+
     @Column(name= "ot_early_clockin_mins")
     private Long otEarlyClockinMins;
 
     @Column(name= "ot_late_clockout_mins")
     private Long otLateClockoutMins;
+
+    @Column(name ="lc_late_clockin_mins")
+    private Long lcLateClockinMins;
+
+    @Column(name = "lc_early_clockout_mins")
+    private Long lcEarlyClockoutMins;
+
 
     @Column(name = "attendance")
     private String attendance;

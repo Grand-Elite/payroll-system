@@ -10,68 +10,82 @@ import {
   Box,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { formatHourMins } from '../../util/DateTimeUtil';
 
 const LateHoursCell = ({ day, index, handleFieldChange }) => {
   const [expanded, setExpanded] = useState(false);
-  const [lateClockInsChecked, setLateClockInsChecked] = useState(true);
-  const [earlyClockOutsChecked, setEarlyClockOutsChecked] = useState(true);
+  const [lcLateClockInChecked, setLcLateClockInChecked] = useState(true);
+  const [lcEarlyClockOutChecked, setLcEarlyClockOutChecked] = useState(true);
 
   const handleExpandClick = () => setExpanded(!expanded);
 
-  const calculateTotalLateHours = (lateHours, earlyOutHours, lateChecked, earlyOutChecked) => {
+  const calculateTotalLateMins = (late = 0, early = 0, lateChecked, earlyChecked) => {
     let total = 0;
-    if (lateChecked) total += lateHours || 0;
-    if (earlyOutChecked) total += earlyOutHours || 0;
+    if (lateChecked) total += late;
+    if (earlyChecked) total += early;
     return total;
   };
 
-  const handleLateClockInsChange = (event) => {
-    const value = Number(event.target.value);
-    const updatedTotal = calculateTotalLateHours(value, day.earlyClockOutHours || 0, lateClockInsChecked, earlyClockOutsChecked);
-    handleFieldChange(index, 'lateClockInHours', value); // Update late clock-in hours specifically
-    handleFieldChange(index, 'lateHours', updatedTotal); // Update total late hours
+  const handleLateClockinChange = (event) => {
+    const value = Number(event.target.value) || 0;
+    const updatedTotal = calculateTotalLateMins(
+      value,
+      day.lcEarlyClockoutMins || 0,
+      lcLateClockInChecked,
+      lcEarlyClockOutChecked
+    );
+    handleFieldChange(index, 'lcLateClockinMins', value);
+    handleFieldChange(index, 'lateMins', updatedTotal);
   };
 
-  const handleEarlyClockOutChange = (event) => {
-    const value = Number(event.target.value);
-    const updatedTotal = calculateTotalLateHours(day.lateClockInHours || 0, value, lateClockInsChecked, earlyClockOutsChecked);
-    handleFieldChange(index, 'earlyClockOutHours', value); // Update early clock-out hours specifically
-    handleFieldChange(index, 'lateHours', updatedTotal); // Update total late hours
+  const handleLcEarlyClockoutChange = (event) => {
+    const value = Number(event.target.value) || 0;
+    const updatedTotal = calculateTotalLateMins(
+      day.lcLateClockinMins || 0,
+      value,
+      lcLateClockInChecked,
+      lcEarlyClockOutChecked
+    );
+    handleFieldChange(index, 'lcEarlyClockoutMins', value);
+    handleFieldChange(index, 'lateMins', updatedTotal);
   };
 
   const handleCheckboxChange = (type) => {
+    let newChecked;
     if (type === 'late') {
-      const newChecked = !lateClockInsChecked;
-      setLateClockInsChecked(newChecked);
-      const updatedTotal = calculateTotalLateHours(day.lateClockInHours || 0, day.earlyClockOutHours || 0, newChecked, earlyClockOutsChecked);
-      handleFieldChange(index, 'lateHours', updatedTotal);
+      newChecked = !lcLateClockInChecked;
+      setLcLateClockInChecked(newChecked);
+    } else if (type === 'early') {
+      newChecked = !lcEarlyClockOutChecked;
+      setLcEarlyClockOutChecked(newChecked);
     }
-    if (type === 'early') {
-      const newChecked = !earlyClockOutsChecked;
-      setEarlyClockOutsChecked(newChecked);
-      const updatedTotal = calculateTotalLateHours(day.lateClockInHours || 0, day.earlyClockOutHours || 0, lateClockInsChecked, newChecked);
-      handleFieldChange(index, 'lateHours', updatedTotal);
-    }
+    const updatedTotal = calculateTotalLateMins(
+      day.lcLateClockinMins || 0,
+      day.lcEarlyClockoutMins || 0,
+      lcLateClockInChecked,
+      lcEarlyClockOutChecked
+    );
+    handleFieldChange(index, 'lateMins', updatedTotal);
   };
 
   return (
     <TableCell>
       <Accordion expanded={expanded} onChange={handleExpandClick}>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography>{day.lateHours || 0}</Typography>
+          <Typography>{formatHourMins(day.lateMins || 0)}</Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Box display="flex" alignItems="center" mb={2}>
             <Checkbox
-              checked={lateClockInsChecked}
+              checked={lcLateClockInChecked}
               onChange={() => handleCheckboxChange('late')}
             />
             <TextField
-              label="Late Clock-In Hours"
-              type="number"
-              value={day.lateClockInHours || 0}
-              onChange={handleLateClockInsChange}
-              disabled={!lateClockInsChecked}
+              label="Late Clock In Minutes"
+              type="string"
+              value={formatHourMins(day.lcLateClockinMins)}
+              onChange={handleLateClockinChange}
+              disabled={!lcLateClockInChecked}
               variant="outlined"
               size="small"
               fullWidth
@@ -80,15 +94,15 @@ const LateHoursCell = ({ day, index, handleFieldChange }) => {
           </Box>
           <Box display="flex" alignItems="center" mb={2}>
             <Checkbox
-              checked={earlyClockOutsChecked}
+              checked={lcEarlyClockOutChecked}
               onChange={() => handleCheckboxChange('early')}
             />
             <TextField
-              label="Early Clock-Out Hours"
-              type="number"
-              value={day.earlyClockOutHours || 0}
-              onChange={handleEarlyClockOutChange}
-              disabled={!earlyClockOutsChecked}
+              label="Early Clock Out Minutes"
+              type="string"
+              value={formatHourMins(day.lcEarlyClockoutMins)}
+              onChange={handleLcEarlyClockoutChange}
+              disabled={!lcEarlyClockOutChecked}
               variant="outlined"
               size="small"
               fullWidth

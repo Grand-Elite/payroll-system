@@ -46,8 +46,10 @@ function AttendanceTable(props) {
         otEarlyClockinMins: 0,
         otLateClockoutMins:0,
         originalOtMins: 0,
-        lateHours: 0,
-        originalLateHours: 0,
+        lateMins: 0,
+        lcLateClockinMins: 0,
+        lcEarlyClockoutMins: 0,
+        originalLateMins: 0,
         leaveType: '',
       });
     }
@@ -75,12 +77,17 @@ function AttendanceTable(props) {
                     originalAttendanceStatus: attendanceRecord.attendance || '', 
                     workMins: attendanceRecord.workMins || 0,
                     shift: attendanceRecord.shift.shiftPeriod || 'MORNING',
+
                     otMins: attendanceRecord.otMins || 0,
                     otEarlyClockinMins: attendanceRecord.otEarlyClockinMins || 0,
                     otLateClockoutMins: attendanceRecord.otLateClockoutMins || 0,
                     originalOtMins: attendanceRecord.otMins || '', 
-                    lateHours: attendanceRecord.lateHours || '',
-                    originalLateHours: attendanceRecord.lateHours || '', 
+
+                    lateMins: attendanceRecord.lcMins || '',
+                    lcLateClockinMins: attendanceRecord.lcLateClockinMins || 0,
+                    lcEarlyClockoutMins: attendanceRecord.lcEarlyClockoutMins || 0,
+                    originalLateMins: attendanceRecord.lcMins || '', 
+
                     leaveType: attendanceRecord.leaveType || '',
                 };
             }
@@ -249,8 +256,8 @@ const handleSave = async (index) => {
               <TableCell>
                   {/* Only show the save button if the status has changed */}
                   {(day.attendanceStatus !== day.originalAttendanceStatus 
-                  || day.otHours !== day.originalOtHours 
-                  || day.lateHours !== day.originalLateHours )
+                  || day.otMins !== day.originalOtMins 
+                  || day.lateMins !== day.originalLateMins )
                   && (
                       <Button
                           variant="contained"

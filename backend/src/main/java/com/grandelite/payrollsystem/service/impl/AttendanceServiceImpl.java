@@ -52,12 +52,6 @@ public class AttendanceServiceImpl implements AttendanceService {
         return attendanceRepository.findAttendanceByEmployeeId(employeeId);
     }
 
-//    public List<Attendance> overwriteAttendanceStatus(String attendance_record_id){
-//        return attendanceRepository.
-//
-//    }
-
-
     @Override
     @Transactional
     public OverwrittenAttendanceStatus overwriteAttendanceStatus(OverwrittenAttendanceStatus overwrittenAttendanceStatus) {
@@ -136,47 +130,104 @@ public class AttendanceServiceImpl implements AttendanceService {
         return summaries;
     }
 
+//    private void calcOtAndLateHours(Employee employee, Attendance attendance) {
+//        Map<Shift.ShiftPeriod,List<Shift>> shiftsMap =
+//                shiftRepository.findShiftByDepartmentId(employee.getDepartment().getDepartmentId())
+//                        .stream().collect(Collectors.groupingBy(Shift::getShiftPeriod));
+//        //todo this is where the M/E overrriden status should be loaded.
+//        // if overriden value is there, then directly use it instead of below logic
+//        Shift userShift = shiftsMap.get(Shift.ShiftPeriod.MORNING).get(0);
+//        if(attendance.getActualStartTime().toLocalTime().isAfter(LocalTime.of(12,00))
+//            && shiftsMap.get(Shift.ShiftPeriod.EVENING) != null
+//        ){
+//            userShift = shiftsMap.get(Shift.ShiftPeriod.EVENING).get(0);
+//        }
+//
+//        attendance.setShift(userShift);
+//        long earlyClockInOtMins = Duration.between(attendance.getActualStartTime().toLocalTime(),userShift.getStartTime()).toMinutes();
+//        long lateClockOutOtMins = compansateDayChange(userShift.getEndTime(),attendance.getActualEndTime().toLocalTime()).toMinutes();
+//        long totalOtMins = 0L;
+//
+//
+//        if(earlyClockInOtMins>0) {
+//            attendance.setOtEarlyClockinMins(earlyClockInOtMins);
+//            totalOtMins+=earlyClockInOtMins;
+//        }else {
+//            //todo late clockins
+//        }
+//        if(lateClockOutOtMins >0 ) {
+//            attendance.setOtLateClockoutMins(lateClockOutOtMins);
+//            totalOtMins+=lateClockOutOtMins;
+//        }else {
+//            //todo early clock outs
+//        }
+//
+//        attendance.setOtMins(totalOtMins);
+//
+//    }
+
+
     private void calcOtAndLateHours(Employee employee, Attendance attendance) {
-        Map<Shift.ShiftPeriod,List<Shift>> shiftsMap =
+        Map<Shift.ShiftPeriod, List<Shift>> shiftsMap =
                 shiftRepository.findShiftByDepartmentId(employee.getDepartment().getDepartmentId())
                         .stream().collect(Collectors.groupingBy(Shift::getShiftPeriod));
-        //todo this is where the M/E overrriden status should be loaded.
-        // if overriden value is there, then directly use it instead of below logic
+
+        // Determine the shift based on attendance time
         Shift userShift = shiftsMap.get(Shift.ShiftPeriod.MORNING).get(0);
-        if(attendance.getActualStartTime().toLocalTime().isAfter(LocalTime.of(12,00))
-            && shiftsMap.get(Shift.ShiftPeriod.EVENING) != null
-        ){
+        if (attendance.getActualStartTime().toLocalTime().isAfter(LocalTime.of(12, 0))
+                && shiftsMap.get(Shift.ShiftPeriod.EVENING) != null) {
             userShift = shiftsMap.get(Shift.ShiftPeriod.EVENING).get(0);
         }
 
         attendance.setShift(userShift);
-        long earlyClockInOtMins = Duration.between(attendance.getActualStartTime().toLocalTime(),userShift.getStartTime()).toMinutes();
-        long lateClockOutOtMins = compansateDayChange(userShift.getEndTime(),attendance.getActualEndTime().toLocalTime()).toMinutes();
-        long totalOtMins = 0;
-        if(earlyClockInOtMins>0) {
-            attendance.setOtEarlyClockinMins(earlyClockInOtMins);
-            totalOtMins+=earlyClockInOtMins;
-        }else {
-            //todo late clockins
-        }
-        if(lateClockOutOtMins >0 ) {
-            attendance.setOtLateClockoutMins(lateClockOutOtMins);
-            totalOtMins+=lateClockOutOtMins;
-        }else {
-            //todo early clock outs
-        }
-        attendance.setOtMins(totalOtMins);
 
+        // If no work minutes, set OT and LC to 0 and return early
+        if (attendance.getWorkMins() == 0L) {
+            attendance.setOtMins(0L);
+            attendance.setLcMins(0L);
+            return;
+        }
+
+        // Calculate OT and LC minutes
+        long earlyClockInOtMins = Duration.between(attendance.getActualStartTime().toLocalTime(), userShift.getStartTime()).toMinutes();
+        long lateClockOutOtMins = compansateDayChange(userShift.getEndTime(), attendance.getActualEndTime().toLocalTime()).toMinutes();
+        long totalOtMins = 0L;
+        long totalLcMins = 0L;
+
+        // Handle early clock-in or late clock-in
+        if (earlyClockInOtMins > 0) {
+            attendance.setOtEarlyClockinMins(earlyClockInOtMins);
+            totalOtMins += earlyClockInOtMins;
+        } else {
+            long lateClockInMins = Math.abs(earlyClockInOtMins); // Convert negative to positive
+            attendance.setLcLateClockinMins(lateClockInMins);
+            totalLcMins += lateClockInMins;
+        }
+
+        // Handle late clock-out or early clock-out
+        if (lateClockOutOtMins > 0) {
+            attendance.setOtLateClockoutMins(lateClockOutOtMins);
+            totalOtMins += lateClockOutOtMins;
+        } else {
+            long earlyClockOutMins = Math.abs(lateClockOutOtMins); // Convert negative to positive
+            attendance.setLcEarlyClockoutMins(earlyClockOutMins);
+            totalLcMins += earlyClockOutMins;
+        }
+
+        // Set total OT and LC minutes
+        attendance.setOtMins(totalOtMins);
+        attendance.setLcMins(totalLcMins);
     }
 
     private Duration compansateDayChange(LocalTime shiftEndTime, LocalTime actualClockOutTime) {
         Duration duration = Duration.between(shiftEndTime,actualClockOutTime);
         if(actualClockOutTime.isAfter(LocalTime.of(00,00))
                 && actualClockOutTime.isBefore(LocalTime.of(03,00))){
-            return duration.plusHours(24);
+            //return duration.plusHours(24);
         }
         return duration;
     }
+
 
     private Employee createEmployee(String personName, String departmentName) {
         Department department = departmentRepository.findByDepartmentSystemName(departmentName);
@@ -191,21 +242,7 @@ public class AttendanceServiceImpl implements AttendanceService {
         return employee;
     }
 
-//    private String calcAttendance(Employee employee, LocalDateTime clockIn, LocalDateTime clockOut) {
-//        // Calculate the work hours in minutes
-//        long workMinutes = Duration.between(clockIn, clockOut).toMinutes();
-//
-//        // Determine the attendance status based on the workMinutes
-//        if (workMinutes > 540) {
-//            return "1"; // Full day
-//        } else if (workMinutes >= 330) {
-//            return "0.5"; // Half day
-//        } else if (workMinutes == 0) {
-//            return "ab"; // Absent
-//        } else {
-//            return "???"; // Incomplete or irregular attendance
-//        }
-//    }
+
 
     private String calcAttendance(Employee employee, LocalDateTime clockIn, LocalDateTime clockOut) {
         // Check if either clockIn or clockOut is null, indicating no record found
