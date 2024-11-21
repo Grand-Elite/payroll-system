@@ -1,0 +1,42 @@
+/* SalaryUpdates.css */
+.salary-updates-container {
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+  }
+  
+  .salary-updates-header {
+    font-size: 2rem;
+    margin-bottom: 24px;
+  }
+  
+  .select-employee {
+    width: 100%;
+    margin-top: 16px;
+  }
+  
+  .employee-details-container {
+    margin-top: 32px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .employee-detail-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  
+  .employee-detail-label {
+    font-weight: bold;
+    min-width: 150px;
+  }
+  
+  .employee-detail-colon {
+    margin-left: 8px;
+  }
+  
+  .employee-detail-value {
+    margin-left: 16px;
+  }
+  

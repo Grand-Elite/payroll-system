@@ -9,6 +9,7 @@ import './App.css';
 import UploadAttendanceExcel from './components/Attendance/UploadAttendanceExcel/UploadAttendanceExcel';
 import Attendance from './components/Attendance/Attendance';
 import Shift from './components/Shift/Shift'
+import SalaryUpdates from './components/Salary/SalaryUpdates';
 
 
 //import 'bootstrap/dist/css/bootstrap.min.css';
@@ -65,7 +66,7 @@ function App() {
             <Route path="/attendance" element={<Attendance selectedMonth={selectedMonth} selectedYear={selectedYear}/>}/>
             <Route path="/upload-attendance-excel" element={<UploadAttendanceExcel />}/>
             <Route path="/shift" element={<Shift />}/>
-           
+            <Route path="salary-updates" element={<SalaryUpdates />} />
 
           </Routes>
         </div>

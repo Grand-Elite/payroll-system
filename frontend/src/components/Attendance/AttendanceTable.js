@@ -70,37 +70,38 @@ function AttendanceTable(props) {
         });
         console.log(attendanceMap)
         const updatedDays = days.map(day => {
-            const attendanceRecord = attendanceMap[day.date];
-            if (attendanceRecord) {
-                return {
-                    ...day,
-                    attendanceRecordId:attendanceRecord.attendanceRecordId,
-                    timeIn: attendanceRecord.actualStartTime || '',
-                    timeOut: attendanceRecord.actualEndTime || '',
-                    attendanceStatus: attendanceRecord.attendance || '',
-                    originalAttendanceStatus: attendanceRecord.attendance || '', 
-                    workMins: attendanceRecord.workMins || 0,
-                    shift: attendanceRecord.shift.shiftPeriod || 'MORNING',
-
-                    otMins: attendanceRecord.otMins || 0,
-                    otEarlyClockinMins: attendanceRecord.otEarlyClockinMins || 0,
-                    updatedOtEarlyClockinMins: attendanceRecord.otEarlyClockinMins || 0,
-                    otLateClockoutMins: attendanceRecord.otLateClockoutMins || 0,
-                    updatedOtLateClockoutMins: attendanceRecord.otLateClockoutMins || 0,
-                    originalOtMins: attendanceRecord.otMins || '', 
-
-                    lateMins: attendanceRecord.lcMins || '',
-                    lcLateClockinMins: attendanceRecord.lcLateClockinMins || 0,
-                    updatedLcLateClockinMins: attendanceRecord.lcLateClockinMins || 0,
-                    lcEarlyClockoutMins: attendanceRecord.lcEarlyClockoutMins || 0,
-                    updatedlcEarlyClockoutMins: attendanceRecord.updatedLcEarlyClockoutMins || 0,
-                    originalLateMins: attendanceRecord.lcMins || '', 
-
-                    leaveType: attendanceRecord.leaveType || '',
-                };
-            }
-            return day;
-        });
+          const attendanceRecord = attendanceMap[day.date];
+          if (attendanceRecord) {
+              return {
+                  ...day,
+                  attendanceRecordId: attendanceRecord.attendanceRecordId,
+                  timeIn: attendanceRecord.actualStartTime || '',
+                  timeOut: attendanceRecord.actualEndTime || '',
+                  attendanceStatus: attendanceRecord.attendance || '',
+                  originalAttendanceStatus: attendanceRecord.attendance || '', 
+                  workMins: attendanceRecord.workMins || 0,
+                  shift: attendanceRecord.shift.shiftPeriod || 'MORNING',
+      
+                  otMins: attendanceRecord.otMins || 0,
+                  otEarlyClockinMins: attendanceRecord.otEarlyClockinMins || 0,
+                  updatedOtEarlyClockinMins: attendanceRecord.otEarlyClockinMins || 0,
+                  otLateClockoutMins: attendanceRecord.otLateClockoutMins || 0,
+                  updatedOtLateClockoutMins: attendanceRecord.otLateClockoutMins || 0,
+                  originalOtMins: attendanceRecord.otMins || '', 
+      
+                  lateMins: attendanceRecord.lcMins || '',
+                  lcLateClockinMins: attendanceRecord.lcLateClockinMins || 0,
+                  updatedLcLateClockinMins: attendanceRecord.lcLateClockinMins || 0,
+                  lcEarlyClockoutMins: attendanceRecord.lcEarlyClockoutMins || 0,
+                  updatedLcEarlyClockoutMins: attendanceRecord.lcEarlyClockoutMins || 0, // Fixed property
+                  originalLateMins: attendanceRecord.lcMins || '', 
+      
+                  leaveType: attendanceRecord.leaveType || '',
+              };
+          }
+          return day;
+      });
+      
         setDaysInMonth(updatedDays);
       } catch (error) {
         console.error("Error fetching employee attendance:", error);
