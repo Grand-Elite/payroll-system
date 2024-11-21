@@ -30,49 +30,42 @@ const LateHoursCell = ({ day, index, handleFieldChange }) => {
     const value = Number(event.target.value) || 0;
     const updatedTotal = calculateTotalLateMins(
       value,
-      day.lcEarlyClockoutMins || 0,
+      day.updatedLcEarlyClockoutMins || 0,
       lcLateClockInChecked,
       lcEarlyClockOutChecked
     );
-    handleFieldChange(index, 'lcLateClockinMins', value);
+    handleFieldChange(index, 'updatedLcLateClockinMins', value);
     handleFieldChange(index, 'lateMins', updatedTotal);
   };
 
   const handleLcEarlyClockoutChange = (event) => {
     const value = Number(event.target.value) || 0;
     const updatedTotal = calculateTotalLateMins(
-      day.lcLateClockinMins || 0,
+      day.updatedLcLateClockinMins || 0,
       value,
       lcLateClockInChecked,
       lcEarlyClockOutChecked
     );
-    handleFieldChange(index, 'lcEarlyClockoutMins', value);
+    handleFieldChange(index, 'updatedLcEarlyClockoutMins', value);
     handleFieldChange(index, 'lateMins', updatedTotal);
   };
 
   const handleCheckboxChange = (type) => {
-    let newCheckedLateClockIn = lcLateClockInChecked;
-    let newCheckedEarlyClockOut = lcEarlyClockOutChecked;
-  
-    if (type === 'late') {
-      newCheckedLateClockIn = !lcLateClockInChecked;
-      setLcLateClockInChecked(newCheckedLateClockIn);
-    } else if (type === 'early') {
-      newCheckedEarlyClockOut = !lcEarlyClockOutChecked;
-      setLcEarlyClockOutChecked(newCheckedEarlyClockOut);
-    }
-  
-    // Recalculate total late minutes based on updated checkbox states
+    const isLate = type === 'late';
+    const updatedCheckedState = isLate ? !lcLateClockInChecked : !lcEarlyClockOutChecked;
+
+    if (isLate) setLcLateClockInChecked(updatedCheckedState);
+    else setLcEarlyClockOutChecked(updatedCheckedState);
+
     const updatedTotal = calculateTotalLateMins(
-      day.lcLateClockinMins || 0,
-      day.lcEarlyClockoutMins || 0,
-      newCheckedLateClockIn,
-      newCheckedEarlyClockOut
+      day.updatedLcLateClockinMins || 0,
+      day.updatedLcEarlyClockoutMins || 0,
+      isLate ? updatedCheckedState : lcLateClockInChecked,
+      !isLate ? updatedCheckedState : lcEarlyClockOutChecked
     );
-  
+
     handleFieldChange(index, 'lateMins', updatedTotal);
   };
-  
 
   return (
     <TableCell>
@@ -80,7 +73,7 @@ const LateHoursCell = ({ day, index, handleFieldChange }) => {
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography>{formatHourMins(day.lateMins || 0)}</Typography>
         </AccordionSummary>
-        
+
         <AccordionDetails>
           <Box display="flex" alignItems="center" mb={2}>
             <Checkbox
@@ -90,14 +83,14 @@ const LateHoursCell = ({ day, index, handleFieldChange }) => {
             <TextField
               label="Late Clock In Minutes"
               type="number"
-              value={day.lcLateClockinMins || 0}
+              value={day.updatedLcLateClockinMins || 0}
               onChange={handleLateClockinChange}
               disabled={!lcLateClockInChecked}
               variant="outlined"
               size="small"
               fullWidth
               margin="dense"
-              helperText={`hh:mm - ${formatHourMins(day.lcLateClockinMins || 0)}`}
+              helperText={`hh:mm - ${formatHourMins(day.updatedLcLateClockinMins || 0)}`}
             />
           </Box>
           <Box display="flex" alignItems="center" mb={2}>
@@ -108,14 +101,14 @@ const LateHoursCell = ({ day, index, handleFieldChange }) => {
             <TextField
               label="Early Clock Out Minutes"
               type="number"
-              value={day.lcEarlyClockoutMins || 0}
+              value={day.updatedLcEarlyClockoutMins || 0}
               onChange={handleLcEarlyClockoutChange}
               disabled={!lcEarlyClockOutChecked}
               variant="outlined"
               size="small"
               fullWidth
               margin="dense"
-              helperText={`hh:mm - ${formatHourMins(day.lcEarlyClockoutMins || 0)}`}
+              helperText={`hh:mm - ${formatHourMins(day.updatedLcEarlyClockoutMins || 0)}`}
             />
           </Box>
         </AccordionDetails>

@@ -65,33 +65,60 @@ export const addEmployee = async (employeeData) => {
     }
 };
 
-  /*
-export const updateAttendanceStatus = async (employeeId, date, status) => {
+/*  
+const updateAttendanceStatus = async (
+  attendanceRecordId,
+  updatedStatus,
+  updatedLcEarlyClockoutMins,
+  updatedLcLateClockinMins,
+  otEarlyClockinMins,
+  otLateClockoutMins
+) => {
   try {
-    const response = await axios.patch("/api/attendance/overwritten-attendance", {
-      employeeId,
-      date,
-      attendanceStatus: status,
+    const response = await axios.patch("api/attendance/overwritten-attendance", {
+      attendanceRecordId,
+      updatedAttendanceStatus: updatedStatus,
+      updatedLcEarlyClockoutMins,
+      updatedLcLateClockinMins,
+      updatedOtEarlyClockinMins: otEarlyClockinMins,
+      updatedOtLateClockoutMins: otLateClockoutMins,
     });
-    return response.data; // Return the response data if needed
+    console.log("Update Successful:", response.data);
   } catch (error) {
-    throw new Error('Failed to update attendance status: ' + error.message);
+    console.error("Error updating attendance:", error);
   }
 };
 */
 
-
-const updateAttendanceStatus = async (attendanceRecordId, updatedStatus) => {
-    try {
-        const response = await axios.patch("api/attendance/overwritten-attendance", {
-            attendanceRecordId,
-            updatedAttendanceStatus: updatedStatus
-        });
-        console.log("Update Successful:", response.data);
-    } catch (error) {
-        console.error("Error updating attendance:", error);
-    }
+const updateAttendanceStatus = async (
+  attendanceRecordId,
+  updatedStatus,
+  updatedLcEarlyClockoutMins,
+  updatedLcLateClockinMins,
+  otEarlyClockinMins,
+  otLateClockoutMins,
+  updatedTotalLcMins,
+  updatedTotalOtMins
+) => {
+  try {
+    const response = await axios.patch("api/attendance/overwritten-attendance", {
+      attendanceRecordId,
+      updatedAttendanceStatus: updatedStatus,
+      updatedLcEarlyClockoutMins,
+      updatedLcLateClockinMins,
+      updatedOtEarlyClockinMins: otEarlyClockinMins,
+      updatedOtLateClockoutMins: otLateClockoutMins,
+      updatedTotalLcMins,
+      updatedTotalOtMins,
+    });
+    console.log("Update Successful:", response.data);
+  } catch (error) {
+    console.error("Error updating attendance:", error);
+  }
 };
+
+
+
 
 
 export const updateShift = async (id, shiftData) => {

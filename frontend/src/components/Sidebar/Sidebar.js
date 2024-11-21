@@ -15,7 +15,10 @@ function Sidebar() {
         <button>Shift</button>
       </Link>
       <button>Salary</button>
-      <button>Salary Update</button>
+
+    
+        <button>Salary Update</button>
+     
       <button>Pay Slip</button>
       <button>EPF</button>
       <button>ETF</button>

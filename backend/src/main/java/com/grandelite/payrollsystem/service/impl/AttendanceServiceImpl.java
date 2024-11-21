@@ -60,12 +60,29 @@ public class AttendanceServiceImpl implements AttendanceService {
         System.out.println(overwrittenAttendanceStatus);
 
         System.out.println(overwrittenAttendanceStatus.getUpdatedAttendanceStatus());
-        System.out.println("Updating attendance record ID: " + overwrittenAttendanceStatus.getAttendanceRecordId() +
-                " with status: " + overwrittenAttendanceStatus.getUpdatedAttendanceStatus());
-        attendanceRepository.updateOrInsertOverwrittenStatus(
-                overwrittenAttendanceStatus.getAttendanceRecordId(), // This is now a String
-                overwrittenAttendanceStatus.getUpdatedAttendanceStatus()
+        System.out.println("Updating attendance record with the following details:");
+        System.out.printf(
+                "Record ID: %s, Updated Status: %s, OT Late Clock-Out: %s, OT Early Clock-In: %s, LC Late Clock-In: %s, LC Early Clock-Out: %s%n",
+                overwrittenAttendanceStatus.getAttendanceRecordId(),
+                overwrittenAttendanceStatus.getUpdatedAttendanceStatus(),
+                overwrittenAttendanceStatus.getUpdatedOtLateClockoutMins(),
+                overwrittenAttendanceStatus.getUpdatedOtEarlyClockinMins(),
+                overwrittenAttendanceStatus.getUpdatedLcLateClockinMins(),
+                overwrittenAttendanceStatus.getUpdatedLcEarlyClockoutMins(),
+                overwrittenAttendanceStatus.getUpdatedTotalLcMins(),
+                overwrittenAttendanceStatus.getUpdatedTotalOtMins()
         );
+        attendanceRepository.updateOrInsertOverwrittenStatus(
+                overwrittenAttendanceStatus.getAttendanceRecordId(),
+                overwrittenAttendanceStatus.getUpdatedAttendanceStatus(),
+                overwrittenAttendanceStatus.getUpdatedLcEarlyClockoutMins(),
+                overwrittenAttendanceStatus.getUpdatedLcLateClockinMins(),
+                overwrittenAttendanceStatus.getUpdatedOtEarlyClockinMins(),
+                overwrittenAttendanceStatus.getUpdatedOtLateClockoutMins(),
+                overwrittenAttendanceStatus.getUpdatedTotalLcMins(),
+                overwrittenAttendanceStatus.getUpdatedTotalOtMins()
+        );
+
 
         return overwrittenAttendanceStatus;
     }

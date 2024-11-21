@@ -17,11 +17,27 @@ public interface AttendanceRepository extends JpaRepository<Attendance,Long> {
 
 
     @Modifying
-    @Query(value = "INSERT INTO overwritten_attendance_status (attendance_record_id, updated_attendance_status) " +
-            "VALUES (:attendanceRecordId, :status) " +
-            "ON DUPLICATE KEY UPDATE updated_attendance_status = :status", nativeQuery = true)
-    void updateOrInsertOverwrittenStatus(@Param("attendanceRecordId") String attendanceRecordId,
-                                         @Param("status") String updatedAttendanceStatus);
+    @Query(value = "INSERT INTO overwritten_attendance_status (attendance_record_id, updated_attendance_status, updated_lc_early_clockout_mins, updated_lc_late_clockin_mins, updated_ot_early_clockin_mins, updated_ot_late_clockout_mins, updated_total_lc_mins, updated_total_ot_mins) " +
+            "VALUES (:attendanceRecordId, :status, :updatedLcEarlyClockoutMins, :updatedLcLateClockinMins, :updatedOtEarlyClockinMins, :updatedOtLateClockoutMins, :updatedTotalLcMins, :updatedTotalOtMins) " +
+            "ON DUPLICATE KEY UPDATE updated_attendance_status = :status, " +
+            "updated_lc_early_clockout_mins = :updatedLcEarlyClockoutMins, " +
+            "updated_lc_late_clockin_mins = :updatedLcLateClockinMins, " +
+            "updated_ot_early_clockin_mins = :updatedOtEarlyClockinMins, " +
+            "updated_ot_late_clockout_mins = :updatedOtLateClockoutMins, " +
+            "updated_total_lc_mins = :updatedTotalLcMins, " +
+            "updated_total_ot_mins = :updatedTotalOtMins", nativeQuery = true)
+    void updateOrInsertOverwrittenStatus(
+            @Param("attendanceRecordId") String attendanceRecordId,
+            @Param("status") String updatedAttendanceStatus,
+            @Param("updatedLcEarlyClockoutMins") String updatedLcEarlyClockoutMins,
+            @Param("updatedLcLateClockinMins") String updatedLcLateClockinMins,
+            @Param("updatedOtEarlyClockinMins") String updatedOtEarlyClockinMins,
+            @Param("updatedOtLateClockoutMins") String updatedOtLateClockoutMins,
+            @Param("updatedTotalLcMins") String updatedTotalLcMins,
+            @Param("updatedTotalOtMins") String updatedTotalOtMins
+    );
+
+
 
 }
 

@@ -1,1341 +1,4 @@
 /*
-import React, { useEffect, useState } from 'react';
-import { fetchEmployees } from '../../services/api';
-import { Link } from 'react-router-dom';
-import './Employee.css'
-function Employee() {
-    const [employees, setEmployees] = useState([]); // State to hold employee data
-    const [loading, setLoading] = useState(true); // Loading state
-  
-    // Fetch employees data from API
-    useEffect(() => {
-      const fetchEmployeeData = async () => {
-        try {
-          const response = await fetchEmployees();
-          setEmployees(response);
-        } catch (error) {
-          console.error('Error fetching employee data:', error);
-        } finally {
-          setLoading(false);
-        }
-      };
-  
-      fetchEmployeeData();
-    }, []);
-  
-    return (
-        <div>
-            <header>
-                <h2>Employee Details</h2>
-            </header>
-          <table>
-            <thead>
-              <tr>
-                <th>Employee ID</th>
-                <th>Department</th>
-                <th>Name</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan="15" style={{ textAlign: 'center' }}>Loading...</td>
-                </tr>
-              ) : employees.length > 0 ? (
-                employees.map((employee) => (
-                  <tr key={employee.employeeId}>
-                    <td>{employee.employeeId}</td>
-                    <td>{employee.department.name}</td>
-                    <td>{employee.shortName}</td>
-                    <td>
-                      <button>Delete</button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="15" style={{ textAlign: 'center' }}>No Data</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-          <div className="buttons">
-            <Link to="/add-new-employee">
-                <button>Add New Employee</button>
-            </Link>
-            <button>Update Employee</button>
-            <button>Shift Assign</button>
-          </div>
-        </div>
-    );
-}
-export default Employee;
-*/
-
-/*
-import React, { useEffect, useState } from 'react';
-import { fetchEmployees, deactivateEmployee } from '../../services/api'; // Import API services
-import { Link } from 'react-router-dom';
-import './Employee.css';
-
-function Employee() {
-  const [employees, setEmployees] = useState([]); // State to hold employee data
-  const [loading, setLoading] = useState(true); // Loading state
-
-  // Fetch employees data from API
-  useEffect(() => {
-    const fetchEmployeeData = async () => {
-      try {
-        const response = await fetchEmployees();
-        setEmployees(response);
-      } catch (error) {
-        console.error('Error fetching employee data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchEmployeeData();
-  }, []);
-
-  // Deactivate an employee
-  const handleDeactivate = async (employeeId) => {
-    try {
-      await deactivateEmployee(employeeId); // Call API to deactivate employee
-      // Update the employees list in the UI
-      setEmployees((prevEmployees) =>
-        prevEmployees.map((employee) =>
-          employee.employeeId === employeeId
-            ? { ...employee, status: 'INACTIVE' }
-            : employee
-        )
-      );
-    } catch (error) {
-      console.error('Error deactivating employee:', error);
-    }
-  };
-
-  return (
-    <div>
-      <header>
-        <h2>Employee Details</h2>
-      </header>
-      <table>
-        <thead>
-          <tr>
-            <th>Employee ID</th>
-            <th>Department</th>
-            <th>Name</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {loading ? (
-            <tr>
-              <td colSpan="5" style={{ textAlign: 'center' }}>Loading...</td>
-            </tr>
-          ) : employees.length > 0 ? (
-            employees.map((employee) => (
-              <tr key={employee.employeeId}>
-                <td>{employee.employeeId}</td>
-                <td>{employee.department.name}</td>
-                <td>{employee.shortName}</td>
-                <td>{employee.status}</td>
-                <td>
-                  {employee.status === 'ACTIVE' ? (
-                    <button onClick={() => handleDeactivate(employee.employeeId)}>
-                      Deactivate
-                    </button>
-                  ) : (
-                    <span>Inactive</span>
-                  )}
-                </td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="5" style={{ textAlign: 'center' }}>No Data</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-      <div className="buttons">
-        <Link to="/add-new-employee">
-          <button>Add New Employee</button>
-        </Link>
-        <button>Update Employee</button>
-        <button>Shift Assign</button>
-      </div>
-    </div>
-  );
-}
-
-export default Employee;
-
-*/
-
-
-/*
-import React, { useState } from 'react';
-import { addEmployee } from '../../../services/api'; // Adjust the import path as necessary
-
-function AddNewEmployee() {
-    const [shortName, setShortName] = useState('');
-  const [department, setDepartment] = useState(null); // Initialize as null
-  const [departments] = useState([
-    { departmentId: 1, name: 'Kitchen'}
-    
-  ]);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const employeeData = {
-      shortName,
-      department,
-      employeeType:"PERMANENT",
-      status: "ACTIVE"
-    };
-
-    try {
-      const responseData = await addEmployee(employeeData);
-      console.log('Employee added:', responseData);
-      setSuccess('Employee added successfully!');
-      setError(null);
-    } catch (error) {
-      console.error('Error:', error);
-      setError(error.message);
-      setSuccess(null);
-    }
-
-    // Clear the form
-    setShortName('');
-    setDepartment(null); // Reset department selection
-  };
-
-  return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label>
-          Employee Short Name:
-          <input
-            type="text"
-            value={shortName}
-            onChange={(e) => setShortName(e.target.value)}
-            required
-          />
-        </label>
-      </div>
-      <div>
-        <label>
-          Department:
-          <select
-            value={department ? department.departmentId : ''} // Use department ID for select value
-            onChange={(e) => {
-              const selectedDept = departments.find(dept => dept.departmentId === Number(e.target.value));
-              setDepartment(selectedDept || null); // Set the selected department object
-            }}
-            required
-          >
-            <option value="">Select a department</option>
-            {departments.map((dept) => (
-              <option key={dept.departmentId} value={dept.departmentId}>
-                {dept.name}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
-      <button type="submit">Add</button>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {success && <p style={{ color: 'green' }}>{success}</p>}
-    </form>
-  );
-};
-
-export default AddNewEmployee;
-*/
-
-
-/*
-import React, { useState } from 'react';
-import { addEmployee } from '../../../services/api'; // Adjust the import path as necessary
-
-function AddNewEmployee() {
-    const [shortName, setShortName] = useState('');
-    const [fullName, setFullName] = useState('');
-    const [department, setDepartment] = useState(null);
-    const [designation, setDesignation] = useState('');
-    const [nicNo, setNicNo] = useState('');
-    const [employeeType, setEmployeeType] = useState('');
-    const [epfNo, setEpfNo] = useState('');
-
-    const departments = [
-        { departmentId: 1, name: 'Kitchen' },
-        { departmentId: 2, name: 'Steward' },
-        { departmentId: 3, name: 'Back Office' },
-        { departmentId: 4, name: 'Front Office' },
-        { departmentId: 5, name: 'Cleaning & Maintenance' }
-    ];
-
-    const [error, setError] = useState(null);
-    const [success, setSuccess] = useState(null);
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        const employeeData = {
-            employeeId,
-            shortName,
-            fullName,
-            department,
-            designation,
-            nicNo,
-            employeeType,
-            epfNo: employeeType === 'PERMANENT' ? epfNo : '', // Include EPF No if Permanent
-            status: "ACTIVE"
-        };
-
-        console.log('Employee Data:', employeeData);
-
-        try {
-            const responseData = await addEmployee(employeeData);
-            console.log('Employee added:', responseData);
-            setSuccess('Employee added successfully!');
-            setError(null);
-        } catch (error) {
-            console.error('Error:', error);
-            setError(error.message);
-            setSuccess(null);
-        }
-
-        // Clear the form
-        setShortName('');
-        setFullName('');
-        setDepartment(null);
-        setDesignation('');
-        setNicNo('');
-        setEmployeeType('');
-        setEpfNo('');
-    };
-
-    return (
-        <div className="form-container">
-            <form onSubmit={handleSubmit}>
-                <div className='add-new-employee'>
-                    <label>
-                        <span>Employee Short Name:</span>
-                        <input
-                            type="text"
-                            value={shortName}
-                            onChange={(e) => setShortName(e.target.value)}
-                            required
-                        />
-                    </label>
-                </div>
-
-                <div className='add-new-employee'>
-                    <label>
-                        <span>Full Name:</span>
-                        <input
-                            type="text"
-                            value={fullName}
-                            onChange={(e) => setFullName(e.target.value)}
-                            required
-                        />
-                    </label>
-                </div>
-
-                <div className='add-new-employee'>
-                    <label>
-                        <span>Department:</span>
-                        <select
-                            value={department ? department.departmentId : ''}
-                            onChange={(e) => {
-                                const selectedDept = departments.find(dept => dept.departmentId === Number(e.target.value));
-                                setDepartment(selectedDept || null);
-                            }}
-                            required
-                        >
-                            <option value="">Select a department</option>
-                            {departments.map((dept) => (
-                                <option key={dept.departmentId} value={dept.departmentId}>
-                                    {dept.name}
-                                </option>
-                            ))}
-                        </select>
-                    </label>
-                </div>
-
-                <div className='add-new-employee'>
-                    <label>
-                        <span>Designation:</span>
-                        <input
-                            type="text"
-                            value={designation}
-                            onChange={(e) => setDesignation(e.target.value)}
-                            required
-                        />
-                    </label>
-                </div>
-
-                <div className='add-new-employee'>
-                    <label>
-                        <span>NIC No:</span>
-                        <input
-                            type="text"
-                            value={nicNo}
-                            onChange={(e) => setNicNo(e.target.value)}
-                            required
-                        />
-                    </label>
-                </div>
-
-                <div className='add-new-employee'>
-                    <label>
-                        <span>Employee Type:</span>
-                        <select
-                            value={employeeType}
-                            onChange={(e) => {
-                                setEmployeeType(e.target.value);
-                                if (e.target.value !== 'PERMANENT') {
-                                    setEpfNo(''); // Clear EPF No if not Permanent
-                                }
-                            }}
-                            required
-                        >
-                            <option value="">Select employee type</option>
-                            <option value="PERMANENT">Permanent</option>
-                            <option value="TEMPORARY">Temporary</option>
-                        </select>
-                    </label>
-                </div>
-
-                
-                {employeeType === 'PERMANENT' && (
-                    <div className='add-new-employee'>
-                        <label>
-                            <span>EPF No:</span>
-                            <input
-                                type="text"
-                                value={epfNo}
-                                onChange={(e) => setEpfNo(e.target.value)}
-                                required
-                            />
-                        </label>
-                    </div>
-                )}
-
-                <button type="submit" className="add-button">Add</button>
-                {error && <p style={{ color: 'red' }}>{error}</p>}
-                {success && <p style={{ color: 'green' }}>{success}</p>}
-            </form>
-        </div>
-    );
-};
-
-export default AddNewEmployee;
-*/
-
-
-
-/*
-import React, { useState, useEffect } from 'react';
-import { addEmployee, getLastEmployeeId } from '../../../services/api'; // Adjust the import path as necessary
-
-function AddNewEmployee() {
-    const [employeeId, setEmployeeId] = useState(''); // New state for Employee ID input
-    const [shortName, setShortName] = useState('');
-    const [fullName, setFullName] = useState('');
-    const [department, setDepartment] = useState(null);
-    const [designation, setDesignation] = useState('');
-    const [nicNo, setNicNo] = useState('');
-    const [employeeType, setEmployeeType] = useState('');
-    const [epfNo, setEpfNo] = useState('');
-    const [lastEmployeeId, setLastEmployeeId] = useState(null); // State for displaying the last employee ID
-
-    const departments = [
-        { departmentId: 1, name: 'Kitchen' },
-        { departmentId: 2, name: 'Steward' },
-        { departmentId: 3, name: 'Back Office' },
-        { departmentId: 4, name: 'Front Office' },
-        { departmentId: 5, name: 'Cleaning & Maintenance' }
-    ];
-
-    const [error, setError] = useState(null);
-    const [success, setSuccess] = useState(null);
-
-    useEffect(() => {
-        // Fetch the last employee ID on component mount
-        const fetchLastEmployeeId = async () => {
-            try {
-                const lastId = await getLastEmployeeId();
-                setLastEmployeeId(lastId || 0); // If lastId is null or undefined, set it to 0
-            } catch (error) {
-                console.error('Error fetching last employee ID:', error);
-                setLastEmployeeId(0); // Set lastEmployeeId to 0 in case of an error
-            }
-        };
-        fetchLastEmployeeId();
-    }, []);
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        const employeeData = {
-            employeeId,
-            shortName,
-            fullName,
-            department,
-            designation,
-            nicNo,
-            employeeType,
-            epfNo: employeeType === 'PERMANENT' ? epfNo : '', // Include EPF No if Permanent
-            status: "ACTIVE"
-        };
-
-        console.log('Employee Data:', employeeData);
-
-        try {
-            const responseData = await addEmployee(employeeData);
-            console.log('Employee added:', responseData);
-            setSuccess('Employee added successfully!');
-            setError(null);
-        } catch (error) {
-            console.error('Error:', error);
-            setError(error.message);
-            setSuccess(null);
-        }
-
-        // Clear the form
-        setEmployeeId('');
-        setShortName('');
-        setFullName('');
-        setDepartment(null);
-        setDesignation('');
-        setNicNo('');
-        setEmployeeType('');
-        setEpfNo('');
-    };
-
-    return (
-        <div className="form-container">
-            <form onSubmit={handleSubmit}>
-                <div className='add-new-employee'>
-                    <label>
-                        <span>Last Employee ID: {lastEmployeeId !== null ? lastEmployeeId : 'Loading...'}</span>
-                    </label>
-                </div>
-
-                <div className='add-new-employee'>
-                    <label>
-                        <span>Employee ID:</span>
-                        <input
-                            type="text"
-                            value={employeeId}
-                            onChange={(e) => setEmployeeId(e.target.value)}
-                            required
-                        />
-                    </label>
-                </div>
-
-                <div className='add-new-employee'>
-                    <label>
-                        <span>Employee Short Name:</span>
-                        <input
-                            type="text"
-                            value={shortName}
-                            onChange={(e) => setShortName(e.target.value)}
-                            required
-                        />
-                    </label>
-                </div>
-
-                <div className='add-new-employee'>
-                    <label>
-                        <span>Full Name:</span>
-                        <input
-                            type="text"
-                            value={fullName}
-                            onChange={(e) => setFullName(e.target.value)}
-                            required
-                        />
-                    </label>
-                </div>
-
-                <div className='add-new-employee'>
-                    <label>
-                        <span>Department:</span>
-                        <select
-                            value={department ? department.departmentId : ''}
-                            onChange={(e) => {
-                                const selectedDept = departments.find(dept => dept.departmentId === Number(e.target.value));
-                                setDepartment(selectedDept || null);
-                            }}
-                            required
-                        >
-                            <option value="">Select a department</option>
-                            {departments.map((dept) => (
-                                <option key={dept.departmentId} value={dept.departmentId}>
-                                    {dept.name}
-                                </option>
-                            ))}
-                        </select>
-                    </label>
-                </div>
-
-                <div className='add-new-employee'>
-                    <label>
-                        <span>Designation:</span>
-                        <input
-                            type="text"
-                            value={designation}
-                            onChange={(e) => setDesignation(e.target.value)}
-                            required
-                        />
-                    </label>
-                </div>
-
-                <div className='add-new-employee'>
-                    <label>
-                        <span>NIC No:</span>
-                        <input
-                            type="text"
-                            value={nicNo}
-                            onChange={(e) => setNicNo(e.target.value)}
-                            required
-                        />
-                    </label>
-                </div>
-
-                <div className='add-new-employee'>
-                    <label>
-                        <span>Employee Type:</span>
-                        <select
-                            value={employeeType}
-                            onChange={(e) => {
-                                setEmployeeType(e.target.value);
-                                if (e.target.value !== 'PERMANENT') {
-                                    setEpfNo(''); // Clear EPF No if not Permanent
-                                }
-                            }}
-                            required
-                        >
-                            <option value="">Select employee type</option>
-                            <option value="PERMANENT">Permanent</option>
-                            <option value="TEMPORARY">Temporary</option>
-                        </select>
-                    </label>
-                </div>
-
-                {employeeType === 'PERMANENT' && (
-                    <div className='add-new-employee'>
-                        <label>
-                            <span>EPF No:</span>
-                            <input
-                                type="text"
-                                value={epfNo}
-                                onChange={(e) => setEpfNo(e.target.value)}
-                                required
-                            />
-                        </label>
-                    </div>
-                )}
-
-                <button type="submit" className="add-button">Add</button>
-                {error && <p style={{ color: 'red' }}>{error}</p>}
-                {success && <p style={{ color: 'green' }}>{success}</p>}
-            </form>
-        </div>
-    );
-}
-
-export default AddNewEmployee;
-*/
-
-/*
-import React, { useState, useEffect } from 'react';
-import { addEmployee, getLastEmployeeId } from '../../../services/api'; // Adjust the import path as necessary
-
-function AddNewEmployee() {
-    const [employeeId, setEmployeeId] = useState(''); // New state for Employee ID input
-    const [shortName, setShortName] = useState('');
-    const [fullName, setFullName] = useState('');
-    const [department, setDepartment] = useState(null);
-    const [designation, setDesignation] = useState('');
-    const [nicNo, setNicNo] = useState('');
-    const [employeeType, setEmployeeType] = useState('');
-    const [epfNo, setEpfNo] = useState('');
-    const [lastEmployeeId, setLastEmployeeId] = useState(null); // State for displaying the last employee ID
-
-    const departments = [
-        { departmentId: 1, name: 'Kitchen' },
-        { departmentId: 2, name: 'Steward' },
-        { departmentId: 3, name: 'Back Office' },
-        { departmentId: 4, name: 'Front Office' },
-        { departmentId: 5, name: 'Cleaning & Maintenance' }
-    ];
-
-    const [error, setError] = useState(null);
-    const [success, setSuccess] = useState(null);
-
-    useEffect(() => {
-        // Fetch the last employee ID on component mount
-        const fetchLastEmployeeId = async () => {
-            try {
-                const lastId = await getLastEmployeeId();
-                setLastEmployeeId(lastId || 0); // If lastId is null or undefined, set it to 0
-            } catch (error) {
-                console.error('Error fetching last employee ID:', error);
-                setLastEmployeeId(0); // Set lastEmployeeId to 0 in case of an error
-            }
-        };
-        fetchLastEmployeeId();
-    }, []);
-
-    const validateNIC = (nicNumber) => {
-        const nicRegex = /^([1-9][0-9]{11}|[1-9][0-9]{9}|[0-9]{9}[vVxX])$/;
-        return nicRegex.test(nicNumber);
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        if (!validateNIC(nicNo)) {
-            setError('Invalid NIC number format!');
-            return;
-        }
-
-        const employeeData = {
-            employeeId: employeeId || (lastEmployeeId + 1), // Auto-generate employee ID based on last employee ID
-            shortName,
-            fullName,
-            department,
-            designation,
-            nicNo,
-            employeeType,
-            epfNo: employeeType === 'PERMANENT' ? epfNo : '', // Include EPF No if Permanent
-            status: "ACTIVE"
-        };
-
-        console.log('Employee Data:', employeeData);
-
-        try {
-            const responseData = await addEmployee(employeeData);
-            console.log('Employee added:', responseData);
-            setSuccess('Employee added successfully!');
-            setError(null);
-        } catch (error) {
-            console.error('Error:', error);
-            setError(error.message);
-            setSuccess(null);
-        }
-
-        // Clear the form after submission
-        setEmployeeId('');
-        setShortName('');
-        setFullName('');
-        setDepartment(null);
-        setDesignation('');
-        setNicNo('');
-        setEmployeeType('');
-        setEpfNo('');
-    };
-
-    return (
-        <div className="form-container">
-            <form onSubmit={handleSubmit}>
-                <div className='add-new-employee'>
-                    <label>
-                        <span>Last Employee ID: {lastEmployeeId !== null ? lastEmployeeId : 'Loading...'}</span>
-                    </label>
-                </div>
-
-                <div className='add-new-employee'>
-                    <label>
-                        <span>Employee ID:</span>
-                        <input
-                            type="text"
-                            value={employeeId}
-                            onChange={(e) => setEmployeeId(e.target.value)}
-                           
-                        />
-                    </label>
-                </div>
-
-                <div className='add-new-employee'>
-                    <label>
-                        <span>Employee Short Name:</span>
-                        <input
-                            type="text"
-                            value={shortName}
-                            onChange={(e) => setShortName(e.target.value)}
-                            required
-                        />
-                    </label>
-                </div>
-
-                <div className='add-new-employee'>
-                    <label>
-                        <span>Full Name:</span>
-                        <input
-                            type="text"
-                            value={fullName}
-                            onChange={(e) => setFullName(e.target.value)}
-                            required
-                        />
-                    </label>
-                </div>
-
-                <div className='add-new-employee'>
-                    <label>
-                        <span>Department:</span>
-                        <select
-                            value={department ? department.departmentId : ''}
-                            onChange={(e) => {
-                                const selectedDept = departments.find(dept => dept.departmentId === Number(e.target.value));
-                                setDepartment(selectedDept || null);
-                            }}
-                            required
-                        >
-                            <option value="">Select a department</option>
-                            {departments.map((dept) => (
-                                <option key={dept.departmentId} value={dept.departmentId}>
-                                    {dept.name}
-                                </option>
-                            ))}
-                        </select>
-                    </label>
-                </div>
-
-                <div className='add-new-employee'>
-                    <label>
-                        <span>Designation:</span>
-                        <input
-                            type="text"
-                            value={designation}
-                            onChange={(e) => setDesignation(e.target.value)}
-                            required
-                        />
-                    </label>
-                </div>
-
-                <div className='add-new-employee'>
-                    <label>
-                        <span>NIC No:</span>
-                        <input
-                            type="text"
-                            value={nicNo}
-                            onChange={(e) => setNicNo(e.target.value)}
-                            required
-                        />
-                    </label>
-                </div>
-
-                <div className='add-new-employee'>
-                    <label>
-                        <span>Employee Type:</span>
-                        <select
-                            value={employeeType}
-                            onChange={(e) => {
-                                setEmployeeType(e.target.value);
-                                if (e.target.value !== 'PERMANENT') {
-                                    setEpfNo(''); // Clear EPF No if not Permanent
-                                }
-                            }}
-                            required
-                        >
-                            <option value="">Select employee type</option>
-                            <option value="PERMANENT">Permanent</option>
-                            <option value="TEMPORARY">Temporary</option>
-                        </select>
-                    </label>
-                </div>
-
-                {employeeType === 'PERMANENT' && (
-                    <div className='add-new-employee'>
-                        <label>
-                            <span>EPF No:</span>
-                            <input
-                                type="text"
-                                value={epfNo}
-                                onChange={(e) => setEpfNo(e.target.value)}
-                                required
-                            />
-                        </label>
-                    </div>
-                )}
-
-                <button type="submit" className="add-button">Add</button>
-                {error && <p style={{ color: 'red' }}>{error}</p>}
-                {success && <p style={{ color: 'green' }}>{success}</p>}
-            </form>
-        </div>
-    );
-}
-
-export default AddNewEmployee;
-*/
-
-
-
-/*
-
-import React, { useState, useEffect } from 'react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  TextField,
-  Select,
-  MenuItem,
-  Typography,
-  Button,
-} from '@mui/material';
-import dayjs from 'dayjs';
-import { fetchAttendance, updateAttendanceStatus } from '../../services/api'; // Ensure your api service has the updateAttendanceStatus method
-
-function AttendanceTable(props) {
-  const [daysInMonth, setDaysInMonth] = useState([]);
-
-  useEffect(() => {
-    const currentMonth = dayjs(`01 ${props.selectedMonth} 2000`, "DD MMMM YYYY").month(); 
-    const currentYear = props.selectedYear;
-    const days = [];
-    const daysInCurrentMonth = dayjs().daysInMonth();
-
-    for (let i = 1; i <= daysInCurrentMonth; i++) {
-      const date = dayjs(new Date(currentYear, currentMonth, i));
-      const dayOfWeek = date.day();
-      days.push({
-        date: date.format('YYYY-MM-DD'),
-        day: date.format('dddd'),
-        dayOfWeek,
-        timeIn: '',
-        timeOut: '',
-        attendanceStatus: 'ab',
-        originalAttendanceStatus: 'ab', // Store the original status
-        workHours: '',
-        leaveType: '',
-      });
-    }
-
-    setDaysInMonth(days);
-
-    const loadEmployeeAttendance = async () => {
-      try {
-        const employeeAttendanceList = await fetchAttendance(props.employeeId);
-        
-        const attendanceMap = {};
-        employeeAttendanceList.forEach(record => {
-            attendanceMap[record.date] = record;
-        });
-        console.log(attendanceMap)
-        const updatedDays = days.map(day => {
-            const attendanceRecord = attendanceMap[day.date];
-            if (attendanceRecord) {
-                return {
-                    ...day,
-                    attendanceRecordId:attendanceRecord.attendanceRecordId,
-                    timeIn: attendanceRecord.actualStartTime || '',
-                    timeOut: attendanceRecord.actualEndTime || '',
-                    attendanceStatus: attendanceRecord.attendance || '',
-                    originalAttendanceStatus: attendanceRecord.attendance || '', 
-                    workHours: attendanceRecord.workHours || '',
-                    leaveType: attendanceRecord.leaveType || '',
-                };
-            }
-            return day;
-        });
-        setDaysInMonth(updatedDays);
-      } catch (error) {
-        console.error("Error fetching employee attendance:", error);
-      }
-    };
-
-    loadEmployeeAttendance();
-  }, [props.employeeId, props.selectedMonth, props.selectedYear]);
-
-  const handleFieldChange = (index, field, value) => {
-    const updatedDays = [...daysInMonth];
-    updatedDays[index][field] = value;
-
-    // If the attendance status is changed, set the new status
-    if (field === 'attendanceStatus') {
-        updatedDays[index].attendanceStatus = value;
-    }
-
-    setDaysInMonth(updatedDays);
-};
-
-
-
-const handleSave = async (index) => {
-  const day = daysInMonth[index];
-  if (day.attendanceStatus !== day.originalAttendanceStatus) {
-      try {
-          await updateAttendanceStatus(day.attendanceRecordId, day.attendanceStatus);
-          // Update the original status after saving
-          const updatedDays = [...daysInMonth];
-          updatedDays[index].originalAttendanceStatus = day.attendanceStatus;
-          setDaysInMonth(updatedDays);
-          alert('Attendance status updated successfully');
-      } catch (error) {
-          console.error('Error updating attendance status:', error);
-          alert('Failed to update attendance status');
-      }
-  }
-};
-
-
-  return (
-    <TableContainer component={Paper} style={{ margin: 'auto' }}>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Date</TableCell>
-            <TableCell>Time In</TableCell>
-            <TableCell>Time Out</TableCell>
-            <TableCell>Attendance Status</TableCell>
-            <TableCell>Work Hours</TableCell>
-            <TableCell>Leave Type</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {daysInMonth.map((day, index) => (
-            <TableRow
-              key={index}
-              style={{
-                backgroundColor:
-                  day.dayOfWeek === 0 || day.dayOfWeek === 6 ? '#f5f5f5' : 'inherit',
-              }}
-            >
-              <TableCell>
-                <Typography>{day.date} ({day.day})</Typography>
-              </TableCell>
-              <TableCell>
-                <TextField
-                  type="time"
-                  value={dayjs(day.timeIn).format("HH:mm:ss")}
-                  onChange={(e) => handleFieldChange(index, 'timeIn', e.target.value)}
-                  size="small"
-                />
-              </TableCell>
-              <TableCell>
-                <TextField
-                  type="time"
-                  value={dayjs(day.timeOut).format("HH:mm:ss")}
-                  onChange={(e) => handleFieldChange(index, 'timeOut', e.target.value)}
-                  size="small"
-                />
-              </TableCell>
-
-              <TableCell>
-                  <Select
-                      value={day.attendanceStatus}
-                      onChange={(e) => handleFieldChange(index, "attendanceStatus", e.target.value)}
-                      size="small"
-                      displayEmpty
-                  >
-                      <MenuItem value="ab">ab</MenuItem>
-                      <MenuItem value="0.5">0.5</MenuItem>
-                      <MenuItem value="1">1</MenuItem>
-                      <MenuItem value="No pay ab">No pay ab</MenuItem>
-                  </Select>
-                </TableCell>
-
-              <TableCell>
-                <TextField
-                  value={day.workHours}
-                />
-              </TableCell>
-              <TableCell>
-                <Select
-                  value={day.leaveType}
-                  onChange={(e) => handleFieldChange(index, 'leaveType', e.target.value)}
-                  displayEmpty
-                  size="small"
-                >
-                  <MenuItem value="">
-                    <em>None</em>
-                  </MenuItem>
-                  <MenuItem value="full day leave">Full Day Leave</MenuItem>
-                  <MenuItem value="half day leave">Half Day Leave</MenuItem>
-                  <MenuItem value="no pay leave">No Pay Leave</MenuItem>
-                  <MenuItem value="holiday">Holiday</MenuItem>
-                </Select>
-              </TableCell>
-              <TableCell>
-                  {/* Only show the save button if the status has changed 
-                  {day.attendanceStatus !== day.originalAttendanceStatus && (
-                      <Button
-                          variant="contained"
-                          color="primary"
-                          size="small"
-                          onClick={() => handleSave(index)}
-                      >
-                          Save
-                      </Button>
-                  )}
-                </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  );
-}
-
-export default AttendanceTable;
-
-*/
-/*
-import React, { useState, useEffect } from 'react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  TextField,
-  Select,
-  MenuItem,
-  Typography,
-  Button,
-} from '@mui/material';
-import dayjs from 'dayjs';
-import { fetchAttendance, updateAttendanceStatus } from '../../services/api'; // Ensure your api service has the updateAttendanceStatus method
-
-function AttendanceTable(props) {
-  const [daysInMonth, setDaysInMonth] = useState([]);
-
-  const calculateWorkHours = (timeIn, timeOut) => {
-    if (!timeIn || !timeOut) return ''; // Return empty if any time is missing
-
-    const start = dayjs(timeIn, 'HH:mm');
-    const end = dayjs(timeOut, 'HH:mm');
-    const duration = end.diff(start, 'minute'); // Get the duration in minutes
-
-    const hours = Math.floor(duration / 60); // Get the hours part
-    const minutes = duration % 60; // Get the minutes part
-    return `${hours}:${minutes}`; // Return formatted string
-  };
-
-  useEffect(() => {
-    const currentMonth = dayjs(`01 ${props.selectedMonth} 2000`, "DD MMMM YYYY").month(); 
-    const currentYear = props.selectedYear;
-    const days = [];
-    const daysInCurrentMonth = dayjs().daysInMonth();
-
-    for (let i = 1; i <= daysInCurrentMonth; i++) {
-      const date = dayjs(new Date(currentYear, currentMonth, i));
-      const dayOfWeek = date.day();
-      days.push({
-        date: date.format('YYYY-MM-DD'),
-        day: date.format('dddd'),
-        dayOfWeek,
-        timeIn: '',
-        timeOut: '',
-        attendanceStatus: 'ab',
-        originalAttendanceStatus: 'ab', // Store the original status
-        workHours: '',
-        totalMinutes:'',
-        leaveType: '',
-      });
-    }
-
-    setDaysInMonth(days);
-
-    const loadEmployeeAttendance = async () => {
-      try {
-        const employeeAttendanceList = await fetchAttendance(props.employeeId);
-        
-        const attendanceMap = {};
-        employeeAttendanceList.forEach(record => {
-            attendanceMap[record.date] = record;
-        });
-
-        const updatedDays = days.map(day => {
-            const attendanceRecord = attendanceMap[day.date];
-            if (attendanceRecord) {
-                return {
-                    ...day,
-                    attendanceRecordId: attendanceRecord.attendanceRecordId,
-                    timeIn: attendanceRecord.actualStartTime || '',
-                    timeOut: attendanceRecord.actualEndTime || '',
-                    attendanceStatus: attendanceRecord.attendance || '',
-                    originalAttendanceStatus: attendanceRecord.attendance || '', 
-                    workHours: calculateWorkHours(attendanceRecord.actualStartTime, attendanceRecord.actualEndTime),
-                    leaveType: attendanceRecord.leaveType || '',
-                };
-            }
-            return day;
-        });
-        setDaysInMonth(updatedDays);
-      } catch (error) {
-        console.error("Error fetching employee attendance:", error);
-      }
-    };
-
-    loadEmployeeAttendance();
-  }, [props.employeeId, props.selectedMonth, props.selectedYear]);
-
-  const handleFieldChange = (index, field, value) => {
-    const updatedDays = [...daysInMonth];
-    updatedDays[index][field] = value;
-
-    // If the attendance status is changed, set the new status
-    if (field === 'attendanceStatus') {
-        updatedDays[index].attendanceStatus = value;
-    }
-
-    if (field === 'timeIn' || field === 'timeOut') {
-      const updatedWorkHours = calculateWorkHours(updatedDays[index].timeIn, updatedDays[index].timeOut);
-      updatedDays[index].workHours = updatedWorkHours; // Update work hours when time is changed
-    }
-
-    setDaysInMonth(updatedDays);
-  };
-
-  const handleSave = async (index) => {
-    const day = daysInMonth[index];
-    if (day.attendanceStatus !== day.originalAttendanceStatus) {
-      try {
-        await updateAttendanceStatus(day.attendanceRecordId, day.attendanceStatus);
-        // Update the original status after saving
-        const updatedDays = [...daysInMonth];
-        updatedDays[index].originalAttendanceStatus = day.attendanceStatus;
-        setDaysInMonth(updatedDays);
-        alert('Attendance status updated successfully');
-      } catch (error) {
-        console.error('Error updating attendance status:', error);
-        alert('Failed to update attendance status');
-      }
-    }
-  };
-
-  return (
-    <TableContainer component={Paper} style={{ margin: 'auto' }}>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Date</TableCell>
-            <TableCell>Time In</TableCell>
-            <TableCell>Time Out</TableCell>
-            <TableCell>Attendance Status</TableCell>
-            <TableCell>Work Hours</TableCell>
-            <TableCell>Total minutes</TableCell>
-            <TableCell>Leave Type</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {daysInMonth.map((day, index) => (
-            <TableRow
-              key={index}
-              style={{
-                backgroundColor:
-                  day.dayOfWeek === 0 || day.dayOfWeek === 6 ? '#f5f5f5' : 'inherit',
-              }}
-            >
-              <TableCell>
-                <Typography>{day.date} ({day.day})</Typography>
-              </TableCell>
-              <TableCell>
-                <TextField
-                  type="time"
-                  value={dayjs(day.timeIn).format("HH:mm")}
-                  onChange={(e) => handleFieldChange(index, 'timeIn', e.target.value)}
-                  size="small"
-                />
-              </TableCell>
-              <TableCell>
-                <TextField
-                  type="time"
-                  value={dayjs(day.timeOut).format("HH:mm")}
-                  onChange={(e) => handleFieldChange(index, 'timeOut', e.target.value)}
-                  size="small"
-                />
-              </TableCell>
-              <TableCell>
-                <Select
-                  value={day.attendanceStatus}
-                  onChange={(e) => handleFieldChange(index, 'attendanceStatus', e.target.value)}
-                  size="small"
-                  displayEmpty
-                >
-                  <MenuItem value="ab">ab</MenuItem>
-                  <MenuItem value="0.5">0.5</MenuItem>
-                  <MenuItem value="1">1</MenuItem>
-                  <MenuItem value="No pay ab">No pay ab</MenuItem>
-                </Select>
-              </TableCell>
-              <TableCell>
-                <TextField
-                  value={day.workHours}
-                />
-              </TableCell>
-              <TableCell>
-                <TextField
-                  value={day.totalMinutes}
-                />
-              </TableCell>
-              <TableCell>
-                <Select
-                  value={day.leaveType}
-                  onChange={(e) => handleFieldChange(index, 'leaveType', e.target.value)}
-                  displayEmpty
-                  size="small"
-                >
-                  <MenuItem value="">
-                    <em>None</em>
-                  </MenuItem>
-                  <MenuItem value="full day leave">Full Day Leave</MenuItem>
-                  <MenuItem value="half day leave">Half Day Leave</MenuItem>
-                  <MenuItem value="no pay leave">No Pay Leave</MenuItem>
-                  <MenuItem value="holiday">Holiday</MenuItem>
-                </Select>
-              </TableCell>
-              <TableCell>
-                {/* Only show the save button if the status has changed 
-                {day.attendanceStatus !== day.originalAttendanceStatus && (
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    size="small"
-                    onClick={() => handleSave(index)}
-                  >
-                    Save
-                  </Button>
-                )}
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  );
-}
-
-export default AttendanceTable;
-
-*/
-
-
-
-
-
-
-/////////////////////////////////////
-/*
 import React, { useState, useEffect } from 'react';
 import {
   Table,
@@ -2906,3 +1569,565 @@ const LateHoursCell = ({ day, index, handleFieldChange }) => {
 
 export default LateHoursCell;
 */
+
+
+
+/*
+import React, { useState } from 'react';
+import {
+  TableCell,
+  TextField,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Typography,
+  Checkbox,
+  Box,
+} from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { formatHourMins } from '../../util/DateTimeUtil';
+
+const LateHoursCell = ({ day, index, handleFieldChange }) => {
+  const [expanded, setExpanded] = useState(false);
+  const [lcLateClockInChecked, setLcLateClockInChecked] = useState(true);
+  const [lcEarlyClockOutChecked, setLcEarlyClockOutChecked] = useState(true);
+
+  const handleExpandClick = () => setExpanded(!expanded);
+
+  const calculateTotalLateMins = (late = 0, early = 0, lateChecked, earlyChecked) => {
+    let total = 0;
+    if (lateChecked) total += late;
+    if (earlyChecked) total += early;
+    return total;
+  };
+
+  const handleLateClockinChange = (event) => {
+    const value = Number(event.target.value) || 0;
+    const updatedTotal = calculateTotalLateMins(
+      value,
+      day.lcEarlyClockoutMins || 0,
+      lcLateClockInChecked,
+      lcEarlyClockOutChecked
+    );
+    handleFieldChange(index, 'lcLateClockinMins', value);
+    handleFieldChange(index, 'lateMins', updatedTotal);
+  };
+
+  const handleLcEarlyClockoutChange = (event) => {
+    const value = Number(event.target.value) || 0;
+    const updatedTotal = calculateTotalLateMins(
+      day.lcLateClockinMins || 0,
+      value,
+      lcLateClockInChecked,
+      lcEarlyClockOutChecked
+    );
+    handleFieldChange(index, 'lcEarlyClockoutMins', value);
+    handleFieldChange(index, 'lateMins', updatedTotal);
+  };
+
+  const handleCheckboxChange = (type) => {
+    let newChecked;
+    if (type === 'late') {
+      newChecked = !lcLateClockInChecked;
+      setLcLateClockInChecked(newChecked);
+    } else if (type === 'early') {
+      newChecked = !lcEarlyClockOutChecked;
+      setLcEarlyClockOutChecked(newChecked);
+    }
+    const updatedTotal = calculateTotalLateMins(
+      day.lcLateClockinMins || 0,
+      day.lcEarlyClockoutMins || 0,
+      lcLateClockInChecked,
+      lcEarlyClockOutChecked
+    );
+    handleFieldChange(index, 'lateMins', updatedTotal);
+  };
+
+  return (
+    <TableCell>
+      <Accordion expanded={expanded} onChange={handleExpandClick}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography>{formatHourMins(day.lateMins || 0)}</Typography>
+        </AccordionSummary>
+        
+        <AccordionDetails>
+          <Box display="flex" alignItems="center" mb={2}>
+            <Checkbox
+              checked={lcLateClockInChecked}
+              onChange={() => handleCheckboxChange('late')}
+            />
+            <TextField
+              label="Late Clock In Minutes"
+              type="string"
+              value={formatHourMins(day.lcLateClockinMins)}
+              onChange={handleLateClockinChange}
+              disabled={!lcLateClockInChecked}
+              variant="outlined"
+              size="small"
+              fullWidth
+              margin="dense"
+            />
+          </Box>
+          <Box display="flex" alignItems="center" mb={2}>
+            <Checkbox
+              checked={lcEarlyClockOutChecked}
+              onChange={() => handleCheckboxChange('early')}
+            />
+            <TextField
+              label="Early Clock Out Minutes"
+              type="string"
+              value={formatHourMins(day.lcEarlyClockoutMins)}
+              onChange={handleLcEarlyClockoutChange}
+              disabled={!lcEarlyClockOutChecked}
+              variant="outlined"
+              size="small"
+              fullWidth
+              margin="dense"
+            />
+          </Box>
+        </AccordionDetails>
+      </Accordion>
+    </TableCell>
+  );
+};
+
+export default LateHoursCell;
+
+*/
+
+/*
+import React, { useState } from 'react';
+import {
+  TableCell,
+  TextField,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Typography,
+  Checkbox,
+  Box,
+} from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { formatHourMins } from '../../util/DateTimeUtil';
+
+const LateHoursCell = ({ day, index, handleFieldChange }) => {
+  const [expanded, setExpanded] = useState(false);
+  const [lcLateClockInChecked, setLcLateClockInChecked] = useState(true);
+  const [lcEarlyClockOutChecked, setLcEarlyClockOutChecked] = useState(true);
+
+  const handleExpandClick = () => setExpanded(!expanded);
+
+  const calculateTotalLateMins = (late = 0, early = 0, lateChecked, earlyChecked) => {
+    let total = 0;
+    if (lateChecked) total += late;
+    if (earlyChecked) total += early;
+    return total;
+  };
+
+  const handleLateClockinChange = (event) => {
+    const value = Number(event.target.value) || 0;
+    const updatedTotal = calculateTotalLateMins(
+      value,
+      day.lcEarlyClockoutMins || 0,
+      lcLateClockInChecked,
+      lcEarlyClockOutChecked
+    );
+    handleFieldChange(index, 'lcLateClockinMins', value);
+    handleFieldChange(index, 'lateMins', updatedTotal);
+  };
+
+  const handleLcEarlyClockoutChange = (event) => {
+    const value = Number(event.target.value) || 0;
+    const updatedTotal = calculateTotalLateMins(
+      day.lcLateClockinMins || 0,
+      value,
+      lcLateClockInChecked,
+      lcEarlyClockOutChecked
+    );
+    handleFieldChange(index, 'lcEarlyClockoutMins', value);
+    handleFieldChange(index, 'lateMins', updatedTotal);
+  };
+
+  const handleCheckboxChange = (type) => {
+    let newChecked;
+    if (type === 'late') {
+      newChecked = !lcLateClockInChecked;
+      setLcLateClockInChecked(newChecked);
+    } else if (type === 'early') {
+      newChecked = !lcEarlyClockOutChecked;
+      setLcEarlyClockOutChecked(newChecked);
+    }
+    const updatedTotal = calculateTotalLateMins(
+      day.lcLateClockinMins || 0,
+      day.lcEarlyClockoutMins || 0,
+      lcLateClockInChecked,
+      lcEarlyClockOutChecked
+    );
+    handleFieldChange(index, 'lateMins', updatedTotal);
+  };
+
+  return (
+    <TableCell>
+      <Accordion expanded={expanded} onChange={handleExpandClick}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography>{formatHourMins(day.lateMins || 0)}</Typography>
+        </AccordionSummary>
+        
+        <AccordionDetails>
+          <Box display="flex" alignItems="center" mb={2}>
+            <Checkbox
+              checked={lcLateClockInChecked}
+              onChange={() => handleCheckboxChange('late')}
+            />
+            <TextField
+              label="Late Clock In Minutes"
+              type="number"
+              value={day.lcLateClockinMins || 0}
+              onChange={handleLateClockinChange}
+              disabled={!lcLateClockInChecked}
+              variant="outlined"
+              size="small"
+              fullWidth
+              margin="dense"
+              helperText={`hh:mm - ${formatHourMins(day.lcLateClockinMins || 0)}`}
+            />
+          </Box>
+          <Box display="flex" alignItems="center" mb={2}>
+            <Checkbox
+              checked={lcEarlyClockOutChecked}
+              onChange={() => handleCheckboxChange('early')}
+            />
+            <TextField
+              label="Early Clock Out Minutes"
+              type="number"
+              value={day.lcEarlyClockoutMins || 0}
+              onChange={handleLcEarlyClockoutChange}
+              disabled={!lcEarlyClockOutChecked}
+              variant="outlined"
+              size="small"
+              fullWidth
+              margin="dense"
+              helperText={`hh:mm - ${formatHourMins(day.lcEarlyClockoutMins || 0)}`}
+            />
+          </Box>
+        </AccordionDetails>
+      </Accordion>
+    </TableCell>
+  );
+};
+
+export default LateHoursCell;
+*/
+/*
+import React, { useState } from 'react';
+import {
+  TableCell,
+  TextField,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Typography,
+  Checkbox,
+  Box,
+} from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { formatHourMins } from '../../util/DateTimeUtil';
+
+const LateHoursCell = ({ day, index, handleFieldChange }) => {
+  const [expanded, setExpanded] = useState(false);
+  const [lcLateClockInChecked, setLcLateClockInChecked] = useState(true);
+  const [lcEarlyClockOutChecked, setLcEarlyClockOutChecked] = useState(true);
+
+  const handleExpandClick = () => setExpanded(!expanded);
+
+  const calculateTotalLateMins = (late = 0, early = 0, lateChecked, earlyChecked) => {
+    let total = 0;
+    if (lateChecked) total += late;
+    if (earlyChecked) total += early;
+    return total;
+  };
+
+  const handleLateClockinChange = (event) => {
+    const value = Number(event.target.value) || 0;
+    const updatedTotal = calculateTotalLateMins(
+      value,
+      day.lcEarlyClockoutMins || 0,
+      lcLateClockInChecked,
+      lcEarlyClockOutChecked
+    );
+    handleFieldChange(index, 'updatedcLateClockinMins', value);
+    handleFieldChange(index, 'lateMins', updatedTotal);
+  };
+
+  const handleLcEarlyClockoutChange = (event) => {
+    const value = Number(event.target.value) || 0;
+    const updatedTotal = calculateTotalLateMins(
+      day.lcLateClockinMins || 0,
+      value,
+      lcLateClockInChecked,
+      lcEarlyClockOutChecked
+    );
+    handleFieldChange(index, 'updatedLcLateClockinMins', value);
+    handleFieldChange(index, 'lateMins', updatedTotal);
+  };
+
+
+/*
+
+  const handleCheckboxChange = (type) => {
+    let newCheckedLateClockIn = lcLateClockInChecked;
+    let newCheckedEarlyClockOut = lcEarlyClockOutChecked;
+  
+    if (type === 'late') {
+      newCheckedLateClockIn = !lcLateClockInChecked;
+      setLcLateClockInChecked(newCheckedLateClockIn);
+    } else if (type === 'early') {
+      newCheckedEarlyClockOut = !lcEarlyClockOutChecked;
+      setLcEarlyClockOutChecked(newCheckedEarlyClockOut);
+    }
+  
+    // Recalculate total late minutes based on updated checkbox states
+    const updatedTotal = calculateTotalLateMins(
+      day.lcLateClockinMins || 0,
+      day.lcEarlyClockoutMins || 0,
+      newCheckedLateClockIn,
+      newCheckedEarlyClockOut
+    );
+  
+    handleFieldChange(index, 'lateMins', updatedTotal);
+  };
+  */
+
+  /*
+  const handleCheckboxChange = (type) => {
+    let newCheckedLateClockIn = lcLateClockInChecked;
+    let newCheckedEarlyClockOut = lcEarlyClockOutChecked;
+  
+    if (type === 'late') {
+      newCheckedLateClockIn = !lcLateClockInChecked;
+      setLcLateClockInChecked(newCheckedLateClockIn);
+    } else if (type === 'early') {
+      newCheckedEarlyClockOut = !lcEarlyClockOutChecked;
+      setLcEarlyClockOutChecked(newCheckedEarlyClockOut);
+    }
+  
+    // Recalculate total late minutes based on updated checkbox states
+    const updatedTotal = calculateTotalLateMins(
+      day.lcLateClockinMins || 0,
+      day.lcEarlyClockoutMins || 0,
+      newCheckedLateClockIn,
+      newCheckedEarlyClockOut
+    );
+  
+    handleFieldChange(index, 'lateMins', updatedTotal);
+    handleFieldChange(index, 'updatedLcLateClockinMins', day.updatedLcLateClockinMins);
+    handleFieldChange(index, 'updatedLcEarlyClockoutMins', day.updatedLcEarlyClockoutMins);
+  };
+  
+
+  const handleCheckboxChange = (type) => {
+    const isLate = type === 'late';
+    const updatedCheckedState = isLate ? !lcLateClockInChecked : !lcEarlyClockOutChecked;
+  
+    if (isLate) setLcLateClockInChecked(updatedCheckedState);
+    else setLcEarlyClockOutChecked(updatedCheckedState);
+  
+    const updatedTotal = calculateTotalLateMins(
+      day.lcLateClockinMins || 0,
+      day.lcEarlyClockoutMins || 0,
+      isLate ? updatedCheckedState : lcLateClockInChecked,
+      !isLate ? updatedCheckedState : lcEarlyClockOutChecked
+    );
+  
+    const updatedDay = {
+      ...day,
+      updatedLcLateClockinMins: lcLateClockInChecked ? day.lcLateClockinMins || 0 : 0,
+      updatedLcEarlyClockoutMins: lcEarlyClockOutChecked ? day.lcEarlyClockoutMins || 0 : 0,
+      lateMins: updatedTotal,
+    };
+  
+    handleFieldChange(index, 'lateMins', updatedTotal);
+    handleFieldChange(index, 'updatedLcLateClockinMins', updatedDay.updatedLcLateClockinMins);
+    handleFieldChange(index, 'updatedLcEarlyClockoutMins', updatedDay.updatedLcEarlyClockoutMins);
+  };
+ 
+  return (
+    <TableCell>
+      <Accordion expanded={expanded} onChange={handleExpandClick}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography>{formatHourMins(day.lateMins || 0)}</Typography>
+        </AccordionSummary>
+        
+        <AccordionDetails>
+          <Box display="flex" alignItems="center" mb={2}>
+            <Checkbox
+              checked={lcLateClockInChecked}
+              onChange={() => handleCheckboxChange('late')}
+            />
+            <TextField
+              label="Late Clock In Minutes"
+              type="number"
+              value={day.lcLateClockinMins || 0}
+              onChange={handleLateClockinChange}
+              disabled={!lcLateClockInChecked}
+              variant="outlined"
+              size="small"
+              fullWidth
+              margin="dense"
+              helperText={`hh:mm - ${formatHourMins(day.lcLateClockinMins || 0)}`}
+            />
+          </Box>
+          <Box display="flex" alignItems="center" mb={2}>
+            <Checkbox
+              checked={lcEarlyClockOutChecked}
+              onChange={() => handleCheckboxChange('early')}
+            />
+            <TextField
+              label="Early Clock Out Minutes"
+              type="number"
+              value={day.lcEarlyClockoutMins || 0}
+              onChange={handleLcEarlyClockoutChange}
+              disabled={!lcEarlyClockOutChecked}
+              variant="outlined"
+              size="small"
+              fullWidth
+              margin="dense"
+              helperText={`hh:mm - ${formatHourMins(day.lcEarlyClockoutMins || 0)}`}
+            />
+          </Box>
+        </AccordionDetails>
+      </Accordion>
+    </TableCell>
+  );
+};
+
+export default LateHoursCell;
+
+*/
+
+
+/*
+import React, { useState } from 'react';
+import {
+  TableCell,
+  TextField,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Typography,
+  Checkbox,
+  Box,
+} from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { formatHourMins } from '../../util/DateTimeUtil';
+
+const OTHoursCell = ({ day, index, handleFieldChange }) => {
+  const [expanded, setExpanded] = useState(false);
+  const [earlyClockInsChecked, setEarlyClockInsChecked] = useState(true);
+  const [afterHoursChecked, setAfterHoursChecked] = useState(true);
+
+  // Local state for updated OT values
+  const [updatedEarlyClockinMins, setUpdatedEarlyClockinMins] = useState(day.otEarlyClockinMins || 0);
+  const [updatedLateClockoutMins, setUpdatedLateClockoutMins] = useState(day.otLateClockoutMins || 0);
+
+  const handleExpandClick = () => setExpanded(!expanded);
+
+  const calculateTotalOTMins = (early, after, earlyChecked, afterChecked) => {
+    let total = 0;
+    if (earlyChecked) total += early || 0;
+    if (afterChecked) total += after || 0;
+    return total;
+  };
+
+  const handleEarlyClockInsChange = (event) => {
+    const value = Math.max(0, Number(event.target.value)); // Prevent negative values
+    setUpdatedEarlyClockinMins(value);
+
+    const updatedTotal = calculateTotalOTMins(value, updatedLateClockoutMins, earlyClockInsChecked, afterHoursChecked);
+    handleFieldChange(index, 'updatedOtEarlyClockinMins', value);
+    handleFieldChange(index, 'otMins', updatedTotal);
+  };
+
+  const handleAfterHoursChange = (event) => {
+    const value = Math.max(0, Number(event.target.value)); // Prevent negative values
+    setUpdatedLateClockoutMins(value);
+
+    const updatedTotal = calculateTotalOTMins(updatedEarlyClockinMins, value, earlyClockInsChecked, afterHoursChecked);
+    handleFieldChange(index, 'updatedOtLateClockoutMins', value);
+    handleFieldChange(index, 'otMins', updatedTotal);
+  };
+
+  const handleCheckboxChange = (type) => {
+    if (type === 'early') {
+      const newChecked = !earlyClockInsChecked;
+      setEarlyClockInsChecked(newChecked);
+
+      const updatedTotal = calculateTotalOTMins(updatedEarlyClockinMins, updatedLateClockoutMins, newChecked, afterHoursChecked);
+      handleFieldChange(index, 'otMins', updatedTotal);
+    }
+    if (type === 'after') {
+      const newChecked = !afterHoursChecked;
+      setAfterHoursChecked(newChecked);
+
+      const updatedTotal = calculateTotalOTMins(updatedEarlyClockinMins, updatedLateClockoutMins, earlyClockInsChecked, newChecked);
+      handleFieldChange(index, 'otMins', updatedTotal);
+    }
+  };
+
+  return (
+    <TableCell>
+      <Accordion expanded={expanded} onChange={handleExpandClick}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography>{formatHourMins(day.otMins)}</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Box display="flex" alignItems="center" mb={2}>
+            <Checkbox
+              checked={earlyClockInsChecked}
+              onChange={() => handleCheckboxChange('early')}
+            />
+            <TextField
+              label="Early OT in minutes"
+              type="number"
+              value={day.updatedEarlyClockinMins || 0}
+              onChange={handleEarlyClockInsChange}
+              disabled={!earlyClockInsChecked}
+              variant="outlined"
+              size="small"
+              fullWidth
+              margin="dense"
+              helperText={`hh:mm - ${formatHourMins(day.updatedEarlyClockinMins)}`}
+            />
+          </Box>
+          <Box display="flex" alignItems="center" mb={2}>
+            <Checkbox
+              checked={afterHoursChecked}
+              onChange={() => handleCheckboxChange('after')}
+            />
+            <TextField
+              label="After OT in minutes"
+              type="number"
+              value={day.updatedLateClockoutMins ||0}
+              onChange={handleAfterHoursChange}
+              disabled={!afterHoursChecked}
+              variant="outlined"
+              size="small"
+              fullWidth
+              margin="dense"
+              helperText={`hh:mm - ${formatHourMins(day.updatedLateClockoutMins)}`}
+            />
+          </Box>
+        </AccordionDetails>
+      </Accordion>
+    </TableCell>
+  );
+};
+
+export default OTHoursCell;
+
+*/
+
+
+
+
+

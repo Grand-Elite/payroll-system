@@ -44,11 +44,15 @@ function AttendanceTable(props) {
         shift: '',
         otMins: 0,
         otEarlyClockinMins: 0,
+        updatedOtEarlyClockinMins: 0,
         otLateClockoutMins:0,
+        updatedOtLateClockoutMins:0,
         originalOtMins: 0,
         lateMins: 0,
         lcLateClockinMins: 0,
+        updatedLcLateClockinMins: 0,
         lcEarlyClockoutMins: 0,
+        updatedLcEarlyClockoutMins: 0,
         originalLateMins: 0,
         leaveType: '',
       });
@@ -80,12 +84,16 @@ function AttendanceTable(props) {
 
                     otMins: attendanceRecord.otMins || 0,
                     otEarlyClockinMins: attendanceRecord.otEarlyClockinMins || 0,
+                    updatedOtEarlyClockinMins: attendanceRecord.otEarlyClockinMins || 0,
                     otLateClockoutMins: attendanceRecord.otLateClockoutMins || 0,
+                    updatedOtLateClockoutMins: attendanceRecord.otLateClockoutMins || 0,
                     originalOtMins: attendanceRecord.otMins || '', 
 
                     lateMins: attendanceRecord.lcMins || '',
                     lcLateClockinMins: attendanceRecord.lcLateClockinMins || 0,
+                    updatedLcLateClockinMins: attendanceRecord.lcLateClockinMins || 0,
                     lcEarlyClockoutMins: attendanceRecord.lcEarlyClockoutMins || 0,
+                    updatedlcEarlyClockoutMins: attendanceRecord.updatedLcEarlyClockoutMins || 0,
                     originalLateMins: attendanceRecord.lcMins || '', 
 
                     leaveType: attendanceRecord.leaveType || '',
@@ -133,22 +141,51 @@ function AttendanceTable(props) {
 };
 */
 
+
 const handleSave = async (index) => {
   const day = daysInMonth[index];
-  if (day.attendanceStatus !== day.originalAttendanceStatus) {
-      try {
-          await updateAttendanceStatus(day.attendanceRecordId, day.attendanceStatus);
-          // Update the original status after saving
-          const updatedDays = [...daysInMonth];
-          updatedDays[index].originalAttendanceStatus = day.attendanceStatus;
-          setDaysInMonth(updatedDays);
-          alert('Attendance status updated successfully');
-      } catch (error) {
-          console.error('Error updating attendance status:', error);
-          alert('Failed to update attendance status');
-      }
+  if (
+    day.attendanceStatus !== day.originalAttendanceStatus ||
+    day.updatedOtEarlyClockinMins !== day.otEarlyClockinMins ||
+    day.updatedOtLateClockoutMins !== day.otLateClockoutMins ||
+    day.updatedLcLateClockinMins !== day.lcLateClockinMins ||
+    day.updatedLcEarlyClockoutMins !== day.lcEarlyClockoutMins ||
+    day.lateMins !== day.originalLateMins||
+    day.otMins !== day.originalOtMins
+  ) {
+    try {
+      await updateAttendanceStatus(
+        day.attendanceRecordId,
+        day.attendanceStatus,
+        day.updatedLcEarlyClockoutMins,
+        day.updatedLcLateClockinMins,
+        day.updatedOtEarlyClockinMins,
+        day.updatedOtLateClockoutMins,
+        day.lateMins,
+        day.otMins
+      );
+
+      // Update the original values to ensure consistency:
+      const updatedDays = [...daysInMonth];
+      updatedDays[index] = {
+        ...day,
+        originalAttendanceStatus: day.attendanceStatus,
+        otEarlyClockinMins: day.updatedOtEarlyClockinMins,
+        otLateClockoutMins: day.updatedOtLateClockoutMins,
+        lcLateClockinMins: day.updatedLcLateClockinMins,
+        lcEarlyClockoutMins: day.updatedLcEarlyClockoutMins,
+        originalLateMins: day.lateMins,
+        originalOtMins: day.otMins
+      };
+      setDaysInMonth(updatedDays);
+      alert('Attendance record updated successfully');
+    } catch (error) {
+      console.error('Error updating attendance record:', error);
+      alert('Failed to update attendance record');
+    }
   }
 };
+
 
 
 
