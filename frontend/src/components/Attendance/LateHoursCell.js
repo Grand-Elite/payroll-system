@@ -50,22 +50,33 @@ const LateHoursCell = ({ day, index, handleFieldChange }) => {
     handleFieldChange(index, 'lateMins', updatedTotal);
   };
 
+
   const handleCheckboxChange = (type) => {
     const isLate = type === 'late';
     const updatedCheckedState = isLate ? !lcLateClockInChecked : !lcEarlyClockOutChecked;
-
-    if (isLate) setLcLateClockInChecked(updatedCheckedState);
-    else setLcEarlyClockOutChecked(updatedCheckedState);
-
+  
+    if (isLate) {
+      setLcLateClockInChecked(updatedCheckedState);
+      if (!updatedCheckedState) {
+        handleFieldChange(index, 'updatedLcLateClockinMins', 0); // Set value to 0
+      }
+    } else {
+      setLcEarlyClockOutChecked(updatedCheckedState);
+      if (!updatedCheckedState) {
+        handleFieldChange(index, 'updatedLcEarlyClockoutMins', 0); // Set value to 0
+      }
+    }
+  
     const updatedTotal = calculateTotalLateMins(
-      day.updatedLcLateClockinMins || 0,
-      day.updatedLcEarlyClockoutMins || 0,
+      isLate ? (updatedCheckedState ? day.updatedLcLateClockinMins || 0 : 0) : day.updatedLcLateClockinMins || 0,
+      !isLate ? (updatedCheckedState ? day.updatedLcEarlyClockoutMins || 0 : 0) : day.updatedLcEarlyClockoutMins || 0,
       isLate ? updatedCheckedState : lcLateClockInChecked,
       !isLate ? updatedCheckedState : lcEarlyClockOutChecked
     );
-
+  
     handleFieldChange(index, 'lateMins', updatedTotal);
   };
+  
 
   return (
     <TableCell>

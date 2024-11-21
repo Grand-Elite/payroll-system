@@ -50,6 +50,7 @@ const OTHoursCell = ({ day, index, handleFieldChange }) => {
     handleFieldChange(index, 'otMins', updatedTotal);
   };
 
+  /*
   const handleCheckboxChange = (type) => {
     const isEarly = type === 'early';
     const updatedCheckedState = isEarly ? !otEarlyClockInChecked : !otLateClockOutChecked;
@@ -66,6 +67,35 @@ const OTHoursCell = ({ day, index, handleFieldChange }) => {
 
     handleFieldChange(index, 'otMins', updatedTotal);
   };
+  */
+
+  const handleCheckboxChange = (type) => {
+    const isEarly = type === 'early';
+    const updatedCheckedState = isEarly ? !otEarlyClockInChecked : ! otLateClockOutChecked;
+  
+    if (isEarly) {
+      setOtEarlyClockInChecked(updatedCheckedState);
+      if (!updatedCheckedState) {
+        handleFieldChange(index, 'updatedOtEarlyClockinMins', 0); // Set value to 0
+      }
+    } else {
+      setOtLateClockOutChecked(updatedCheckedState);
+      if (!updatedCheckedState) {
+        handleFieldChange(index, 'updatedOtLateClockoutMins', 0); // Set value to 0
+      }
+    }
+  
+    const updatedTotal = calculateTotalOTMins(
+      isEarly ? (updatedCheckedState ? day.updatedOtEarlyClockinMins || 0 : 0) : day.updatedOtEarlyClockinMins || 0,
+      !isEarly ? (updatedCheckedState ? day.updatedOtLateClockoutMins || 0 : 0) : day.updatedOtLateClockoutMins || 0,
+      isEarly ? updatedCheckedState : otEarlyClockInChecked,
+      !isEarly ? updatedCheckedState : otLateClockOutChecked
+    );
+  
+    handleFieldChange(index, 'otMins', updatedTotal);
+  };
+
+
 
   return (
     <TableCell>
