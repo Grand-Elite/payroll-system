@@ -101,7 +101,7 @@ const OTHoursCell = ({ day, index, handleFieldChange }) => {
     <TableCell>
       <Accordion expanded={expanded} onChange={handleExpandClick}>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography>{formatHourMins(day.otMins || 0)}</Typography>
+          <Typography>{formatHourMins(day.otMins || 0)}{day.overwritten}</Typography>
         </AccordionSummary>
 
         <AccordionDetails>

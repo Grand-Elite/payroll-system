@@ -54,7 +54,7 @@ function AttendanceTable(props) {
         lcEarlyClockoutMins: 0,
         updatedLcEarlyClockoutMins: 0,
         originalLateMins: 0,
-        leaveType: '',
+        overwritten: '',
       });
     }
 
@@ -77,26 +77,54 @@ function AttendanceTable(props) {
                   attendanceRecordId: attendanceRecord.attendanceRecordId,
                   timeIn: attendanceRecord.actualStartTime || '',
                   timeOut: attendanceRecord.actualEndTime || '',
-                  attendanceStatus: attendanceRecord.attendance || '',
-                  originalAttendanceStatus: attendanceRecord.attendance || '', 
+                  attendanceStatus: attendanceRecord.overwrittenAttendanceStatus?
+                                    attendanceRecord.overwrittenAttendanceStatus.updatedAttendanceStatus:null 
+                                    || attendanceRecord.attendance || '',
+                  originalAttendanceStatus: attendanceRecord.overwrittenAttendanceStatus?
+                                            attendanceRecord.overwrittenAttendanceStatus.updatedAttendanceStatus:null 
+                                            || attendanceRecord.attendance || '',
                   workMins: attendanceRecord.workMins || 0,
                   shift: attendanceRecord.shift.shiftPeriod || 'MORNING',
       
-                  otMins: attendanceRecord.otMins || 0,
-                  otEarlyClockinMins: attendanceRecord.otEarlyClockinMins || 0,
-                  updatedOtEarlyClockinMins: attendanceRecord.otEarlyClockinMins || 0,
-                  otLateClockoutMins: attendanceRecord.otLateClockoutMins || 0,
-                  updatedOtLateClockoutMins: attendanceRecord.otLateClockoutMins || 0,
-                  originalOtMins: attendanceRecord.otMins || '', 
+                  otMins: attendanceRecord.overwrittenAttendanceStatus?
+                          attendanceRecord.overwrittenAttendanceStatus.updatedTotalOtMins:null 
+                          ||attendanceRecord.otMins || 0,
+                  originalOtMins: attendanceRecord.overwrittenAttendanceStatus?
+                                  attendanceRecord.overwrittenAttendanceStatus.updatedTotalOtMins:null 
+                                  ||attendanceRecord.otMins || 0,
+                  otEarlyClockinMins: attendanceRecord.overwrittenAttendanceStatus?
+                                      attendanceRecord.overwrittenAttendanceStatus.updatedOtEarlyClockinMins:null 
+                                      || attendanceRecord.otEarlyClockinMins || 0,
+                  updatedOtEarlyClockinMins: attendanceRecord.overwrittenAttendanceStatus?
+                                              attendanceRecord.overwrittenAttendanceStatus.updatedOtEarlyClockinMins:null 
+                                            || attendanceRecord.otEarlyClockinMins || 0,
+                  otLateClockoutMins: attendanceRecord.overwrittenAttendanceStatus?
+                                      attendanceRecord.overwrittenAttendanceStatus.updatedOtLateClockoutMins:null 
+                                      || attendanceRecord.otLateClockoutMins || 0,
+                  updatedOtLateClockoutMins: attendanceRecord.overwrittenAttendanceStatus?
+                                              attendanceRecord.overwrittenAttendanceStatus.updatedOtLateClockoutMins:null 
+                                            || attendanceRecord.otLateClockoutMins || 0,
       
-                  lateMins: attendanceRecord.lcMins || '',
-                  lcLateClockinMins: attendanceRecord.lcLateClockinMins || 0,
-                  updatedLcLateClockinMins: attendanceRecord.lcLateClockinMins || 0,
-                  lcEarlyClockoutMins: attendanceRecord.lcEarlyClockoutMins || 0,
-                  updatedLcEarlyClockoutMins: attendanceRecord.lcEarlyClockoutMins || 0, // Fixed property
-                  originalLateMins: attendanceRecord.lcMins || '', 
+                  lateMins: attendanceRecord.overwrittenAttendanceStatus?
+                            attendanceRecord.overwrittenAttendanceStatus.updatedTotalLcMins:null 
+                            || attendanceRecord.lcMins || '',
+                  originalLateMins: attendanceRecord.overwrittenAttendanceStatus?
+                                    attendanceRecord.overwrittenAttendanceStatus.updatedTotalLcMins:null 
+                                  || attendanceRecord.lcMins || '',
+                  lcLateClockinMins: attendanceRecord.overwrittenAttendanceStatus?
+                                      attendanceRecord.overwrittenAttendanceStatus.updatedLcLateClockinMins:null 
+                                      ||attendanceRecord.lcLateClockinMins || 0,
+                  updatedLcLateClockinMins: attendanceRecord.overwrittenAttendanceStatus?
+                                            attendanceRecord.overwrittenAttendanceStatus.updatedLcLateClockinMins:null 
+                                            ||attendanceRecord.lcLateClockinMins || 0,
+                  lcEarlyClockoutMins: attendanceRecord.overwrittenAttendanceStatus?
+                                        attendanceRecord.overwrittenAttendanceStatus.updatedLcEarlyClockoutMins:null 
+                                        ||attendanceRecord.lcEarlyClockoutMins || 0,
+                  updatedLcEarlyClockoutMins: attendanceRecord.overwrittenAttendanceStatus?
+                                              attendanceRecord.overwrittenAttendanceStatus.updatedLcEarlyClockoutMins:null 
+                                              ||attendanceRecord.lcEarlyClockoutMins || 0,
       
-                  leaveType: attendanceRecord.leaveType || '',
+                  overwritten: attendanceRecord.overwrittenAttendanceStatus?'*':'',
               };
           }
           return day;

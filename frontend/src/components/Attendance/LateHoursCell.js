@@ -82,7 +82,7 @@ const LateHoursCell = ({ day, index, handleFieldChange }) => {
     <TableCell>
       <Accordion expanded={expanded} onChange={handleExpandClick}>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography>{formatHourMins(day.lateMins || 0)}</Typography>
+          <Typography>{formatHourMins(day.lateMins || 0)}{day.overwritten}</Typography>
         </AccordionSummary>
 
         <AccordionDetails>
