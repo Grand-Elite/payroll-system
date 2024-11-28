@@ -18,31 +18,31 @@ public class SalaryBase {
     private Employee employee;
 
     @Column(name="basic_salary", nullable = false)
-    private Long basicSalary;
+    private Double basicSalary;
 
     @Column(name="attendance_allowance")
-    private Long attendanceAllowance;
+    private Double attendanceAllowance;
 
     @Column(name="transport_allowance")
-    private Long transportAllowance;
+    private Double transportAllowance;
 
     @Column(name="performance_allowance")
-    private Long performanceAllowance;
+    private Double performanceAllowance;
 
     @Column(name = "incentives")
-    private Long incentives;
+    private Double incentives;
 
     @Column(name="salary_advance")
-    private Long salaryAdvance;
+    private Double salaryAdvance;
 
     @Column(name="food_bill")
-    private Long foodBill;
+    private Double foodBill;
 
     @Column(name="arrears")
-    private Long arrears;
+    private Double arrears;
 
     @Column(name = "other_deductions")
-    private Long otherDeductions;
+    private Double otherDeductions;
 
     @Column(name="ot_1_rate")
     private Double ot1Rate;
@@ -51,7 +51,7 @@ public class SalaryBase {
     private Double ot2Rate;
 
     @Column(name = "bonus")
-    private Long bonus;
+    private Double bonus;
 
 
 }

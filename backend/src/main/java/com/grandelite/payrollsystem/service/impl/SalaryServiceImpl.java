@@ -32,7 +32,7 @@ public class SalaryServiceImpl implements SalaryService {
         return salaryRepository.findByEmployeeEmployeeId(employeeId)
                 .orElseGet(() -> {
                     SalaryBase defaultSalaryBase = createDefaultSalaryBase();
-                    defaultSalaryBase.setBasicSalary(0L); // indicate no record found
+                    defaultSalaryBase.setBasicSalary(0.0); // indicate no record found
                     return defaultSalaryBase;
                 });
     }
@@ -41,18 +41,18 @@ public class SalaryServiceImpl implements SalaryService {
     // Method to create a default SalaryBase object with 0 values
     private SalaryBase createDefaultSalaryBase() {
         SalaryBase defaultSalaryBase = new SalaryBase();
-        defaultSalaryBase.setBasicSalary(0L);
-        defaultSalaryBase.setAttendanceAllowance(0L);
-        defaultSalaryBase.setTransportAllowance(0L);
-        defaultSalaryBase.setPerformanceAllowance(0L);
+        defaultSalaryBase.setBasicSalary(0.0);
+        defaultSalaryBase.setAttendanceAllowance(0.0);
+        defaultSalaryBase.setTransportAllowance(0.0);
+        defaultSalaryBase.setPerformanceAllowance(0.0);
         defaultSalaryBase.setOt1Rate(0.0);  // Setting default value as 0.0 for Double fields
         defaultSalaryBase.setOt2Rate(0.0);  // Same for ot2Rate
-        defaultSalaryBase.setIncentives(0L);
-        defaultSalaryBase.setSalaryAdvance(0L);
-        defaultSalaryBase.setFoodBill(0L);
-        defaultSalaryBase.setArrears(0L);
-        defaultSalaryBase.setOtherDeductions(0L);
-        defaultSalaryBase.setBonus(0L);
+        defaultSalaryBase.setIncentives(0.0);
+        defaultSalaryBase.setSalaryAdvance(0.0);
+        defaultSalaryBase.setFoodBill(0.0);
+        defaultSalaryBase.setArrears(0.0);
+        defaultSalaryBase.setOtherDeductions(0.0);
+        defaultSalaryBase.setBonus(0.0);
         return defaultSalaryBase;
     }
 }
