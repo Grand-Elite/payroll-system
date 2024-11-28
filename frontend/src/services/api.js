@@ -95,6 +95,26 @@ const updateAttendanceStatus = async (
 
 
 
+export const updateSalaryDetails = async (employeeId, salaryDetails) => {
+  try {
+    const response = await axios.patch(
+      `${API_BASE_URL}/salaryBase/${employeeId}`,
+      salaryDetails,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return response;
+  } catch (error) {
+    console.error('Error updating salary details in API:', error);
+    throw error;
+  }
+};
+
+
+
 
 
 export const updateShift = async (id, shiftData) => {

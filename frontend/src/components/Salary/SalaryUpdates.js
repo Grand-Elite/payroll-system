@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+
 import {
   Box,
   Select,
@@ -11,7 +12,7 @@ import {
   Button,
   Grid,
 } from '@mui/material';
-import { fetchEmployees, getSalaryDetailByEmployeeId } from '../../services/api';
+import { fetchEmployees, getSalaryDetailByEmployeeId, updateSalaryDetails } from '../../services/api';
 import './SalaryUpdates.css';
 
 function SalaryUpdates() {
@@ -32,8 +33,8 @@ function SalaryUpdates() {
     foodBill: '',
     arrears: '',
     otherDeductions: '',
-    otRate1: '',
-    otRate2: '',
+    ot1Rate: '',
+    ot2Rate: '',
   });
 
   useEffect(() => {
@@ -81,8 +82,8 @@ function SalaryUpdates() {
         foodBill: salaryDetails.foodBill || '',
         arrears: salaryDetails.arrears || '',
         otherDeductions: salaryDetails.otherDeductions || '',
-        otRate1: salaryDetails.ot1Rate || '',
-        otRate2: salaryDetails.ot2Rate || '',
+        ot1Rate: salaryDetails.ot1Rate || '',
+        ot2Rate: salaryDetails.ot2Rate || '',
       });
     } catch (error) {
       console.error('Error fetching salary details:', error);
@@ -101,9 +102,25 @@ function SalaryUpdates() {
     });
   };
 
-  const handleSubmit = () => {
-    console.log('Form Data Submitted:', formData);
+  const handleSubmit = async () => {
+    if (!selectedEmployee) {
+      alert('Please select an employee.');
+      return;
+    }
+  
+    try {
+      const response = await updateSalaryDetails(selectedEmployee.employeeId, formData);
+  
+      if (response.status === 200) {
+        alert('Salary details updated successfully!');
+      }
+    } catch (error) {
+      console.error('Error updating salary details:', error);
+      alert('An error occurred while updating salary details. Please try again.');
+    }
   };
+
+
   return (
     <Box className="salary-updates-container">
       <Typography className="salary-updates-header" variant="h4" gutterBottom>
