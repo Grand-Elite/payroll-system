@@ -12,7 +12,7 @@ import {
   Button,
   Grid,
 } from '@mui/material';
-import { fetchEmployees, getSalaryDetailByEmployeeId, updateSalaryDetails } from '../../services/api';
+import { fetchEmployees, getSalaryDetailByEmployeeId, updateSalaryDetails, createSalaryDetails } from '../../services/api';
 import './SalaryUpdates.css';
 
 function SalaryUpdates() {
@@ -102,24 +102,31 @@ function SalaryUpdates() {
     });
   };
 
-  const handleSubmit = async () => {
-    if (!selectedEmployee) {
-      alert('Please select an employee.');
-      return;
-    }
-  
-    try {
+ const handleSubmit = async () => {
+  if (!selectedEmployee) {
+    alert('Please select an employee.');
+    return;
+  }
+
+  try {
+    // If salary details are not found (error message is shown), create a new record
+    if (salaryDetailsNotFound) {
+      const response = await createSalaryDetails(selectedEmployee.employeeId, formData);
+      if (response.status === 201) { // Status 201 is for resource creation
+        alert('Salary details created successfully!');
+      }
+    } else {
+      // Otherwise, update the existing salary details
       const response = await updateSalaryDetails(selectedEmployee.employeeId, formData);
-  
       if (response.status === 200) {
         alert('Salary details updated successfully!');
       }
-    } catch (error) {
-      console.error('Error updating salary details:', error);
-      alert('An error occurred while updating salary details. Please try again.');
     }
-  };
-
+  } catch (error) {
+    console.error('Error submitting salary details:', error);
+    alert('An error occurred while submitting salary details. Please try again.');
+  }
+};
 
   return (
     <Box className="salary-updates-container">

@@ -114,6 +114,24 @@ export const updateSalaryDetails = async (employeeId, salaryDetails) => {
 };
 
 
+// Create new salary details if no record exists
+export const createSalaryDetails = async (employeeId, salaryDetails) => {
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/salaryBase/${employeeId}`,
+      salaryDetails,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return response;
+  } catch (error) {
+    console.error('Error creating salary details in API:', error);
+    throw error;
+  }
+};
 
 
 
