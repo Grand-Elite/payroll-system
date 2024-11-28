@@ -7,25 +7,35 @@ import {
   FormControl,
   InputLabel,
   CircularProgress,
-  TextField,  // Importing TextField for form fields
-  Button,     // Button for submitting the form
-  Grid,       // Import Grid for layout
+  TextField,
+  Button,
+  Grid,
 } from '@mui/material';
-import { fetchEmployees } from '../../services/api';
-import './SalaryUpdates.css';  // Import the CSS file
+import { fetchEmployees, getSalaryDetailByEmployeeId } from '../../services/api';
+import './SalaryUpdates.css';
 
 function SalaryUpdates() {
   const [employees, setEmployees] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [loadingEmployees, setLoadingEmployees] = useState(false);
+  const [loadingSalaryDetails, setLoadingSalaryDetails] = useState(false);
+  const [salaryDetailsNotFound, setSalaryDetailsNotFound] = useState(false);
 
-  // Form fields state
   const [formData, setFormData] = useState({
     basicSalary: '',
     bonus: '',
+    attendanceAllowance: '',
+    transportAllowance: '',
+    performanceAllowance: '',
+    incentives: '',
+    salaryAdvance: '',
+    foodBill: '',
+    arrears: '',
+    otherDeductions: '',
+    otRate1: '',
+    otRate2: '',
   });
 
-  // Fetch employees when component mounts
   useEffect(() => {
     const loadEmployees = async () => {
       setLoadingEmployees(true);
@@ -41,20 +51,48 @@ function SalaryUpdates() {
     loadEmployees();
   }, []);
 
-  // Handle employee selection
-  const handleEmployeeChange = (event) => {
+  const handleEmployeeChange = async (event) => {
     const employeeId = event.target.value;
     const employee = employees.find((emp) => emp.employeeId === employeeId);
     setSelectedEmployee(employee);
-
-    // Reset form data when a new employee is selected
-    setFormData({
-      basicSalary: '',
-      bonus: '',
-    });
+  
+    // Fetch salary details for the selected employee
+    setLoadingSalaryDetails(true);
+    try {
+      const salaryDetails = await getSalaryDetailByEmployeeId(employeeId);
+  
+      // If no salary details are found, set the state accordingly
+      const isSalaryEmpty = Object.values(salaryDetails).every(value => value === 0 || value === false || value === null);
+      
+      if (isSalaryEmpty) {
+        setSalaryDetailsNotFound(true);
+      } else {
+        setSalaryDetailsNotFound(false);
+      }
+  
+      setFormData({
+        basicSalary: salaryDetails.basicSalary || '',
+        bonus: salaryDetails.bonus || '',
+        attendanceAllowance: salaryDetails.attendanceAllowance || '',
+        transportAllowance: salaryDetails.transportAllowance || '',
+        performanceAllowance: salaryDetails.performanceAllowance || '',
+        incentives: salaryDetails.incentives || '',
+        salaryAdvance: salaryDetails.salaryAdvance || '',
+        foodBill: salaryDetails.foodBill || '',
+        arrears: salaryDetails.arrears || '',
+        otherDeductions: salaryDetails.otherDeductions || '',
+        otRate1: salaryDetails.ot1Rate || '',
+        otRate2: salaryDetails.ot2Rate || '',
+      });
+    } catch (error) {
+      console.error('Error fetching salary details:', error);
+      setSalaryDetailsNotFound(true); // Set to true if there's an error fetching salary details
+    } finally {
+      setLoadingSalaryDetails(false);
+    }
   };
+  
 
-  // Handle change in form fields
   const handleFormChange = (event) => {
     const { name, value } = event.target;
     setFormData({
@@ -63,18 +101,15 @@ function SalaryUpdates() {
     });
   };
 
-  // Handle form submission
   const handleSubmit = () => {
-    // Handle form data submission (e.g., send it to an API or save it)
     console.log('Form Data Submitted:', formData);
   };
-
   return (
     <Box className="salary-updates-container">
       <Typography className="salary-updates-header" variant="h4" gutterBottom>
         Salary Updates
       </Typography>
-
+  
       {loadingEmployees ? (
         <CircularProgress />
       ) : (
@@ -93,87 +128,85 @@ function SalaryUpdates() {
           </Select>
         </FormControl>
       )}
-
-      {/* Display selected employee's details */}
+  
+      {/* Displaying selected employee's basic information */}
       {selectedEmployee && (
-        <Box className="employee-details-container">
-          <Box className="employee-detail-row">
-            <Typography className="employee-detail-label" variant="body1">
-              Selected Employee
-            </Typography>
-            <Typography className="employee-detail-colon">:</Typography>
-            <Typography className="employee-detail-value">{selectedEmployee.shortName}</Typography>
-          </Box>
-          <Box className="employee-detail-row">
-            <Typography className="employee-detail-label" variant="body1">
-              Full Name
-            </Typography>
-            <Typography className="employee-detail-colon">:</Typography>
-            <Typography className="employee-detail-value">{selectedEmployee.fullName}</Typography>
-          </Box>
-          <Box className="employee-detail-row">
-            <Typography className="employee-detail-label" variant="body1">
-              Employee ID
-            </Typography>
-            <Typography className="employee-detail-colon">:</Typography>
-            <Typography className="employee-detail-value">{selectedEmployee.employeeId}</Typography>
-          </Box>
+        <Box 
+          className="selected-employee-info" 
+          mt={2} 
+          p={2} 
+          border={1} 
+          borderRadius={2} 
+          borderColor="grey.300"
+        >
+            <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
+              <Typography style={{ fontWeight: 'bold', marginRight: '28px' }}>Employee ID:</Typography>
+              <Typography>{selectedEmployee.employeeId}</Typography>
+            </div>
+            <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
+              <Typography style={{ fontWeight: 'bold', marginRight: '32px' }}>Short Name:</Typography>
+              <Typography>{selectedEmployee.shortName}</Typography>
+            </div>
+            <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
+              <Typography style={{ fontWeight: 'bold', marginRight: '45px' }}>Full Name:</Typography>
+              <Typography>{selectedEmployee.fullName}</Typography>
+            </div>
         </Box>
       )}
-
-      {/* Display form fields only if an employee is selected */}
+  
+      {/* Displaying error message if no salary details are found */}
+      {salaryDetailsNotFound && (
+        <Typography color="error" variant="body1" style={{ marginTop: '10px' }}>
+          No salary details available for {selectedEmployee.shortName}. Please insert new salary details.
+        </Typography>
+      )}
+  
+      {/* Displaying the employee's salary form */}
       {selectedEmployee && (
-        <Box className="employee-form-container" mt={2}>
-          {/* Basic Salary */}
-          <Grid container spacing={1} alignItems="center">
-            <Grid item xs={3}>
-              <Typography variant="subtitle1">Basic Salary + BR1 + BR2 </Typography>
-            </Grid>
-            <Grid item xs={9}>
-              <TextField
-                label="Enter Basic Salary"
-                name="basicSalary"
-                value={formData.basicSalary}
-                onChange={handleFormChange}
-                fullWidth
-                variant="outlined"
-                margin="normal"
-                placeholder="Enter value"
-                size="small"  
-              />
-            </Grid>
-          </Grid>
-
-          {/* Bonus */}
-          <Grid container spacing={1} alignItems="center">
-            <Grid item xs={3}>
-              <Typography variant="subtitle1">Bonus</Typography>
-            </Grid>
-            <Grid item xs={9}>
-              <TextField
-                label="Enter Bonus"
-                name="bonus"
-                value={formData.bonus}
-                onChange={handleFormChange}
-                fullWidth
-                variant="outlined"
-                margin="normal"
-                placeholder="Enter value"
-                size="small"  // Makes the text box smaller
-              />
-            </Grid>
-          </Grid>
-
-          {/* Submit Button */}
-          <Box mt={2}>
-            <Button variant="contained" color="primary" onClick={handleSubmit}>
-              Submit
-            </Button>
-          </Box>
-        </Box>
+        <>
+          {loadingSalaryDetails ? (
+            <CircularProgress />
+          ) : (
+            <Box className="employee-form-container" mt={2}>
+              {Object.keys(formData).map((field) => (
+                <Grid container spacing={1} alignItems="center" key={field}>
+                  <Grid item xs={3}>
+                    <Typography variant="subtitle1">
+                      {field
+                        .replace(/([A-Z])/g, ' $1') // Add spaces before capital letters
+                        .replace(/^./, (str) => str.toUpperCase())} {/* Capitalize first letter */}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={9}>
+                    <TextField
+                      name={field}
+                      value={formData[field]}
+                      onChange={handleFormChange}
+                      fullWidth
+                      variant="outlined"
+                      margin="normal"
+                      size="small"
+                      InputProps={{
+                        style: {
+                          color: 'gray', // Sets the text color to gray
+                        },
+                      }}
+                    />
+                  </Grid>
+                </Grid>
+              ))}
+  
+              <Box mt={2}>
+                <Button variant="contained" color="primary" onClick={handleSubmit}>
+                  Submit
+                </Button>
+              </Box>
+            </Box>
+          )}
+        </>
       )}
     </Box>
   );
-}
+    }
 
 export default SalaryUpdates;

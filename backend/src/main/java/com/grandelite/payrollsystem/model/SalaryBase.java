@@ -17,8 +17,8 @@ public class SalaryBase {
     @JoinColumn(name = "employee_id")
     private Employee employee;
 
-    @Column(name="basic", nullable = false)
-    private Long basic;
+    @Column(name="basic_salary", nullable = false)
+    private Long basicSalary;
 
     @Column(name="attendance_allowance")
     private Long attendanceAllowance;
@@ -26,23 +26,29 @@ public class SalaryBase {
     @Column(name="transport_allowance")
     private Long transportAllowance;
 
-    @Column(name="performance_allowance_eligibility")
-    private Boolean performanceAllowanceEligibility;
-
     @Column(name="performance_allowance")
     private Long performanceAllowance;
 
+    @Column(name = "incentives")
+    private Long incentives;
+
+    @Column(name="salary_advance")
+    private Long salaryAdvance;
+
+    @Column(name="food_bill")
+    private Long foodBill;
+
+    @Column(name="arrears")
+    private Long arrears;
+
+    @Column(name = "other_deductions")
+    private Long otherDeductions;
+
     @Column(name="ot_1_rate")
-    private Long ot1Rate;
+    private Double ot1Rate;
 
     @Column(name="ot_2_rate")
-    private Long ot2Rate;
-
-    @Column(name="ot1_per_min_salary")
-    private Long ot1PerMinSalary;
-
-    @Column(name="ot2_per_min_salary")
-    private Long ot2PerMinSalary;
+    private Double ot2Rate;
 
     @Column(name = "bonus")
     private Long bonus;

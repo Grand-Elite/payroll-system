@@ -65,30 +65,6 @@ export const addEmployee = async (employeeData) => {
     }
 };
 
-/*  
-const updateAttendanceStatus = async (
-  attendanceRecordId,
-  updatedStatus,
-  updatedLcEarlyClockoutMins,
-  updatedLcLateClockinMins,
-  otEarlyClockinMins,
-  otLateClockoutMins
-) => {
-  try {
-    const response = await axios.patch("api/attendance/overwritten-attendance", {
-      attendanceRecordId,
-      updatedAttendanceStatus: updatedStatus,
-      updatedLcEarlyClockoutMins,
-      updatedLcLateClockinMins,
-      updatedOtEarlyClockinMins: otEarlyClockinMins,
-      updatedOtLateClockoutMins: otLateClockoutMins,
-    });
-    console.log("Update Successful:", response.data);
-  } catch (error) {
-    console.error("Error updating attendance:", error);
-  }
-};
-*/
 
 const updateAttendanceStatus = async (
   attendanceRecordId,
@@ -148,17 +124,8 @@ export const updateEmployee = async (employeeId, updatedData) => {
   }
 };
 
-/*
-export const getEmployeeById = async (employeeId) => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/employee/${employeeId}`);
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching employee details:", error);
-    throw error;
-  }
-};
-*/
+
+
 
 export const getEmployeeById = async (employeeId) => {
   try {
@@ -174,6 +141,23 @@ export const getEmployeeById = async (employeeId) => {
     throw error; // Re-throw the error for higher-level handling
   }
 };
+
+
+export const getSalaryDetailByEmployeeId = async (employeeId) =>{
+  try {
+    const response = await fetch(`/api/salaryBase/${employeeId}`);
+    if(!response.ok){
+      throw new Error(`Failed to fetch: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching salary details:',error);
+    throw error;
+  }
+};
+
 
 
 
