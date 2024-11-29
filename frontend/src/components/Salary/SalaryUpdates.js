@@ -2,15 +2,12 @@ import React, { useState, useEffect } from 'react';
 
 import {
   Box,
-  Select,
-  MenuItem,
   Typography,
-  FormControl,
-  InputLabel,
   CircularProgress,
   TextField,
   Button,
   Grid,
+  Autocomplete
 } from '@mui/material';
 import { fetchEmployees, getSalaryDetailByEmployeeId, updateSalaryDetails, createSalaryDetails } from '../../services/api';
 import './SalaryUpdates.css';
@@ -37,6 +34,8 @@ function SalaryUpdates() {
     ot2Rate: '',
   });
 
+  const getEmployeeProperty = (property) => selectedEmployee?.[property] || '';
+
   useEffect(() => {
     const loadEmployees = async () => {
       setLoadingEmployees(true);
@@ -52,25 +51,27 @@ function SalaryUpdates() {
     loadEmployees();
   }, []);
 
-  const handleEmployeeChange = async (event) => {
-    const employeeId = event.target.value;
-    const employee = employees.find((emp) => emp.employeeId === employeeId);
+  const handleEmployeeChange = async (employee) => {
+    if (!employee) {
+      setSelectedEmployee(null); // Clear the selection if no employee is selected
+      setSalaryDetailsNotFound(false); // Reset salary details not found flag
+      return;
+    }
+
     setSelectedEmployee(employee);
-  
+
     // Fetch salary details for the selected employee
     setLoadingSalaryDetails(true);
     try {
-      const salaryDetails = await getSalaryDetailByEmployeeId(employeeId);
-  
-      // If no salary details are found, set the state accordingly
-      const isSalaryEmpty = Object.values(salaryDetails).every(value => value === 0 || value === false || value === null);
-      
-      if (isSalaryEmpty) {
-        setSalaryDetailsNotFound(true);
-      } else {
-        setSalaryDetailsNotFound(false);
-      }
-  
+      const salaryDetails = await getSalaryDetailByEmployeeId(employee.employeeId);
+
+      // Check if salary details are empty
+      const isSalaryEmpty = Object.values(salaryDetails).every(
+        (value) => value === 0 || value === false || value === null
+      );
+
+      setSalaryDetailsNotFound(isSalaryEmpty);
+
       setFormData({
         basicSalary: salaryDetails.basicSalary || '',
         bonus: salaryDetails.bonus || '',
@@ -87,12 +88,11 @@ function SalaryUpdates() {
       });
     } catch (error) {
       console.error('Error fetching salary details:', error);
-      setSalaryDetailsNotFound(true); // Set to true if there's an error fetching salary details
+      setSalaryDetailsNotFound(true);
     } finally {
       setLoadingSalaryDetails(false);
     }
   };
-  
 
   const handleFormChange = (event) => {
     const { name, value } = event.target;
@@ -102,89 +102,91 @@ function SalaryUpdates() {
     });
   };
 
- const handleSubmit = async () => {
-  if (!selectedEmployee) {
-    alert('Please select an employee.');
-    return;
-  }
-
-  try {
-    // If salary details are not found (error message is shown), create a new record
-    if (salaryDetailsNotFound) {
-      const response = await createSalaryDetails(selectedEmployee.employeeId, formData);
-      if (response.status === 201) { // Status 201 is for resource creation
-        alert('Salary details created successfully!');
-      }
-    } else {
-      // Otherwise, update the existing salary details
-      const response = await updateSalaryDetails(selectedEmployee.employeeId, formData);
-      if (response.status === 200) {
-        alert('Salary details updated successfully!');
-      }
+  const handleSubmit = async () => {
+    if (!selectedEmployee) {
+      alert('Please select an employee.');
+      return;
     }
-  } catch (error) {
-    console.error('Error submitting salary details:', error);
-    alert('An error occurred while submitting salary details. Please try again.');
-  }
-};
+
+    try {
+      // If salary details are not found (error message is shown), create a new record
+      if (salaryDetailsNotFound) {
+        const response = await createSalaryDetails(selectedEmployee.employeeId, formData);
+        if (response.status === 201) { // Status 201 is for resource creation
+          alert('Salary details created successfully!');
+        }
+      } else {
+        // Otherwise, update the existing salary details
+        const response = await updateSalaryDetails(selectedEmployee.employeeId, formData);
+        if (response.status === 200) {
+          alert('Salary details updated successfully!');
+        }
+      }
+    } catch (error) {
+      console.error('Error submitting salary details:', error);
+      alert('An error occurred while submitting salary details. Please try again.');
+    }
+  };
 
   return (
     <Box className="salary-updates-container">
       <Typography className="salary-updates-header" variant="h4" gutterBottom>
         Salary Updates
       </Typography>
-  
+
       {loadingEmployees ? (
         <CircularProgress />
       ) : (
-        <FormControl className="select-employee" variant="outlined" margin="normal">
-          <InputLabel>Select Employee</InputLabel>
-          <Select
-            label="Select Employee"
-            value={selectedEmployee?.employeeId || ''}
-            onChange={handleEmployeeChange}
-          >
-            {employees.map((employee) => (
-              <MenuItem key={employee.employeeId} value={employee.employeeId}>
-                {employee.shortName}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <Autocomplete
+          className="select-employee"
+          options={employees}
+          getOptionLabel={(option) => option.shortName || ''}
+          renderInput={(params) => (
+            <TextField {...params} label="Search Employee" variant="outlined" margin="normal" />
+          )}
+          onChange={(event, value) => {
+            handleEmployeeChange(value); // Pass the selected employee object
+          }}
+          isOptionEqualToValue={(option, value) => option.employeeId === value?.employeeId}
+        />
       )}
-  
+
       {/* Displaying selected employee's basic information */}
-      {selectedEmployee && (
-        <Box 
-          className="selected-employee-info" 
-          mt={2} 
-          p={2} 
-          border={1} 
-          borderRadius={2} 
+      {selectedEmployee ? (
+        <Box
+          className="selected-employee-info"
+          mt={2}
+          p={2}
+          border={1}
+          borderRadius={2}
           borderColor="grey.300"
         >
-            <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
-              <Typography style={{ fontWeight: 'bold', marginRight: '28px' }}>Employee ID:</Typography>
-              <Typography>{selectedEmployee.employeeId}</Typography>
-            </div>
-            <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
-              <Typography style={{ fontWeight: 'bold', marginRight: '32px' }}>Short Name:</Typography>
-              <Typography>{selectedEmployee.shortName}</Typography>
-            </div>
-            <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
-              <Typography style={{ fontWeight: 'bold', marginRight: '45px' }}>Full Name:</Typography>
-              <Typography>{selectedEmployee.fullName}</Typography>
-            </div>
+          <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
+            <Typography style={{ fontWeight: 'bold', marginRight: '28px' }}>Employee ID:</Typography>
+            <Typography>{getEmployeeProperty('employeeId')}</Typography>
+          </div>
+          <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
+            <Typography style={{ fontWeight: 'bold', marginRight: '32px' }}>Short Name:</Typography>
+            <Typography>{getEmployeeProperty('shortName')}</Typography>
+          </div>
+          <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
+            <Typography style={{ fontWeight: 'bold', marginRight: '45px' }}>Full Name:</Typography>
+            <Typography>{getEmployeeProperty('fullName')}</Typography>
+          </div>
         </Box>
+      ) : (
+        <Typography color="textSecondary" variant="body1" mt={2}>
+          No employee selected.
+        </Typography>
       )}
-  
+
       {/* Displaying error message if no salary details are found */}
-      {salaryDetailsNotFound && (
+      {salaryDetailsNotFound && selectedEmployee && (
         <Typography color="error" variant="body1" style={{ marginTop: '10px' }}>
           No salary details available for {selectedEmployee.shortName}. Please insert new salary details.
         </Typography>
       )}
-  
+
       {/* Displaying the employee's salary form */}
       {selectedEmployee && (
         <>
@@ -219,7 +221,7 @@ function SalaryUpdates() {
                   </Grid>
                 </Grid>
               ))}
-  
+
               <Box mt={2}>
                 <Button variant="contained" color="primary" onClick={handleSubmit}>
                   Submit
@@ -231,6 +233,6 @@ function SalaryUpdates() {
       )}
     </Box>
   );
-    }
+}
 
 export default SalaryUpdates;
