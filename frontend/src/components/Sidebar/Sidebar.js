@@ -15,7 +15,9 @@ function Sidebar() {
         <button>Shift</button>
       </Link>
 
+      <Link to="/salary">
       <button>Salary</button>
+      </Link>
 
       <Link to="/salary-updates">
         <button>Salary Updates</button>
