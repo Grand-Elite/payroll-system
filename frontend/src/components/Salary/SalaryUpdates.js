@@ -162,7 +162,7 @@ function SalaryUpdates() {
           borderColor="grey.300"
         >
           <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
-            <Typography style={{ fontWeight: 'bold', marginRight: '28px' }}>Employee ID:</Typography>
+            <Typography style={{ fontWeight: 'bold', marginRight: '24px' }}>Employee ID:</Typography>
             <Typography>{getEmployeeProperty('employeeId')}</Typography>
           </div>
           <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
@@ -173,6 +173,12 @@ function SalaryUpdates() {
             <Typography style={{ fontWeight: 'bold', marginRight: '45px' }}>Full Name:</Typography>
             <Typography>{getEmployeeProperty('fullName')}</Typography>
           </div>
+
+          <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
+            <Typography style={{ fontWeight: 'bold', marginRight: '64px' }}>EPF No:</Typography>
+            <Typography>{getEmployeeProperty('epfNo')}</Typography>
+          </div>
+
         </Box>
       ) : (
         <Typography color="textSecondary" variant="body1" mt={2}>
