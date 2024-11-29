@@ -1,3 +1,4 @@
+
 import axios from 'axios';
 
 
@@ -198,9 +199,4 @@ export const getSalaryDetailByEmployeeId = async (employeeId) =>{
 
 
 
-
-
-
-
 export {updateAttendanceStatus };
-

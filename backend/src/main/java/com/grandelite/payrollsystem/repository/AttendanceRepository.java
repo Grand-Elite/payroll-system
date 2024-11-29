@@ -1,3 +1,4 @@
+
 package com.grandelite.payrollsystem.repository;
 
 import com.grandelite.payrollsystem.model.Attendance;
@@ -37,7 +38,4 @@ public interface AttendanceRepository extends JpaRepository<Attendance,Long> {
             @Param("updatedTotalOtMins") String updatedTotalOtMins
     );
 
-
-
 }
-

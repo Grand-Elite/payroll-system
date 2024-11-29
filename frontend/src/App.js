@@ -66,7 +66,7 @@ function App() {
             <Route path="/attendance" element={<Attendance selectedMonth={selectedMonth} selectedYear={selectedYear}/>}/>
             <Route path="/upload-attendance-excel" element={<UploadAttendanceExcel />}/>
             <Route path="/shift" element={<Shift />}/>
-            <Route path="salary" element={<Salary />} />
+            <Route path="/salary" element={<Salary selectedMonth={selectedMonth} selectedYear={selectedYear} />} />
             <Route path="salary-updates" element={<SalaryUpdates />} />
             
           </Routes>
