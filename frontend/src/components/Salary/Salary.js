@@ -39,7 +39,26 @@ function Salary({ selectedMonth, selectedYear }) {
       otherDeductions: '',
       ot1Rate: '',
       ot2Rate: '',
+      lateChargesPerMin: '',
     });
+
+
+    const fieldLabelMap = {
+      basicSalary: "Basic Salary",
+      bonus: "Bonus",
+      attendanceAllowance: "Attendance Allowance",
+      transportAllowance: "Transport Allowance",
+      performanceAllowance: "Performance Allowance",
+      incentives: "Incentives",
+      salaryAdvance: "Salary Advance",
+      foodBill: "Food Bill",
+      arrears: "Arrears",
+      otherDeductions: "Other Deductions",
+      ot1Rate: "OT-1 Amount", // Updated label
+      ot2Rate: "OT-2 Amount",
+      lateChargesPerMin: 'Late Charges',
+    };
+    
 
     const getEmployeeProperty = (property) => selectedEmployee?.[property] || '';
 
@@ -79,6 +98,7 @@ function Salary({ selectedMonth, selectedYear }) {
             otherDeductions: salaryDetails.otherDeductions || '',
             ot1Rate: salaryDetails.ot1Rate || '',
             ot2Rate: salaryDetails.ot2Rate || '',
+            lateChargesPerMin: salaryDetails.lateChargesPerMin || '',
           });
         } catch (error) {
           console.error('Error fetching salary details:', error);
@@ -237,7 +257,7 @@ function Salary({ selectedMonth, selectedYear }) {
               <Typography>{getEmployeeProperty('fullName')}</Typography>
             </div>
             <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center' }}>
-              <Typography style={{ fontWeight: 'bold', marginRight: '20px' }}>Total Working Days:</Typography>
+              <Typography style={{ fontWeight: 'bold', marginRight: '20px' }}>No. of Days Worked in {selectedMonth}:</Typography>
               {loadingAttendance ? <CircularProgress size={20} /> : <Typography>{totalWorkingDays}</Typography>}
             </div>
           </Box>
@@ -259,40 +279,41 @@ function Salary({ selectedMonth, selectedYear }) {
               <CircularProgress />
             ) : (
               <Box className="employee-form-container" mt={2}>
-                {Object.keys(formData).map((field) => (
-                  <Grid container spacing={1} alignItems="center" key={field}>
-                    <Grid item xs={3}>
-                      <Typography variant="subtitle1">
-                        {field.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={9}>
-                      <TextField
-                        name={field}
-                        value={formData[field]}
-                        onChange={handleFormChange}
-                        fullWidth
-                        variant="outlined"
-                        margin="normal"
-                        size="small"
-                        InputProps={{
-                          inputProps: {
-                            min: 0, // Optional: Ensure non-negative input for numerical fields
-                          },
-                        }}
-                      />
-                    </Grid>
+              {Object.keys(formData).map((field) => (
+                <Grid container spacing={1} alignItems="center" key={field}>
+                  <Grid item xs={3}>
+                    <Typography variant="subtitle1">
+                      {fieldLabelMap[field] || field.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
+                    </Typography>
                   </Grid>
-                ))}
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleSubmit}
-                  style={{ marginTop: '10px' }}
-                >
-                  Submit
-                </Button>
-              </Box>
+                  <Grid item xs={9}>
+                    <TextField
+                      name={field}
+                      value={formData[field]}
+                      onChange={handleFormChange}
+                      fullWidth
+                      variant="outlined"
+                      margin="normal"
+                      size="small"
+                      InputProps={{
+                        inputProps: {
+                          min: 0, // Optional: Ensure non-negative input for numerical fields
+                        },
+                      }}
+                    />
+                  </Grid>
+                </Grid>
+              ))}
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleSubmit}
+                style={{ marginTop: '10px' }}
+              >
+                Submit
+              </Button>
+            </Box>
+            
             )}
           </>
         )}
