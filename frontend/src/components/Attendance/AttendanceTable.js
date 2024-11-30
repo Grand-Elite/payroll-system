@@ -22,6 +22,7 @@ import { formatHourMins } from '../../util/DateTimeUtil';
 function AttendanceTable(props) {
   const [daysInMonth, setDaysInMonth] = useState([]);
 
+  
 
   useEffect(() => {
     const currentMonth = dayjs(`01 ${props.selectedMonth} 2000`, "DD MMMM YYYY").month(); 

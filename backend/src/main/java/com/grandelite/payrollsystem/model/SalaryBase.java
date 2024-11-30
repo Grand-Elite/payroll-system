@@ -53,5 +53,7 @@ public class SalaryBase {
     @Column(name = "bonus")
     private Double bonus;
 
+    @Column(name="late_charges_per_min")
+    private Double lateChargesPerMin;
 
 }

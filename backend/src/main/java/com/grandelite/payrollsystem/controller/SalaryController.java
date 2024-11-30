@@ -59,6 +59,7 @@ public class SalaryController {
             existingSalaryBase.setOtherDeductions(updatedSalaryDetails.getOtherDeductions());
             existingSalaryBase.setOt1Rate(updatedSalaryDetails.getOt1Rate());
             existingSalaryBase.setOt2Rate(updatedSalaryDetails.getOt2Rate());
+            existingSalaryBase.setLateChargesPerMin(updatedSalaryDetails.getLateChargesPerMin());
 
             salaryRepository.save(existingSalaryBase);
             return ResponseEntity.ok("Salary details updated successfully!");

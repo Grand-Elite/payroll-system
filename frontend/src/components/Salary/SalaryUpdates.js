@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-
 import {
   Box,
   Typography,
@@ -7,9 +6,14 @@ import {
   TextField,
   Button,
   Grid,
-  Autocomplete
+  Autocomplete,
 } from '@mui/material';
-import { fetchEmployees, getSalaryDetailByEmployeeId, updateSalaryDetails, createSalaryDetails } from '../../services/api';
+import {
+  fetchEmployees,
+  getSalaryDetailByEmployeeId,
+  updateSalaryDetails,
+  createSalaryDetails,
+} from '../../services/api';
 import './SalaryUpdates.css';
 
 function SalaryUpdates() {
@@ -32,9 +36,8 @@ function SalaryUpdates() {
     otherDeductions: '',
     ot1Rate: '',
     ot2Rate: '',
+    lateChargesPerMin: '0.00', // Default late charges per minute
   });
-
-  const getEmployeeProperty = (property) => selectedEmployee?.[property] || '';
 
   useEffect(() => {
     const loadEmployees = async () => {
@@ -53,19 +56,17 @@ function SalaryUpdates() {
 
   const handleEmployeeChange = async (employee) => {
     if (!employee) {
-      setSelectedEmployee(null); // Clear the selection if no employee is selected
-      setSalaryDetailsNotFound(false); // Reset salary details not found flag
+      setSelectedEmployee(null);
+      setSalaryDetailsNotFound(false);
       return;
     }
 
     setSelectedEmployee(employee);
-
-    // Fetch salary details for the selected employee
     setLoadingSalaryDetails(true);
+
     try {
       const salaryDetails = await getSalaryDetailByEmployeeId(employee.employeeId);
 
-      // Check if salary details are empty
       const isSalaryEmpty = Object.values(salaryDetails).every(
         (value) => value === 0 || value === false || value === null
       );
@@ -85,6 +86,7 @@ function SalaryUpdates() {
         otherDeductions: salaryDetails.otherDeductions || '',
         ot1Rate: salaryDetails.ot1Rate || '',
         ot2Rate: salaryDetails.ot2Rate || '',
+        lateChargesPerMin: calculateLateChargesPerMin(salaryDetails.basicSalary || 0),
       });
     } catch (error) {
       console.error('Error fetching salary details:', error);
@@ -96,10 +98,20 @@ function SalaryUpdates() {
 
   const handleFormChange = (event) => {
     const { name, value } = event.target;
-    setFormData({
-      ...formData,
-      [name]: value,
+    setFormData((prevData) => {
+      const updatedData = { ...prevData, [name]: value };
+
+      if (name === 'basicSalary') {
+        const basicSalary = parseFloat(value) || 0;
+        updatedData.lateChargesPerMin = calculateLateChargesPerMin(basicSalary);
+      }
+
+      return updatedData;
     });
+  };
+
+  const calculateLateChargesPerMin = (basicSalary) => {
+    return (basicSalary / (8 * 60 * 30)).toFixed(2);
   };
 
   const handleSubmit = async () => {
@@ -109,14 +121,12 @@ function SalaryUpdates() {
     }
 
     try {
-      // If salary details are not found (error message is shown), create a new record
       if (salaryDetailsNotFound) {
         const response = await createSalaryDetails(selectedEmployee.employeeId, formData);
-        if (response.status === 201) { // Status 201 is for resource creation
+        if (response.status === 201) {
           alert('Salary details created successfully!');
         }
       } else {
-        // Otherwise, update the existing salary details
         const response = await updateSalaryDetails(selectedEmployee.employeeId, formData);
         if (response.status === 200) {
           alert('Salary details updated successfully!');
@@ -127,6 +137,8 @@ function SalaryUpdates() {
       alert('An error occurred while submitting salary details. Please try again.');
     }
   };
+
+  const getEmployeeProperty = (property) => selectedEmployee?.[property] || '';
 
   return (
     <Box className="salary-updates-container">
@@ -144,14 +156,11 @@ function SalaryUpdates() {
           renderInput={(params) => (
             <TextField {...params} label="Search Employee" variant="outlined" margin="normal" />
           )}
-          onChange={(event, value) => {
-            handleEmployeeChange(value); // Pass the selected employee object
-          }}
+          onChange={(event, value) => handleEmployeeChange(value)}
           isOptionEqualToValue={(option, value) => option.employeeId === value?.employeeId}
         />
       )}
 
-      {/* Displaying selected employee's basic information */}
       {selectedEmployee ? (
         <Box
           className="selected-employee-info"
@@ -161,24 +170,14 @@ function SalaryUpdates() {
           borderRadius={2}
           borderColor="grey.300"
         >
-          <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
-            <Typography style={{ fontWeight: 'bold', marginRight: '24px' }}>Employee ID:</Typography>
-            <Typography>{getEmployeeProperty('employeeId')}</Typography>
-          </div>
-          <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
-            <Typography style={{ fontWeight: 'bold', marginRight: '32px' }}>Short Name:</Typography>
-            <Typography>{getEmployeeProperty('shortName')}</Typography>
-          </div>
-          <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
-            <Typography style={{ fontWeight: 'bold', marginRight: '45px' }}>Full Name:</Typography>
-            <Typography>{getEmployeeProperty('fullName')}</Typography>
-          </div>
-
-          <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
-            <Typography style={{ fontWeight: 'bold', marginRight: '64px' }}>EPF No:</Typography>
-            <Typography>{getEmployeeProperty('epfNo')}</Typography>
-          </div>
-
+          {['employeeId', 'shortName', 'fullName', 'epfNo'].map((key) => (
+            <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }} key={key}>
+              <Typography style={{ fontWeight: 'bold', marginRight: '24px' }}>
+                {key.replace(/([A-Z])/g, ' $1').toUpperCase()}:
+              </Typography>
+              <Typography>{getEmployeeProperty(key)}</Typography>
+            </div>
+          ))}
         </Box>
       ) : (
         <Typography color="textSecondary" variant="body1" mt={2}>
@@ -186,14 +185,12 @@ function SalaryUpdates() {
         </Typography>
       )}
 
-      {/* Displaying error message if no salary details are found */}
       {salaryDetailsNotFound && selectedEmployee && (
         <Typography color="error" variant="body1" style={{ marginTop: '10px' }}>
           No salary details available for {selectedEmployee.shortName}. Please insert new salary details.
         </Typography>
       )}
 
-      {/* Displaying the employee's salary form */}
       {selectedEmployee && (
         <>
           {loadingSalaryDetails ? (
@@ -204,24 +201,21 @@ function SalaryUpdates() {
                 <Grid container spacing={1} alignItems="center" key={field}>
                   <Grid item xs={3}>
                     <Typography variant="subtitle1">
-                      {field
-                        .replace(/([A-Z])/g, ' $1') // Add spaces before capital letters
-                        .replace(/^./, (str) => str.toUpperCase())} {/* Capitalize first letter */}
+                      {field.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
                     </Typography>
                   </Grid>
                   <Grid item xs={9}>
                     <TextField
                       name={field}
                       value={formData[field]}
-                      onChange={handleFormChange}
+                      onChange={field === 'lateChargesPerMin' ? undefined : handleFormChange}
                       fullWidth
                       variant="outlined"
                       margin="normal"
                       size="small"
                       InputProps={{
-                        style: {
-                          color: 'gray', // Sets the text color to gray
-                        },
+                        readOnly: field === 'lateChargesPerMin',
+                        style: { color: field === 'lateChargesPerMin' ? 'gray' : 'black' },
                       }}
                     />
                   </Grid>

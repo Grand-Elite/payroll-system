@@ -53,6 +53,7 @@ public class SalaryServiceImpl implements SalaryService {
         defaultSalaryBase.setArrears(0.0);
         defaultSalaryBase.setOtherDeductions(0.0);
         defaultSalaryBase.setBonus(0.0);
+        defaultSalaryBase.setLateChargesPerMin(0.0);
         return defaultSalaryBase;
     }
 }
