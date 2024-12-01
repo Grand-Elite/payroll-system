@@ -6,11 +6,12 @@ import lombok.Data;
 
 @Entity
 @Data
-public class FullSalary {
+@Table(name = "monthly_full_salary")
+public class MonthlyFullSalary {
 
     @Id
-    @Column(name="monthly_full_salary_record_id")
-    private Long monthlyFullSalaryRecordId;
+    @Column(name="monthly_full_salary_record_id", nullable = false)
+    private String monthlyFullSalaryRecordId;
 
     @OneToOne
     @JoinColumn(name="employee_id")
@@ -51,5 +52,8 @@ public class FullSalary {
 
     @Column(name="net_salary")
     private Long netSalary;
+
+    @Column(name = "finalized")
+    private boolean finalized;
 
 }

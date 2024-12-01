@@ -15,15 +15,13 @@ function Sidebar() {
         <button>Shift</button>
       </Link>
 
-      <Link to="/salary">
-      <button>Salary</button>
+      <Link to="/salary-base">
+        <button>Salary Base</button>
       </Link>
 
-      <Link to="/salary-updates">
-        <button>Salary Updates</button>
+      <Link to="/monthly-salary">
+      <button>Monthly Salary</button>
       </Link>
-        
-      
 
       <button>Pay Slip</button>
       <button>EPF</button>

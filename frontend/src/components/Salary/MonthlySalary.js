@@ -17,7 +17,7 @@ import {
 } from '../../services/api';
 import dayjs from 'dayjs';
 
-function Salary({ selectedMonth, selectedYear }) {
+function MonthlySalary({ selectedMonth, selectedYear }) {
     const [employees, setEmployees] = useState([]);
     const [selectedEmployee, setSelectedEmployee] = useState(null);
     const [loadingEmployees, setLoadingEmployees] = useState(false);
@@ -321,5 +321,5 @@ function Salary({ selectedMonth, selectedYear }) {
     );
   }
   
-  export default Salary;
+  export default MonthlySalary;
   

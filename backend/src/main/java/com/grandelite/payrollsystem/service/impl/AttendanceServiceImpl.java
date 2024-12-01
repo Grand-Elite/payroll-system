@@ -44,6 +44,7 @@ public class AttendanceServiceImpl implements AttendanceService {
         List<Map<String,String>> parsedCsv = parseCsvFile(file);
         List<Attendance> attendanceList= extractClockInOutTimes(parsedCsv);
         attendanceRepository.saveAll(attendanceList);
+        //todo calculate monthly salary here and save it into monthly salary table
         return "Success";
     }
 
@@ -83,7 +84,7 @@ public class AttendanceServiceImpl implements AttendanceService {
                 overwrittenAttendanceStatus.getUpdatedTotalOtMins()
         );
 
-
+        //todo recalculate the monthly full salary here
         return overwrittenAttendanceStatus;
     }
 

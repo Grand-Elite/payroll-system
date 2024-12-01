@@ -14,9 +14,9 @@ import {
   updateSalaryDetails,
   createSalaryDetails,
 } from '../../services/api';
-import './SalaryUpdates.css';
+import './SalaryBase.css';
 
-function SalaryUpdates() {
+function SalaryBase() {
   const [employees, setEmployees] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [loadingEmployees, setLoadingEmployees] = useState(false);
@@ -235,4 +235,4 @@ function SalaryUpdates() {
   );
 }
 
-export default SalaryUpdates;
+export default SalaryBase;

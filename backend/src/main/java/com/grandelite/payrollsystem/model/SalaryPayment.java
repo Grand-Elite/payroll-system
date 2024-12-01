@@ -14,7 +14,7 @@ public class SalaryPayment {
 
     @OneToOne
     @JoinColumn(name="monthly_full_salary_record_id")
-    private FullSalary fullSalary;
+    private MonthlyFullSalary fullSalary;
 
     @Column(name="paid")
     private Boolean paid;

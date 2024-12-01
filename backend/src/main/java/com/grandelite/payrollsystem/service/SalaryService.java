@@ -8,5 +8,5 @@ import org.springframework.stereotype.Service;
 @Service
 public interface SalaryService {
 
-    public SalaryBase getSalaryDetailsByEmployeeId(Long employeeId);
+    SalaryBase getSalaryDetailsByEmployeeId(Long employeeId);
 }

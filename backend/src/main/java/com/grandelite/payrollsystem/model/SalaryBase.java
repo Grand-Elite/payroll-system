@@ -6,6 +6,7 @@ import lombok.Data;
 
 @Entity
 @Data
+@Table(name = "salary_base")
 public class SalaryBase {
 
     @Id

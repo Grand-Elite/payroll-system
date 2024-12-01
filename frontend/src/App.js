@@ -9,8 +9,8 @@ import './App.css';
 import UploadAttendanceExcel from './components/Attendance/UploadAttendanceExcel/UploadAttendanceExcel';
 import Attendance from './components/Attendance/Attendance';
 import Shift from './components/Shift/Shift'
-import SalaryUpdates from './components/Salary/SalaryUpdates';
-import Salary from './components/Salary/Salary';
+import SalaryBase from './components/Salary/SalaryBase';
+import MonthlySalary from './components/Salary/MonthlySalary';
 
 //import 'bootstrap/dist/css/bootstrap.min.css';
 import { useState } from 'react';
@@ -66,8 +66,8 @@ function App() {
             <Route path="/attendance" element={<Attendance selectedMonth={selectedMonth} selectedYear={selectedYear}/>}/>
             <Route path="/upload-attendance-excel" element={<UploadAttendanceExcel />}/>
             <Route path="/shift" element={<Shift />}/>
-            <Route path="/salary" element={<Salary selectedMonth={selectedMonth} selectedYear={selectedYear} />} />
-            <Route path="salary-updates" element={<SalaryUpdates />} />
+            <Route path="/monthly-salary" element={<MonthlySalary selectedMonth={selectedMonth} selectedYear={selectedYear} />} />
+            <Route path="/salary-base" element={<SalaryBase />} />
             
           </Routes>
         </div>

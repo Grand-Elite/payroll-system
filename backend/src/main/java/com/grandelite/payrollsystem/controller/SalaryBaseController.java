@@ -14,7 +14,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/salaryBase")
-public class SalaryController {
+public class SalaryBaseController {
 
     private final SalaryService salaryService;
     private final EmployeeRepository employeeRepository;
@@ -22,9 +22,9 @@ public class SalaryController {
 
     // Constructor-based dependency injection
     @Autowired
-    public SalaryController(SalaryService salaryService,
-                            EmployeeRepository employeeRepository,
-                            SalaryRepository salaryRepository) {
+    public SalaryBaseController(SalaryService salaryService,
+                                EmployeeRepository employeeRepository,
+                                SalaryRepository salaryRepository) {
         this.salaryService = salaryService;
         this.employeeRepository = employeeRepository;
         this.salaryRepository = salaryRepository;
