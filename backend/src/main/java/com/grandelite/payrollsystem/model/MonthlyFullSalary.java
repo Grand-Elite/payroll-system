@@ -14,46 +14,43 @@ public class MonthlyFullSalary {
     private String monthlyFullSalaryRecordId;
 
     @OneToOne
-    @JoinColumn(name="employee_id")
+    @JoinColumn(name="employee_id",nullable = false)
     private Employee employee;
 
-    @Column(name="year")
+    @Column(name="year",nullable = false)
     private String year;
 
-    @Column(name="month")
+    @Column(name="month",nullable = false)
     private String month;
 
     @Column(name="basic")
-    private Long basic;
+    private Double basic;
 
     @Column(name="ot_1")
-    private Long ot1;
+    private Double ot1;
 
     @Column(name="ot_2")
-    private Long ot2;
+    private Double ot2;
 
     @Column(name="attendance_allowance")
-    private Long attendanceAllowance;
+    private Double attendanceAllowance;
 
     @Column(name="transport_allowance")
-    private Long transportAllowance;
+    private Double transportAllowance;
 
     @Column(name="performance_allowance")
-    private Long performanceAllowance;
+    private Double performanceAllowance;
 
     @Column(name="total_monthly_salary")
-    private Long totalMonthlySalary;
+    private Double totalMonthlySalary;
 
     @Column(name="epf_employee_amount")
-    private Long epfEmployeeAmount;
+    private Double epfEmployeeAmount;
 
     @Column(name="salary_advance")
-    private Long salaryAdvance;
+    private Double salaryAdvance;
 
     @Column(name="net_salary")
-    private Long netSalary;
-
-    @Column(name = "finalized")
-    private boolean finalized;
+    private Double netSalary;
 
 }
