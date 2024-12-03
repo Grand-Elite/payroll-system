@@ -2,6 +2,7 @@
 package com.grandelite.payrollsystem.repository;
 
 import com.grandelite.payrollsystem.model.Attendance;
+import com.grandelite.payrollsystem.model.AttendanceSummary;
 import com.grandelite.payrollsystem.model.Employee;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -38,4 +39,5 @@ public interface AttendanceRepository extends JpaRepository<Attendance,Long> {
             @Param("updatedTotalOtMins") String updatedTotalOtMins
     );
 
+    AttendanceSummary findAggregatedMonthlyAttendenceSummary(Long employeeId, String year, String month);
 }

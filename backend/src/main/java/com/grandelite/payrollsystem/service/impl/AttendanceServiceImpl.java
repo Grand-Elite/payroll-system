@@ -6,6 +6,7 @@ import com.grandelite.payrollsystem.repository.DepartmentRepository;
 import com.grandelite.payrollsystem.repository.EmployeeRepository;
 import com.grandelite.payrollsystem.repository.ShiftRepository;
 import com.grandelite.payrollsystem.service.AttendanceService;
+import com.grandelite.payrollsystem.service.MonthlyFullSalaryService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,9 @@ public class AttendanceServiceImpl implements AttendanceService {
     private AttendanceRepository attendanceRepository;
 
     @Autowired
+    private MonthlyFullSalaryService monthlyFullSalaryService;
+
+    @Autowired
     private EmployeeRepository employeeRepository;
 
     @Autowired
@@ -44,7 +48,6 @@ public class AttendanceServiceImpl implements AttendanceService {
         List<Map<String,String>> parsedCsv = parseCsvFile(file);
         List<Attendance> attendanceList= extractClockInOutTimes(parsedCsv);
         attendanceRepository.saveAll(attendanceList);
-        //todo calculate monthly salary here and save it into monthly salary table
         return "Success";
     }
 
@@ -114,6 +117,7 @@ public class AttendanceServiceImpl implements AttendanceService {
         // Process each group to find the clock-in and clock-out times
         List<Attendance> summaries = new ArrayList<>();
         for (String personName : groupedRecords.keySet()) {
+            Employee employee = employeeMap.get(personName);
             for (LocalDate date : groupedRecords.get(personName).keySet()) {
                 List<LocalDateTime> times = groupedRecords.get(personName).get(date);
                 times.sort(LocalDateTime::compareTo);
@@ -123,7 +127,6 @@ public class AttendanceServiceImpl implements AttendanceService {
                         .reduce((first, second) -> second).orElse(null);
 
                 if (clockIn != null && clockOut != null) {
-                    Employee employee = employeeMap.get(personName);
                     if (employee == null){
                         employee =employeeRepository.findByShortName(personName);
                         employeeMap.put(personName,employee);
@@ -144,6 +147,7 @@ public class AttendanceServiceImpl implements AttendanceService {
                     summaries.add(attendance);
                 }
             }
+            //monthlyFullSalaryService.calculateMonthlyFullSalary(employee.getEmployeeId(),);
         }
         return summaries;
     }
