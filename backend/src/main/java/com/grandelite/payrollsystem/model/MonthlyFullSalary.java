@@ -2,6 +2,7 @@ package com.grandelite.payrollsystem.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.CollectionId;
 
 
 @Entity
@@ -52,5 +53,49 @@ public class MonthlyFullSalary {
 
     @Column(name="net_salary")
     private Double netSalary;
+
+    @Column(name ="food_bill")
+    private Double foodBill;
+
+    @Column(name="no_pay_amount")
+    private Double noPayAmount;
+
+    @Column(name="arrears")
+    private Double arrears;
+
+    @Column(name="total_for_epf")
+    private Double totalForEpf;
+
+    @Column(name="bonus")
+    private Double bonus;
+
+    @Column(name="gross_pay")
+    private Double grossPay;
+
+    @Column(name="incentives")
+    private Double incentives;
+
+    @Column(name="total_allowance")
+    private Double totalAllowance;
+
+    @Column(name="late_charges")
+    private Double lateCharges;
+
+    @Column(name="other_deductions")
+    private Double otherDeductions;
+
+    @Column(name="total_deduction")
+    private  Double totalDeduction;
+
+    @Column(name="epf_company_amount")
+    private Double epfCompanyAmount;
+
+    @Column(name= "epf_total")
+    private Double epfTotal;
+
+    @Column(name="etf_company_amount")
+    private Double etfCompanyAmount;
+
+
 
 }

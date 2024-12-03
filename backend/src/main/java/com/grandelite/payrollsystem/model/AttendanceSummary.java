@@ -12,4 +12,6 @@ public class AttendanceSummary {
     private Long ot1HoursSum;
     private Long ot2HoursSum;
     private Long lateHoursSum;
+    private Long extraWorkedDaysCount;
+    private Long noPayDaysCount;
 }

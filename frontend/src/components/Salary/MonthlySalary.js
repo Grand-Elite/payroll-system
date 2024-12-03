@@ -34,6 +34,21 @@ function MonthlySalary({ selectedMonth, selectedYear }) {
       epfEmployeeAmount:'',
       salaryAdvance: '',
       netSalary: '',
+      foodBill: '',
+      noPayAmount: '',
+      arrears:'',
+      totalForEpf:'',
+      bonus:'',
+      grossPay:'',
+      incentives: '',
+      totalAllowance: '',
+      lateCharges: '',
+      otherDeductions: '',
+      totalDeduction: '',
+      epfCompanyAmount: '',
+      epfTotal: '',
+      etfCompanyAmount: '',
+
     });
 
 
@@ -45,9 +60,23 @@ function MonthlySalary({ selectedMonth, selectedYear }) {
       ot1: "OT-1 Amount", 
       ot2: "OT-2 Amount",
       totalMonthlySalary: "Total Monthly Salary",
-      epfEmployeeAmount: "EPF employee Amount",
+      epfEmployeeAmount: "EPF 8% employee Amount",
       salaryAdvance: "Salary Advance",
       netSalary: "Net Salary",
+      foodBill: "Food Bill",
+      noPayAmount: "No Pay Amount",
+      arrears: "Arrears",
+      totalForEpf: "Total For EPF",
+      bonus: 'Bonus',
+      grossPay: 'Gross Pay',
+      incentives: "Incentives",
+      totalAllowance: "Total Allowance",
+      lateCharges: "Late Charges",
+      otherDeductions: "Other Deduction",
+      totalDeduction: "Total Deduction",
+      epfCompanyAmount: "EPF 12% Company Contribution",
+      epfTotal: "EPF Total",
+      etfCompanyAmount: "ETF 3% Company Contribution"
     };
 
     
@@ -79,15 +108,29 @@ function MonthlySalary({ selectedMonth, selectedYear }) {
       
           setFormData({
             basic: salaryDetails.basic ?? '0',
+            noPayAmount: salaryDetails.noPayAmount ?? '0',
+            arrears:  salaryDetails.arrears ?? '0',
+            totalForEpf: salaryDetails.totalForEpf ?? '0',
+            bonus: salaryDetails.bonus ?? '0',
+            ot1: salaryDetails.ot1 ?? '0',
+            ot2: salaryDetails.ot2 ?? '0',
+            grossPay: salaryDetails.grossPay ?? '0',
             attendanceAllowance: salaryDetails.attendanceAllowance ?? '0',
             transportAllowance: salaryDetails.transportAllowance ?? '0',
             performanceAllowance: salaryDetails.performanceAllowance ?? '0',
-            ot1: salaryDetails.ot1 ?? '0',
-            ot2: salaryDetails.ot2 ?? '0',
+            incentives: salaryDetails.incentives ?? '0',  
+            totalAllowance: salaryDetails.totalAllowance ?? '0',
             totalMonthlySalary: salaryDetails.totalMonthlySalaryl ?? '0',
             epfEmployeeAmount: salaryDetails.epfEmployeeAmount ?? '0',
-            salaryAdvance: salaryDetails.salaryAdvance ?? '0',
+            salaryAdvance: salaryDetails.salaryAdvance ?? '0',           
+            lateCharges: salaryDetails.lateCharges ?? '0',
+            otherDeductions: salaryDetails.otherDeductions ?? '0',
+            foodBill: salaryDetails.foodBill ?? '0',
+            totalDeduction: salaryDetails.totalDeduction ?? '0',
             netSalary: salaryDetails.netSalary ?? '0',
+            epfTotal: salaryDetails.epfTotal ?? '0',
+            epfCompanyAmount: salaryDetails.epfCompanyAmount ?? '0',
+            etfCompanyAmount: salaryDetails.etfCompanyAmount ?? '0',
           });
           
         } catch (error) {

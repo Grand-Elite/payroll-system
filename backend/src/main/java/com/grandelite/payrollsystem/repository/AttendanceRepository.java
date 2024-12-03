@@ -39,7 +39,7 @@ public interface AttendanceRepository extends JpaRepository<Attendance,Long> {
             @Param("updatedTotalOtMins") String updatedTotalOtMins
     );
 
-    @Query(value = "SELECT new com.grandelite.payrollsystem.model.AttendanceSummary(COUNT(1),COUNT(1),COUNT(1),COUNT(1)) FROM" +
+    @Query(value = "SELECT new com.grandelite.payrollsystem.model.AttendanceSummary(COUNT(1),COUNT(1),COUNT(1),COUNT(1), COUNT(1), COUNT(1)) FROM" +
             " Attendance a" +
             //" LEFT JOIN overwritten_attendance_status oas ON a.attendance_record_id = oas.attendance_record_id" +
             " WHERE a.employee.employeeId = :employeeId" +
