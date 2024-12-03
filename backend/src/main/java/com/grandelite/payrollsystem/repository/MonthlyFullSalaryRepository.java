@@ -14,5 +14,5 @@ public interface MonthlyFullSalaryRepository extends JpaRepository<MonthlyFullSa
     @Query("SELECT mfs FROM MonthlyFullSalary mfs WHERE mfs.employee.employeeId = :employeeId" +
             " AND mfs.year = :year" +
             " AND mfs.month = :month")
-    MonthlyFullSalary findByEmployeeIdYearMonth(Long employeeId,int year,int month);
+    MonthlyFullSalary findByEmployeeIdYearMonth(Long employeeId,String year,String month);
 }

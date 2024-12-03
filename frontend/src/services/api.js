@@ -198,4 +198,24 @@ export const getSalaryDetailByEmployeeId = async (employeeId) =>{
 
 
 
+export const getMonthlyFullSalary = async (employeeId, year, month) => {
+  try {
+    const response = await fetch(
+      `/api/employee/${employeeId}/monthly-full-salary/year/${year}/month/${month}`
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch salary details');
+    }
+
+    const textResponse = await response.text();
+    return textResponse ? JSON.parse(textResponse) : {};
+  } catch (error) {
+    console.error('Error fetching monthly full salary:', error);
+    return {};
+  }
+};
+
+
+
 export {updateAttendanceStatus };

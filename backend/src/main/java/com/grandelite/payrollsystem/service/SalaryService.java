@@ -9,4 +9,8 @@ import org.springframework.stereotype.Service;
 public interface SalaryService {
 
     SalaryBase getSalaryDetailsByEmployeeId(Long employeeId);
+
+    String updateSalaryDetails(Long employeeId, SalaryBase updatedSalaryDetails);
+
+    SalaryBase createSalaryDetails(Long employeeId, SalaryBase salaryDetails);
 }

@@ -18,8 +18,8 @@ public class MonthlyFullSalaryController {
     @GetMapping("/employee/{employeeId}/monthly-full-salary/year/{year}/month/{month}")
     public ResponseEntity<MonthlyFullSalary> getMonthlyFullSalaryByEmployeeId
             (@PathVariable Long employeeId,
-             @PathVariable int year,
-             @PathVariable int month) {
+             @PathVariable String year,
+             @PathVariable String month) {
         MonthlyFullSalary monthlyFullSalary = monthlyFullSalaryService.getMonthlyFullSalary(employeeId,year,month);
         return ResponseEntity.ok(monthlyFullSalary);
     }

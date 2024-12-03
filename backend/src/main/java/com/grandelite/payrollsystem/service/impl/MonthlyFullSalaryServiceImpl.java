@@ -13,7 +13,7 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
     MonthlyFullSalaryRepository monthlyFullSalaryRepository;
 
     @Override
-    public MonthlyFullSalary getMonthlyFullSalary(Long employeeId, int year, int month) {
+    public MonthlyFullSalary getMonthlyFullSalary(Long employeeId, String year, String month) {
         return monthlyFullSalaryRepository.findByEmployeeIdYearMonth(employeeId, year, month);
     }
 }

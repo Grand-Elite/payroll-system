@@ -4,15 +4,12 @@ import {
   Typography,
   CircularProgress,
   TextField,
-  Button,
   Grid,
   Autocomplete,
 } from '@mui/material';
 import {
   fetchEmployees,
-  getSalaryDetailByEmployeeId,
-  createSalaryDetails,
-  updateSalaryDetails,
+  getMonthlyFullSalary,
   fetchAttendance,
 } from '../../services/api';
 import dayjs from 'dayjs';
@@ -27,37 +24,32 @@ function MonthlySalary({ selectedMonth, selectedYear }) {
     const [totalWorkingDays, setTotalWorkingDays] = useState(0);
 
     const [formData, setFormData] = useState({
-      basicSalary: '',
-      bonus: '',
+      basic: '',
       attendanceAllowance: '',
       transportAllowance: '',
       performanceAllowance: '',
-      incentives: '',
+      ot1: '',
+      ot2: '',
+      totalMonthlySalary: '',
+      epfEmployeeAmount:'',
       salaryAdvance: '',
-      foodBill: '',
-      arrears: '',
-      otherDeductions: '',
-      ot1Rate: '',
-      ot2Rate: '',
-      lateChargesPerMin: '',
+      netSalary: '',
     });
 
 
     const fieldLabelMap = {
-      basicSalary: "Basic Salary",
-      bonus: "Bonus",
+      basic: "Basic Salary",
       attendanceAllowance: "Attendance Allowance",
       transportAllowance: "Transport Allowance",
       performanceAllowance: "Performance Allowance",
-      incentives: "Incentives",
+      ot1: "OT-1 Amount", 
+      ot2: "OT-2 Amount",
+      totalMonthlySalary: "Total Monthly Salary",
+      epfEmployeeAmount: "EPF employee Amount",
       salaryAdvance: "Salary Advance",
-      foodBill: "Food Bill",
-      arrears: "Arrears",
-      otherDeductions: "Other Deductions",
-      ot1Rate: "OT-1 Amount", // Updated label
-      ot2Rate: "OT-2 Amount",
-      lateChargesPerMin: 'Late Charges',
+      netSalary: "Net Salary",
     };
+
     
 
     const getEmployeeProperty = (property) => selectedEmployee?.[property] || '';
@@ -77,7 +69,7 @@ function MonthlySalary({ selectedMonth, selectedYear }) {
         setLoadingSalaryDetails(true);
         let salaryDetails = {};  // Declare salaryDetails here to ensure it's available later
         try {
-          salaryDetails = await getSalaryDetailByEmployeeId(employee.employeeId);
+          salaryDetails = await getMonthlyFullSalary(employee.employeeId, selectedYear, selectedMonth);
       
           const isSalaryEmpty = Object.values(salaryDetails).every(
             (value) => value === 0 || value === false || value === null
@@ -86,20 +78,18 @@ function MonthlySalary({ selectedMonth, selectedYear }) {
           setSalaryDetailsNotFound(isSalaryEmpty);
       
           setFormData({
-            basicSalary: salaryDetails.basicSalary || '',
-            bonus: salaryDetails.bonus || '',
-            attendanceAllowance: salaryDetails.attendanceAllowance || '',
-            transportAllowance: salaryDetails.transportAllowance || '',
-            performanceAllowance: salaryDetails.performanceAllowance || '',
-            incentives: salaryDetails.incentives || '',
-            salaryAdvance: salaryDetails.salaryAdvance || '',
-            foodBill: salaryDetails.foodBill || '',
-            arrears: salaryDetails.arrears || '',
-            otherDeductions: salaryDetails.otherDeductions || '',
-            ot1Rate: salaryDetails.ot1Rate || '',
-            ot2Rate: salaryDetails.ot2Rate || '',
-            lateChargesPerMin: salaryDetails.lateChargesPerMin || '',
+            basic: salaryDetails.basic ?? '0',
+            attendanceAllowance: salaryDetails.attendanceAllowance ?? '0',
+            transportAllowance: salaryDetails.transportAllowance ?? '0',
+            performanceAllowance: salaryDetails.performanceAllowance ?? '0',
+            ot1: salaryDetails.ot1 ?? '0',
+            ot2: salaryDetails.ot2 ?? '0',
+            totalMonthlySalary: salaryDetails.totalMonthlySalaryl ?? '0',
+            epfEmployeeAmount: salaryDetails.epfEmployeeAmount ?? '0',
+            salaryAdvance: salaryDetails.salaryAdvance ?? '0',
+            netSalary: salaryDetails.netSalary ?? '0',
           });
+          
         } catch (error) {
           console.error('Error fetching salary details:', error);
           setSalaryDetailsNotFound(true);
@@ -130,31 +120,6 @@ function MonthlySalary({ selectedMonth, selectedYear }) {
           }, 0);
       
           setTotalWorkingDays(totalDays);
-      
-          // Update the allowances based on total working days
-          if (salaryDetails.attendanceAllowance) {
-            const newAttendanceAllowance = salaryDetails.attendanceAllowance * totalDays;
-            setFormData((prevData) => ({
-              ...prevData,
-              attendanceAllowance: newAttendanceAllowance,
-            }));
-          }
-      
-          if (salaryDetails.transportAllowance) {
-            const newTransportAllowance = salaryDetails.transportAllowance * totalDays;
-            setFormData((prevData) => ({
-              ...prevData,
-              transportAllowance: newTransportAllowance,
-            }));
-          }
-      
-          if (salaryDetails.performanceAllowance) {
-            const newPerformanceAllowance = salaryDetails.performanceAllowance * totalDays;
-            setFormData((prevData) => ({
-              ...prevData,
-              performanceAllowance: newPerformanceAllowance,
-            }));
-          }
         } catch (error) {
           console.error('Error fetching attendance data:', error);
           setTotalWorkingDays(0);
@@ -186,38 +151,6 @@ function MonthlySalary({ selectedMonth, selectedYear }) {
           handleEmployeeChange(selectedEmployee);
         }
       }, [selectedEmployee, selectedMonth, selectedYear, handleEmployeeChange]);
-
-    const handleFormChange = (event) => {
-      const { name, value } = event.target;
-      setFormData({
-        ...formData,
-        [name]: value,
-      });
-    };
-
-    const handleSubmit = async () => {
-      if (!selectedEmployee) {
-        alert('Please select an employee.');
-        return;
-      }
-
-      try {
-        if (salaryDetailsNotFound) {
-          const response = await createSalaryDetails(selectedEmployee.employeeId, formData);
-          if (response.status === 201) {
-            alert('Salary details created successfully!');
-          }
-        } else {
-          const response = await updateSalaryDetails(selectedEmployee.employeeId, formData);
-          if (response.status === 200) {
-            alert('Salary details updated successfully!');
-          }
-        }
-      } catch (error) {
-        console.error('Error submitting salary details:', error);
-        alert('An error occurred while submitting salary details. Please try again.');
-      }
-    };
   
     return (
       <Box className="salary-updates-container">
@@ -269,7 +202,7 @@ function MonthlySalary({ selectedMonth, selectedYear }) {
   
         {salaryDetailsNotFound && selectedEmployee && (
           <Typography color="error" variant="body1" style={{ marginTop: '10px' }}>
-            No salary details available for {selectedEmployee.shortName}. Please insert new salary details.
+            No salary for {selectedEmployee.shortName} in {selectedMonth}. Please check attendance records and salary base information
           </Typography>
         )}
   
@@ -281,37 +214,28 @@ function MonthlySalary({ selectedMonth, selectedYear }) {
               <Box className="employee-form-container" mt={2}>
               {Object.keys(formData).map((field) => (
                 <Grid container spacing={1} alignItems="center" key={field}>
-                  <Grid item xs={3}>
-                    <Typography variant="subtitle1">
-                      {fieldLabelMap[field] || field.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={9}>
-                    <TextField
-                      name={field}
-                      value={formData[field]}
-                      onChange={handleFormChange}
-                      fullWidth
-                      variant="outlined"
-                      margin="normal"
-                      size="small"
-                      InputProps={{
-                        inputProps: {
-                          min: 0, // Optional: Ensure non-negative input for numerical fields
-                        },
-                      }}
-                    />
-                  </Grid>
+                <Grid item xs={3}>
+                  <Typography variant="subtitle1">
+                    {fieldLabelMap[field] || field.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
+                  </Typography>
                 </Grid>
+                <Grid item xs={9}>
+                  <Typography variant="body1" style={{ marginTop: '8px' }}>
+                    {formData[field] || '0'} {/* Show '0' if the value is empty */}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <hr
+                    style={{
+                      border: 'none',
+                      borderTop: '1px dashed gray',
+                      margin: '8px 0',
+                    }}
+                  />
+                </Grid>
+              </Grid>
+              
               ))}
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleSubmit}
-                style={{ marginTop: '10px' }}
-              >
-                Submit
-              </Button>
             </Box>
             
             )}
@@ -323,3 +247,4 @@ function MonthlySalary({ selectedMonth, selectedYear }) {
   
   export default MonthlySalary;
   
+

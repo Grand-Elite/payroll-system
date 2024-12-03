@@ -41,51 +41,23 @@ public class SalaryBaseController {
             @PathVariable Long employeeId,
             @RequestBody SalaryBase updatedSalaryDetails
     ) {
-        Optional<SalaryBase> salaryBaseOptional = salaryRepository.findByEmployeeEmployeeId(employeeId);
-
-        if (salaryBaseOptional.isPresent()) {
-            SalaryBase existingSalaryBase = salaryBaseOptional.get();
-
-            // Update the fields directly
-            existingSalaryBase.setBasicSalary(updatedSalaryDetails.getBasicSalary());
-            existingSalaryBase.setBonus(updatedSalaryDetails.getBonus());
-            existingSalaryBase.setAttendanceAllowance(updatedSalaryDetails.getAttendanceAllowance());
-            existingSalaryBase.setTransportAllowance(updatedSalaryDetails.getTransportAllowance());
-            existingSalaryBase.setPerformanceAllowance(updatedSalaryDetails.getPerformanceAllowance());
-            existingSalaryBase.setIncentives(updatedSalaryDetails.getIncentives());
-            existingSalaryBase.setSalaryAdvance(updatedSalaryDetails.getSalaryAdvance());
-            existingSalaryBase.setFoodBill(updatedSalaryDetails.getFoodBill());
-            existingSalaryBase.setArrears(updatedSalaryDetails.getArrears());
-            existingSalaryBase.setOtherDeductions(updatedSalaryDetails.getOtherDeductions());
-            existingSalaryBase.setOt1Rate(updatedSalaryDetails.getOt1Rate());
-            existingSalaryBase.setOt2Rate(updatedSalaryDetails.getOt2Rate());
-            existingSalaryBase.setLateChargesPerMin(updatedSalaryDetails.getLateChargesPerMin());
-
-            salaryRepository.save(existingSalaryBase);
-            return ResponseEntity.ok("Salary details updated successfully!");
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Employee not found.");
+        String responseMessage = salaryService.updateSalaryDetails(employeeId, updatedSalaryDetails);
+        if ("Employee not found.".equals(responseMessage)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseMessage);
         }
+        return ResponseEntity.ok(responseMessage);
     }
 
-    @PostMapping("/{employeeId}")  // Fix the URL mapping to be consistent with other mappings
-    public ResponseEntity<SalaryBase> createSalaryDetails(@PathVariable Long employeeId, @RequestBody SalaryBase salaryDetails) {
-        Optional<SalaryBase> existingSalaryDetails = salaryRepository.findByEmployeeEmployeeId(employeeId);
+    @PostMapping("/{employeeId}")
+    public ResponseEntity<SalaryBase> createSalaryDetails(
+            @PathVariable Long employeeId,
+            @RequestBody SalaryBase salaryDetails
+    ) {
 
-        // If salary details already exist, return a bad request
-        if (existingSalaryDetails.isPresent()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);  // Or handle it as you want
+        SalaryBase createdSalary = salaryService.createSalaryDetails(employeeId, salaryDetails);
+        if (createdSalary == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);  // Or handle differently
         }
-
-        // Get the employee by ID and set the employee in salary details
-        Employee employee = employeeRepository.findById(employeeId)
-                .orElseThrow(() -> new RuntimeException("Employee not found"));
-
-        salaryDetails.setEmployee(employee);  // Set the employee details
-
-        // Save the new salary details
-        SalaryBase savedSalary = salaryRepository.save(salaryDetails);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedSalary);  // Return a successful response with status 201
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdSalary);
     }
 }
