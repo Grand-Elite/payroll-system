@@ -9,10 +9,16 @@ import com.grandelite.payrollsystem.repository.EmployeeRepository;
 import com.grandelite.payrollsystem.repository.MonthlyFullSalaryRepository;
 import com.grandelite.payrollsystem.repository.SalaryRepository;
 import com.grandelite.payrollsystem.service.MonthlyFullSalaryService;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Month;
+import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
+import java.util.Locale;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 @Service
 public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
@@ -35,16 +41,17 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
     }
 
     @Override
-    public void calculateMonthlyFullSalary(Long employeeId, String year, String month) {
+    public void calculateMonthlyFullSalary(Long employeeId, String year, int month) {
         try {
             Employee employee = employeeRepository.getReferenceById(employeeId);
             MonthlyFullSalary mfs = new MonthlyFullSalary();
-            SalaryBase salaryBase = salaryRepository.findByEmployeeEmployeeId(employeeId).orElseThrow();//todo handle the base not found scenario
+            SalaryBase salaryBase = salaryRepository.findByEmployeeEmployeeId(employeeId).orElseThrow();
             AttendanceSummary attendanceSummary = attendanceRepository.findAggregatedMonthlyAttendanceSummary(employeeId, year, month);
-            mfs.setMonthlyFullSalaryRecordId(employeeId + year + month);
+            System.out.println(employee.getShortName()+"::"+attendanceSummary);
+            mfs.setMonthlyFullSalaryRecordId(employeeId+":" + year + ":"+month);
             mfs.setEmployee(employee);
             mfs.setYear(year);
-            mfs.setMonth(month);
+            mfs.setMonth(Month.of(month).getDisplayName(TextStyle.FULL,Locale.ENGLISH));
             //todo implement calculation logics
             mfs.setBasic(salaryBase.getBasicSalary());
 
@@ -52,22 +59,26 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
 
             mfs.setNoPayAmount(attendanceSummary.getNoPayDaysCount()*(salaryBase.getBasicSalary()/30));
 
-            mfs.setArrears(salaryBase.getArrears());
+            mfs.setArrears(Objects.requireNonNullElse(salaryBase.getArrears(),Double.valueOf(0)));
 
             mfs.setTotalForEpf(salaryBase.getBasicSalary()-(mfs.getNoPayAmount()+mfs.getArrears()));
 
-            mfs.setBonus(salaryBase.getBonus());
+            mfs.setBonus(Objects.requireNonNullElse(salaryBase.getBonus(),Double.valueOf(0)));
 
-            mfs.setOt1(attendanceSummary.getOt1HoursSum()*((salaryBase.getBasicSalary()*salaryBase.getOt1Rate())/30*8*60));
+            mfs.setOt1(attendanceSummary.getOt1HoursSum()*((salaryBase.getBasicSalary()*
+                    Objects.requireNonNullElse(salaryBase.getOt1Rate(),Double.valueOf(0)))/(30*8*60)));
 
-            mfs.setOt2((salaryBase.getBasicSalary()/8*30)*1.5*3);   //This calculation only handles the Saturday OT amount. But the OT-2 for Poya day is calculated through a separated formula.
+            mfs.setOt2(attendanceSummary.getOt2HoursSum()*(salaryBase.getBasicSalary()/8*30)*1.5*3);   //This calculation only handles the Saturday OT amount. But the OT-2 for Poya day is calculated through a separated formula.
                                                                                 // OT-2 for Poya Day = (Basic Salary)/(30*2)
 
             mfs.setGrossPay(mfs.getTotalForEpf()+mfs.getBonus()+mfs.getOt1()+mfs.getOt2());
 
-            mfs.setTransportAllowance(salaryBase.getTransportAllowance()*attendanceSummary.getAttendanceCount());
+            mfs.setTransportAllowance(
+                    Objects.requireNonNullElse(salaryBase.getTransportAllowance(),Double.valueOf(0))
+                            *attendanceSummary.getAttendanceCount());
 
-            mfs.setPerformanceAllowance(salaryBase.getPerformanceAllowance());
+            mfs.setPerformanceAllowance(Objects.requireNonNullElse(
+                    salaryBase.getPerformanceAllowance(),Double.valueOf(0)));
 
             mfs.setIncentives(attendanceSummary.getExtraWorkedDaysCount()*(salaryBase.getBasicSalary()/30));
 
@@ -77,13 +88,15 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
 
             mfs.setEpfEmployeeAmount(mfs.getTotalForEpf()*0.08);
 
-            mfs.setSalaryAdvance(salaryBase.getSalaryAdvance());
+            mfs.setSalaryAdvance(
+                    Objects.requireNonNullElse(salaryBase.getSalaryAdvance(),Double.valueOf(0)));
 
             mfs.setLateCharges(attendanceSummary.getLateHoursSum()*salaryBase.getLateChargesPerMin());
 
-            mfs.setOtherDeductions(salaryBase.getOtherDeductions());
+            mfs.setOtherDeductions(
+                    Objects.requireNonNullElse(salaryBase.getOtherDeductions(),Double.valueOf(0)));
 
-            mfs.setFoodBill(salaryBase.getFoodBill());
+            mfs.setFoodBill(Objects.requireNonNullElse(salaryBase.getFoodBill(),Double.valueOf(0)));
 
             mfs.setTotalDeduction(mfs.getEpfEmployeeAmount()+mfs.getSalaryAdvance()+mfs.getLateCharges()+mfs.getOtherDeductions()+mfs.getFoodBill());
 

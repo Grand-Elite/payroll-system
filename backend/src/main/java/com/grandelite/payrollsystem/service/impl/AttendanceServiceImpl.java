@@ -147,7 +147,7 @@ public class AttendanceServiceImpl implements AttendanceService {
                     summaries.add(attendance);
                 }
             }
-            monthlyFullSalaryService.calculateMonthlyFullSalary(employee.getEmployeeId(),"2024","October");
+            monthlyFullSalaryService.calculateMonthlyFullSalary(employee.getEmployeeId(),"2024",10);
         }
         return summaries;
     }

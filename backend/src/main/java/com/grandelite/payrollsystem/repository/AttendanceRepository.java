@@ -31,20 +31,51 @@ public interface AttendanceRepository extends JpaRepository<Attendance,Long> {
     void updateOrInsertOverwrittenStatus(
             @Param("attendanceRecordId") String attendanceRecordId,
             @Param("status") String updatedAttendanceStatus,
-            @Param("updatedLcEarlyClockoutMins") String updatedLcEarlyClockoutMins,
-            @Param("updatedLcLateClockinMins") String updatedLcLateClockinMins,
-            @Param("updatedOtEarlyClockinMins") String updatedOtEarlyClockinMins,
-            @Param("updatedOtLateClockoutMins") String updatedOtLateClockoutMins,
-            @Param("updatedTotalLcMins") String updatedTotalLcMins,
-            @Param("updatedTotalOtMins") String updatedTotalOtMins
+            @Param("updatedLcEarlyClockoutMins") Long updatedLcEarlyClockoutMins,
+            @Param("updatedLcLateClockinMins") Long updatedLcLateClockinMins,
+            @Param("updatedOtEarlyClockinMins") Long updatedOtEarlyClockinMins,
+            @Param("updatedOtLateClockoutMins") Long updatedOtLateClockoutMins,
+            @Param("updatedTotalLcMins") Long updatedTotalLcMins,
+            @Param("updatedTotalOtMins") Long updatedTotalOtMins
     );
 
-    @Query(value = "SELECT new com.grandelite.payrollsystem.model.AttendanceSummary(COUNT(1),COUNT(1),COUNT(1),COUNT(1), COUNT(1), COUNT(1)) FROM" +
+    @Query(value = "SELECT " +
+            "new com.grandelite.payrollsystem.model.AttendanceSummary(" +
+            "SUM(CASE " +
+            "   WHEN oas.updatedAttendanceStatus IS NOT NULL THEN " +
+            "       CASE " +
+            "           WHEN oas.updatedAttendanceStatus = '1' THEN 1.0" +
+            "           WHEN oas.updatedAttendanceStatus = '0.5' THEN 0.5 " +
+            "           ELSE 0.0 " +
+            "       END " +
+            "   ELSE " +
+            "       CASE " +
+            "           WHEN a.attendance = '1' THEN 1.0" +
+            "           WHEN a.attendance = '0.5' THEN 0.5 " +
+            "           ELSE 0.0 " +
+            "       END " +
+            "END),"+
+            "SUM(CASE " +
+            "   WHEN oas.updatedTotalOtMins IS NOT NULL " +
+            "   THEN oas.updatedTotalOtMins " +
+            "   ELSE a.otMins " +
+            "END) / 60.0," +//todo fix this
+            "0.0," +//todo fix this
+            "SUM(CASE " +
+            "   WHEN oas.updatedTotalLcMins IS NOT NULL " +
+            "   THEN oas.updatedTotalLcMins " +
+            "   ELSE a.lcMins " +
+            "END) / 60.0, " +
+            "SUM(0), " +//todo fix this
+            "SUM(CASE " +
+            "   WHEN oas.updatedAttendanceStatus = 'ab-nopay' THEN 1" +
+            "   ELSE 0 " +
+            "END)" +
+            ") FROM" +
             " Attendance a" +
-            //" LEFT JOIN overwritten_attendance_status oas ON a.attendance_record_id = oas.attendance_record_id" +
+            " LEFT JOIN OverwrittenAttendanceStatus oas ON a.attendanceRecordId = oas.attendanceRecordId" +
             " WHERE a.employee.employeeId = :employeeId" +
-            " AND '2024'=:year" +
-            " AND 'October'=:month")
-    //todo fix this query
-    AttendanceSummary findAggregatedMonthlyAttendanceSummary(Long employeeId, String year, String month);
+            " AND EXTRACT(YEAR FROM a.date)=:year" +
+            " AND EXTRACT(MONTH FROM a.date)=:month")
+    AttendanceSummary findAggregatedMonthlyAttendanceSummary(Long employeeId, String year, int month);
 }

@@ -8,10 +8,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class AttendanceSummary {
-    private Long attendanceCount;
-    private Long ot1HoursSum;
-    private Long ot2HoursSum;
-    private Long lateHoursSum;
+    private Double attendanceCount;
+    private Double ot1HoursSum;
+    private Double ot2HoursSum;
+    private Double lateHoursSum;
     private Long extraWorkedDaysCount;
     private Long noPayDaysCount;
 }
