@@ -23,7 +23,11 @@ function Sidebar() {
       <button>Monthly Salary</button>
       </Link>
 
-      <button>Pay Slip</button>
+      <Link to="/holiday-calendar">
+      <button>Holiday Calendar</button>
+      </Link>
+
+      
       <button>EPF</button>
       <button>ETF</button>
       <button>Service Charges</button>

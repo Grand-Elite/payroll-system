@@ -1,0 +1,104 @@
+.App h1 {
+  text-align: center;
+  margin-bottom: 30px; 
+}
+
+.calendar-container {
+  display: flex;
+  justify-content: center; 
+  padding: 20px; 
+  margin: 0 auto; 
+  height: min-content;
+  max-width: 1100px; 
+}
+
+.calendar-layout {
+  display: flex;
+  flex-direction: column; 
+  align-items: center; 
+  width: 100%;
+  max-width: 1600px; 
+  padding: 30px; 
+}
+
+.react-calendar {
+  width: 100%; 
+  max-width: 1000px; 
+  font-size: 1.5em; 
+  border: 1px solid #111111; 
+}
+
+.react-calendar__tile {
+  display: flex;
+  flex-direction: column; 
+  align-items: center; 
+  justify-content: space-between; 
+  height: 80px; 
+  width: 10px; 
+  font-size: 0.5em; 
+  position: relative; 
+  border: 1px solid #cccae4 !important; 
+  border-radius: 5px; 
+  box-sizing: border-box; 
+}
+
+.react-calendar__tile:hover {
+  border-color: #007BFF; 
+  background-color: #f0f8ff; 
+}
+
+.holiday-marker {
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  padding: 5px;
+  text-align: center;
+  font-size: 0.7em;
+  max-width: 170px; 
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis; 
+}
+.confirm-button {
+  margin-top: 20px;
+  padding: 15px 30px; 
+  font-size: 18px; 
+  color: white;
+  background-color: green;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.confirm-button:hover {
+  background-color: darkgreen;
+}
+
+.holiday-details-container {
+  margin-top: 20px;
+  width: 80%;
+  max-width: 800px;
+}
+
+.holiday-details {
+  margin-bottom: 20px; 
+}
+
+.holiday-details h3 {
+  margin-bottom: 8px; 
+}
+
+.holiday-details input {
+  width: 100%; 
+  padding: 10px;
+  font-size: 16px; 
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.react-calendar__navigation__label {
+  pointer-events: none;
+  cursor: default;
+  font-size: large;
+  font-weight: bold;
+}

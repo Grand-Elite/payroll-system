@@ -11,6 +11,7 @@ import Attendance from './components/Attendance/Attendance';
 import Shift from './components/Shift/Shift'
 import SalaryBase from './components/Salary/SalaryBase';
 import MonthlySalary from './components/Salary/MonthlySalary';
+import HolidayCalendar from './components/Holiday/HolidayCalendar'
 
 //import 'bootstrap/dist/css/bootstrap.min.css';
 import { useState } from 'react';
@@ -68,6 +69,7 @@ function App() {
             <Route path="/shift" element={<Shift />}/>
             <Route path="/monthly-salary" element={<MonthlySalary selectedMonth={selectedMonth} selectedYear={selectedYear} />} />
             <Route path="/salary-base" element={<SalaryBase />} />
+            <Route path="/holiday-calendar" element={<HolidayCalendar />}/>
             
           </Routes>
         </div>

@@ -218,4 +218,76 @@ export const getMonthlyFullSalary = async (employeeId, year, month) => {
 
 
 
+export const saveHolidays = (holidays) => {
+  return fetch("/api/holidays", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(
+      Object.entries(holidays).map(([date, description]) => {
+        const localDate = new Date(date);
+
+        // Manually adjust to UTC time to avoid shifting the day
+        const utcDate = new Date(Date.UTC(localDate.getFullYear(), localDate.getMonth(), localDate.getDate()));
+
+        return {
+          holidayDate: utcDate.toISOString(), // Send as UTC ISO string to the backend
+          description: description,
+        };
+      })
+    ),
+  }).then((response) => {
+    if (response.ok) {
+      return response.json();
+    } else {
+      throw new Error("Failed to save holidays");
+    }
+  });
+};
+
+
+// Function to fetch all holidays from the backend
+export const fetchHolidays = () => {
+  return fetch("/api/holidays")
+    .then((response) => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        throw new Error("Failed to fetch holidays");
+      }
+    })
+    .catch((error) => {
+      console.error("Error fetching holidays:", error);
+      throw error;
+    });
+};
+
+
+export const deleteHoliday = (formattedDate) => {
+  return fetch(`/api/holidays/${formattedDate}`, {
+    method: "DELETE",
+  })
+    .then((response) => {
+      // Check if the response status is 204 (No Content)
+      if (response.status === 204) {
+        console.log("Holiday deleted successfully");
+      } else {
+        throw new Error("Failed to delete holiday");
+      }
+    })
+    .catch((error) => {
+      console.error("Error deleting holiday:", error);
+      alert("Error deleting holiday: " + error.message);
+    });
+};
+
+
+
+
+
+
+
+
+
 export {updateAttendanceStatus };
