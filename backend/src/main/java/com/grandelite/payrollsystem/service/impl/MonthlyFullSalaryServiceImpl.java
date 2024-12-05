@@ -65,7 +65,7 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
 
             mfs.setBonus(Objects.requireNonNullElse(salaryBase.getBonus(),Double.valueOf(0)));
 
-            mfs.setOt1(attendanceSummary.getOt1HoursSum()*((salaryBase.getBasicSalary()*
+            mfs.setOt1(attendanceSummary.getOt1HoursSum()*60*((salaryBase.getBasicSalary()*
                     Objects.requireNonNullElse(salaryBase.getOt1Rate(),Double.valueOf(0)))/(30*8*60)));
 
             mfs.setOt2(attendanceSummary.getOt2HoursSum()*(salaryBase.getBasicSalary()/8*30)*1.5*3);   //This calculation only handles the Saturday OT amount. But the OT-2 for Poya day is calculated through a separated formula.
@@ -80,18 +80,22 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
             mfs.setPerformanceAllowance(Objects.requireNonNullElse(
                     salaryBase.getPerformanceAllowance(),Double.valueOf(0)));
 
-            mfs.setIncentives(attendanceSummary.getExtraWorkedDaysCount()*(salaryBase.getBasicSalary()/30));
+            double incentives = attendanceSummary.getExtraWorkedDaysCount() * (salaryBase.getBasicSalary() / 30);
+            if (incentives <= 0) {
+                incentives = salaryBase.getIncentives();
+            }
+            mfs.setIncentives(incentives);
 
-            mfs.setTotalAllowance(mfs.getAttendanceAllowance()+mfs.getTransportAllowance()+mfs.getPerformanceAllowance());
+            mfs.setTotalAllowance(mfs.getAttendanceAllowance()+mfs.getTransportAllowance()+mfs.getPerformanceAllowance()+mfs.getIncentives());
 
-            mfs.setTotalMonthlySalary(mfs.getGrossPay()+mfs.getTotalAllowance());
+            mfs.setTotalMonthlySalary(mfs.getGrossPay() + mfs.getTotalAllowance());
 
             mfs.setEpfEmployeeAmount(mfs.getTotalForEpf()*0.08);
 
             mfs.setSalaryAdvance(
                     Objects.requireNonNullElse(salaryBase.getSalaryAdvance(),Double.valueOf(0)));
 
-            mfs.setLateCharges(attendanceSummary.getLateHoursSum()*salaryBase.getLateChargesPerMin());
+            mfs.setLateCharges(attendanceSummary.getLateHoursSum()*60*salaryBase.getLateChargesPerMin());
 
             mfs.setOtherDeductions(
                     Objects.requireNonNullElse(salaryBase.getOtherDeductions(),Double.valueOf(0)));

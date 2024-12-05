@@ -120,7 +120,7 @@ function MonthlySalary({ selectedMonth, selectedYear }) {
             performanceAllowance: salaryDetails.performanceAllowance ?? '0',
             incentives: salaryDetails.incentives ?? '0',  
             totalAllowance: salaryDetails.totalAllowance ?? '0',
-            totalMonthlySalary: salaryDetails.totalMonthlySalaryl ?? '0',
+            totalMonthlySalary: salaryDetails.totalMonthlySalary ?? '0',
             epfEmployeeAmount: salaryDetails.epfEmployeeAmount ?? '0',
             salaryAdvance: salaryDetails.salaryAdvance ?? '0',           
             lateCharges: salaryDetails.lateCharges ?? '0',
@@ -198,7 +198,7 @@ function MonthlySalary({ selectedMonth, selectedYear }) {
     return (
       <Box className="salary-updates-container">
         <Typography className="salary-updates-header" variant="h4" gutterBottom>
-          Salary
+          Monthly Salary
         </Typography>
   
         {loadingEmployees ? (
@@ -232,6 +232,11 @@ function MonthlySalary({ selectedMonth, selectedYear }) {
               <Typography style={{ fontWeight: 'bold', marginRight: '45px' }}>Full Name:</Typography>
               <Typography>{getEmployeeProperty('fullName')}</Typography>
             </div>
+            <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center' }}>
+              <Typography style={{ fontWeight: 'bold', marginRight: '64px' }}>EPF No:</Typography>
+              <Typography>{getEmployeeProperty('epfNo')}</Typography>
+            </div>
+
             <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center' }}>
               <Typography style={{ fontWeight: 'bold', marginRight: '20px' }}>No. of Days Worked in {selectedMonth}:</Typography>
               {loadingAttendance ? <CircularProgress size={20} /> : <Typography>{totalWorkingDays}</Typography>}
@@ -254,32 +259,63 @@ function MonthlySalary({ selectedMonth, selectedYear }) {
             {loadingSalaryDetails ? (
               <CircularProgress />
             ) : (
-              <Box className="employee-form-container" mt={2}>
+            <Box className="employee-form-container" mt={2}>
               {Object.keys(formData).map((field) => (
                 <Grid container spacing={1} alignItems="center" key={field}>
-                <Grid item xs={3}>
-                  <Typography variant="subtitle1">
-                    {fieldLabelMap[field] || field.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
-                  </Typography>
+                  <Grid item xs={3}>
+                    <Typography
+                      variant="subtitle1"
+                      style={{
+                        fontWeight: field === "totalMonthlySalary" || field === "netSalary" ? "bold" : "normal",
+                        fontSize: field === "totalMonthlySalary" || field === "netSalary" ? "1.1rem" : "1rem",
+                      }}
+                    >
+                      {fieldLabelMap[field] || field.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
+                    </Typography>
+                  </Grid>
+
+                  <Grid item xs={9}>
+                    <Typography
+                      variant="body1"
+                      style={{
+                        marginTop: '8px',
+                        whiteSpace: 'nowrap',
+                        display: 'flex',
+                        justifyContent: 'flex-start',
+                        fontWeight: field === "totalMonthlySalary" || field === "netSalary" ? "bold" : "normal",
+                        fontSize: field === "totalMonthlySalary" || field === "netSalary" ? "1.1rem" : "1rem",
+                      }}
+                    >
+                      <span style={{ marginRight: '20px' }}>Rs.</span>
+                      <span style={{ display: 'inline-block', minWidth: '100px', textAlign: 'right' }}>
+                        {(parseFloat(formData[field] || '0')).toFixed(2)}
+                      </span>
+                    </Typography>
+                  </Grid>
+
+                  {/* Conditionally Render Line */}
+                  <Grid item xs={12}>
+                    <hr
+                      style={{
+                        border: 'none',
+                        borderTop:
+                          field === "grossPay" ||
+                          field ==="ot2"  ||
+                          field === "totalAllowance" ||
+                          field === "totalMonthlySalary" ||
+                          field === "totalDeduction" ||
+                          field === "netSalary"
+                            ? '2px solid black' 
+                            : '1px dashed gray', 
+                        margin: '8px 0',
+                      }}
+                    />
+                  </Grid>
                 </Grid>
-                <Grid item xs={9}>
-                  <Typography variant="body1" style={{ marginTop: '8px' }}>
-                    {formData[field] || '0'} {/* Show '0' if the value is empty */}
-                  </Typography>
-                </Grid>
-                <Grid item xs={12}>
-                  <hr
-                    style={{
-                      border: 'none',
-                      borderTop: '1px dashed gray',
-                      margin: '8px 0',
-                    }}
-                  />
-                </Grid>
-              </Grid>
-              
               ))}
             </Box>
+
+
             
             )}
           </>
@@ -289,5 +325,3 @@ function MonthlySalary({ selectedMonth, selectedYear }) {
   }
   
   export default MonthlySalary;
-  
-

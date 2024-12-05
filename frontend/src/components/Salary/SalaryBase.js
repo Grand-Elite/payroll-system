@@ -8,6 +8,7 @@ import {
   Grid,
   Autocomplete,
 } from '@mui/material';
+import MenuItem from '@mui/material/MenuItem';
 import {
   fetchEmployees,
   getSalaryDetailByEmployeeId,
@@ -22,6 +23,8 @@ function SalaryBase() {
   const [loadingEmployees, setLoadingEmployees] = useState(false);
   const [loadingSalaryDetails, setLoadingSalaryDetails] = useState(false);
   const [salaryDetailsNotFound, setSalaryDetailsNotFound] = useState(false);
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 5 }, (_, i) => currentYear + i);
 
   const [formData, setFormData] = useState({
     basicSalary: '',
@@ -142,7 +145,7 @@ function SalaryBase() {
 
   return (
     <Box className="salary-updates-container">
-      <Typography className="salary-updates-header" variant="h4" gutterBottom>
+      <Typography className="salary-updates-header" variant="h4" style={{ marginBottom: '5px' }}>
         Salary Updates
       </Typography>
 
@@ -164,7 +167,7 @@ function SalaryBase() {
       {selectedEmployee ? (
         <Box
           className="selected-employee-info"
-          mt={2}
+          mt={1}
           p={2}
           border={1}
           borderRadius={2}
@@ -191,46 +194,161 @@ function SalaryBase() {
         </Typography>
       )}
 
-      {selectedEmployee && (
-        <>
-          {loadingSalaryDetails ? (
-            <CircularProgress />
-          ) : (
-            <Box className="employee-form-container" mt={2}>
-              {Object.keys(formData).map((field) => (
-                <Grid container spacing={1} alignItems="center" key={field}>
-                  <Grid item xs={3}>
-                    <Typography variant="subtitle1">
-                      {field.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={9}>
-                    <TextField
-                      name={field}
-                      value={formData[field]}
-                      onChange={field === 'lateChargesPerMin' ? undefined : handleFormChange}
-                      fullWidth
-                      variant="outlined"
-                      margin="normal"
-                      size="small"
-                      InputProps={{
-                        readOnly: field === 'lateChargesPerMin',
-                        style: { color: field === 'lateChargesPerMin' ? 'gray' : 'black' },
-                      }}
-                    />
-                  </Grid>
-                </Grid>
-              ))}
+{selectedEmployee && (
+  <>
+    {loadingSalaryDetails ? (
+      <CircularProgress />
+    ) : (
+<Box className="employee-form-container" mt={5} p={2}>
+  <Grid container spacing={4}>
+    {/* Left Column */}
+    <Grid item xs={5}>
+  <h3 style={{ marginBottom: '10px' }}>Salary Base Updates</h3>
+  {['basicSalary', 'ot1Rate', 'ot2Rate', 'lateChargesPerMin'].map((field) => (
+    <Grid container spacing={1} alignItems="center" key={field}>
+      <Grid item xs={5}>
+        <Typography variant="subtitle1">
+          {field === 'lateChargesPerMin'
+            ? 'Late Charges Per Minutes (Calculated)'
+            : field.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
+        </Typography>
+      </Grid>
+      <Grid item xs={7}>
+        <TextField
+          name={field}
+          value={formData[field]}
+          onChange={field === 'lateChargesPerMin' ? undefined : handleFormChange}
+          fullWidth
+          variant="outlined"
+          margin="normal"
+          size="small"
+          InputProps={{
+            readOnly: field === 'lateChargesPerMin',
+            style: { color: field === 'lateChargesPerMin' ? 'gray' : 'black' },
+          }}
+          sx={{ width: '85%' , '& .MuiInputBase-input': { color: 'gray' } }} 
+        />
+      </Grid>
+    </Grid>
+  ))}
+      <Box mt={2}>
+        <Button variant="contained" color="primary" onClick={handleSubmit}>
+          Submit
+        </Button>
+      </Box>
+    </Grid>
 
-              <Box mt={2}>
-                <Button variant="contained" color="primary" onClick={handleSubmit}>
-                  Submit
-                </Button>
-              </Box>
-            </Box>
-          )}
-        </>
-      )}
+    {/* Right Column */}
+    <Grid item xs={5} >
+    <h3 style={{ marginBottom: '10px' }}>Monthly Salary Updates</h3>
+      {/* Year Dropdown */}
+      <Grid container spacing={1} alignItems="center">
+        <Grid item xs={5}>   
+          <Typography variant="subtitle1">Year</Typography>
+        </Grid>
+        <Grid item xs={7}>
+          <TextField
+            select
+            name="year"
+            value={formData.year || ''}
+            onChange={handleFormChange}
+            fullWidth
+            variant="outlined"
+            margin="normal"
+            size="small"
+            sx={{ width: '85%' }}
+          >
+      {years.map((year) => (
+        <MenuItem key={year} value={year}>
+          {year}
+        </MenuItem>
+      ))}
+          </TextField>
+        </Grid>
+      </Grid>
+
+      {/* Month Dropdown */}
+      <Grid container spacing={1} alignItems="center">
+        <Grid item xs={5}>
+          <Typography variant="subtitle1">Month</Typography>
+        </Grid>
+        <Grid item xs={7}>
+          <TextField
+            select
+            name="month"
+            value={formData.month || ''}
+            onChange={handleFormChange}
+            fullWidth
+            variant="outlined"
+            margin="normal"
+            size="small"
+            sx={{ width: '85%' }}
+          >
+            {[
+              'January',
+              'February',
+              'March',
+              'April',
+              'May',
+              'June',
+              'July',
+              'August',
+              'September',
+              'October',
+              'November',
+              'December',
+            ].map((month) => (
+              <MenuItem key={month} value={month}>
+                {month}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Grid>
+      </Grid>
+
+      {[
+        'bonus',
+        'attendanceAllowance',
+        'transportAllowance',
+        'performanceAllowance',
+        'incentives',
+        'salaryAdvance',
+        'foodBill',
+        'arrears',
+        'otherDeductions',
+      ].map((field) => (
+        <Grid container spacing={1} alignItems="center" key={field}>
+          <Grid item xs={5}>
+            <Typography variant="subtitle1">
+              {field.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
+            </Typography>
+          </Grid>
+          <Grid item xs={7}>
+            <TextField
+              name={field}
+              value={formData[field]}
+              onChange={handleFormChange}
+              fullWidth
+              variant="outlined"
+              margin="normal"
+              size="small"
+              sx={{ width: '85%', '& .MuiInputBase-input': { color: 'gray' } }} 
+            />
+          </Grid>
+        </Grid>
+      ))}
+      <Box mt={2}>
+        <Button variant="contained" color="primary" onClick={handleSubmit}>
+          Submit
+        </Button>
+      </Box>
+    </Grid>
+  </Grid>
+</Box>
+
+    )}
+  </>
+)}
     </Box>
   );
 }
