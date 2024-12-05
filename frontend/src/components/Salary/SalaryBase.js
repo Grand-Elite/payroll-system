@@ -226,7 +226,7 @@ function SalaryBase() {
             readOnly: field === 'lateChargesPerMin',
             style: { color: field === 'lateChargesPerMin' ? 'gray' : 'black' },
           }}
-          sx={{ width: '85%' , '& .MuiInputBase-input': { color: 'gray' } }} 
+          sx={{ width: '85%'}} 
         />
       </Grid>
     </Grid>
@@ -332,7 +332,7 @@ function SalaryBase() {
               variant="outlined"
               margin="normal"
               size="small"
-              sx={{ width: '85%', '& .MuiInputBase-input': { color: 'gray' } }} 
+              sx={{ width: '85%'}} 
             />
           </Grid>
         </Grid>

@@ -217,7 +217,6 @@ export const getMonthlyFullSalary = async (employeeId, year, month) => {
 };
 
 
-
 export const saveHolidays = (holidays) => {
   return fetch("/api/holidays", {
     method: "POST",
