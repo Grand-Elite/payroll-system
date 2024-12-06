@@ -48,12 +48,4 @@ public class MonthlySalaryUpdates {
 
     @Column(name = "other_deductions")
     private Double otherDeductions;
-
-    /**
-     * Generate the composite key for this entity.
-     * It should be called before persisting or updating the entity.
-     */
-    public void generateCompositeKey() {
-        this.monthlySalaryUpdatesRecordId = employee.getEmployeeId() + ":" + year + ":" + month;
-    }
 }

@@ -315,9 +315,9 @@ export const updateMonthlySalaryUpdate = async (employeeId, year, month, salaryD
   }
 };
 
-export const getMonthlySalaryDetails = async (employeeId) => {
+export const getMonthlySalaryDetails = async (employeeId, year, month) => {
   try {
-    const response = await fetch(`/api/monthly-salary-updates/${employeeId}`);
+    const response = await fetch(`/api/monthly-salary-updates/${employeeId}/${year}/${month}`);
     
     // Check if response is successful
     if (!response.ok) {

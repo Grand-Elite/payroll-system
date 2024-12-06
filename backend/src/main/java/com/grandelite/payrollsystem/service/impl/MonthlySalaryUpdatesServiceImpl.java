@@ -33,8 +33,10 @@ public class MonthlySalaryUpdatesServiceImpl implements MonthlySalaryUpdatesServ
 
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new RuntimeException("Employee not found"));
-        
+        salaryUpdate.setYear(year);
+        salaryUpdate.setMonth(month);
         salaryUpdate.setEmployee(employee);
+        salaryUpdate.setMonthlySalaryUpdatesRecordId(employeeId+":"+year+":"+month);
         return repository.save(salaryUpdate);
     }
 

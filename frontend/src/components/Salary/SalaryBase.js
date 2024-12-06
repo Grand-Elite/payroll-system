@@ -142,7 +142,6 @@ function SalaryBase() {
   };
 */
 
-
 const handleMonthlyDataChange = (event) => {
   const { name, value } = event.target;
   setMonthlyData((prevData) => {
