@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -63,11 +63,7 @@ function SalaryBase({ selectedMonth, selectedYear }) {
     loadEmployees();
   }, []);
 
-  useEffect(() => {
-    handleEmployeeChange(selectedEmployee);
-  }, [selectedMonth,selectedYear]);
-
-  const handleEmployeeChange = async (employee) => {
+  const handleEmployeeChange = useCallback(async (employee) => {
     if (!employee) {
       setSelectedEmployee(null);
       setSalaryDetailsNotFound(false);
@@ -121,7 +117,11 @@ function SalaryBase({ selectedMonth, selectedYear }) {
     } finally {
       setLoadingSalaryDetails(false);
     }
-  };
+  },[selectedMonth,selectedYear]);
+
+  useEffect(() => {
+    handleEmployeeChange(selectedEmployee);
+  }, [selectedMonth,selectedYear,handleEmployeeChange,selectedEmployee]);
 
   const handleFormChange = (event) => {
     const { name, value } = event.target;
