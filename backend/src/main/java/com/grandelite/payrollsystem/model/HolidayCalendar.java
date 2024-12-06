@@ -13,10 +13,6 @@ import java.time.LocalDate;
 public class HolidayCalendar {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="holiday_id", nullable = false)
-    private Long holidayId;
-
     @Column(name ="holiday_date", nullable = false)
     private LocalDate holidayDate;
 

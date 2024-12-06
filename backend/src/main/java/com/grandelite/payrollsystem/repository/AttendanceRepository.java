@@ -55,18 +55,41 @@ public interface AttendanceRepository extends JpaRepository<Attendance,Long> {
             "           ELSE 0.0 " +
             "       END " +
             "END),"+
-            "SUM(CASE " +
-            "   WHEN oas.updatedTotalOtMins IS NOT NULL " +
-            "   THEN oas.updatedTotalOtMins " +
-            "   ELSE a.otMins " +
-            "END) / 60.0," +//todo fix this
-            "0.0," +//todo fix this
+            "SUM(" +
+            "    CASE " +
+            "        WHEN FUNCTION('DAYOFWEEK', a.date) <> 7 AND hc.holidayDate IS NULL THEN " +
+            "            CASE " +
+            "                WHEN oas.updatedTotalOtMins IS NOT NULL THEN oas.updatedTotalOtMins " +
+            "                ELSE a.otMins " +
+            "            END " +
+            "        ELSE 0.0 " +
+            "    END" +
+            ") / 60.0," +
+            "SUM(" +
+            "    CASE " +
+            "        WHEN FUNCTION('DAYOFWEEK', a.date) = 7 THEN " +
+            "            CASE " +
+            "                WHEN oas.updatedTotalOtMins IS NOT NULL THEN oas.updatedTotalOtMins " +
+            "                ELSE a.otMins " +
+            "            END " +
+            "        ELSE 0.0 " +
+            "    END" +
+            ") / 60.0,"+
+            "SUM(" +
+            "    CASE " +
+            "        WHEN hc.holidayDate IS NOT NULL THEN " +
+            "            CASE " +
+            "                WHEN oas.updatedTotalOtMins IS NOT NULL THEN oas.updatedTotalOtMins " +
+            "                ELSE a.otMins " +
+            "            END " +
+            "        ELSE 0.0 " +
+            "    END" +
+            ") / 60.0,"+
             "SUM(CASE " +
             "   WHEN oas.updatedTotalLcMins IS NOT NULL " +
             "   THEN oas.updatedTotalLcMins " +
             "   ELSE a.lcMins " +
             "END) / 60.0, " +
-            "SUM(0), " +//todo fix this
             "SUM(CASE " +
             "   WHEN oas.updatedAttendanceStatus = 'ab-nopay' THEN 1" +
             "   ELSE 0 " +
@@ -74,6 +97,7 @@ public interface AttendanceRepository extends JpaRepository<Attendance,Long> {
             ") FROM" +
             " Attendance a" +
             " LEFT JOIN OverwrittenAttendanceStatus oas ON a.attendanceRecordId = oas.attendanceRecordId" +
+            " LEFT JOIN HolidayCalendar hc ON a.date=hc.holidayDate "+
             " WHERE a.employee.employeeId = :employeeId" +
             " AND EXTRACT(YEAR FROM a.date)=:year" +
             " AND EXTRACT(MONTH FROM a.date)=:month")

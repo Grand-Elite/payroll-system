@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 public class AttendanceSummary {
     private Double attendanceCount;
     private Double ot1HoursSum;
-    private Double ot2HoursSum;
+    private Double ot2HoursSaturdaySum;
+    private Double ot2HoursHolidaysSum;
     private Double lateHoursSum;
-    private Long extraWorkedDaysCount;
     private Long noPayDaysCount;
 }
