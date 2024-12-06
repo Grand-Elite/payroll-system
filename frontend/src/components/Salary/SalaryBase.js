@@ -6,7 +6,6 @@ import {
   TextField,
   Button,
   Grid,
-  MenuItem,
   Autocomplete,
 } from '@mui/material';
 import {
@@ -27,7 +26,6 @@ function SalaryBase({ selectedMonth, selectedYear }) {
   const [loadingSalaryDetails, setLoadingSalaryDetails] = useState(false);
   const [salaryDetailsNotFound, setSalaryDetailsNotFound] = useState(false);
   const [monthlySalaryDetailsNotFound, setMonthlySalaryDetailsNotFound] = useState(false);
-  const currentYear = new Date().getFullYear();
 
   const [formData, setFormData] = useState({
     basicSalary: '',
@@ -64,6 +62,10 @@ function SalaryBase({ selectedMonth, selectedYear }) {
     };
     loadEmployees();
   }, []);
+
+  useEffect(() => {
+    handleEmployeeChange(selectedEmployee);
+  }, [selectedMonth,selectedYear]);
 
   const handleEmployeeChange = async (employee) => {
     if (!employee) {
