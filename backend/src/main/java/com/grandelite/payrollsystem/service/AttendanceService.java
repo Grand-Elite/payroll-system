@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface AttendanceService {
     String processExcelFile(MultipartFile file);
-    List<Attendance> findAttendanceByEmployeeId(Long employeeId);
+    List<Attendance> findAttendanceByEmployeeId(Long employeeId,String year,String month);
 
     OverwrittenAttendanceStatus overwriteAttendanceStatus(OverwrittenAttendanceStatus overwrittenAttendanceStatus);
 

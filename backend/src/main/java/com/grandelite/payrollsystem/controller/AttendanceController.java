@@ -29,9 +29,11 @@ public class AttendanceController {
         return ResponseEntity.ok(responseMessage);
     }
 
-    @GetMapping("/employee/{employeeId}/attendance")
-    public List<Attendance> findAttendanceByEmployeeId(@PathVariable Long employeeId) {
-        return attendanceService.findAttendanceByEmployeeId(employeeId);
+    @GetMapping("/employee/{employeeId}/attendance/{year}/{month}")
+    public List<Attendance> findAttendanceByEmployeeId(@PathVariable Long employeeId,
+                                                       @PathVariable String year,
+                                                       @PathVariable String month) {
+        return attendanceService.findAttendanceByEmployeeId(employeeId,year,month);
     }
 
     @PatchMapping("/attendance/overwritten-attendance")

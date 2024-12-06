@@ -9,13 +9,20 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
 @Repository
 public interface AttendanceRepository extends JpaRepository<Attendance,String> {
-    @Query("SELECT a FROM Attendance a WHERE a.employee.employeeId = :employeeId")
-    List<Attendance> findAttendanceByEmployeeId(@Param("employeeId") Long employeeId);
+    @Query("SELECT a FROM Attendance a " +
+            "WHERE a.employee.employeeId = :employeeId" +
+            " AND EXTRACT(YEAR FROM a.date)=:year"  +
+            " AND EXTRACT(MONTH FROM a.date)=:month")
+    List<Attendance> findAttendanceByEmployeeId(
+            @Param("employeeId") Long employeeId,
+            @Param("year") String year,
+            @Param("month") int month);
 
 
     @Modifying

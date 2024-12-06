@@ -143,7 +143,7 @@ function MonthlySalary({ selectedMonth, selectedYear }) {
         // Fetch attendance data and calculate total working days
         setLoadingAttendance(true);
         try {
-          const attendanceData = await fetchAttendance(employee.employeeId);
+          const attendanceData = await fetchAttendance(employee.employeeId,selectedYear,selectedMonth);
       
           // Filter attendance data based on selected month and year
           const filteredAttendanceData = attendanceData.filter((record) => {

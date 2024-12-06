@@ -1,6 +1,7 @@
 package com.grandelite.payrollsystem.service.impl;
 
 import com.grandelite.payrollsystem.model.*;
+import com.grandelite.payrollsystem.model.YearMonth;
 import com.grandelite.payrollsystem.repository.AttendanceRepository;
 import com.grandelite.payrollsystem.repository.DepartmentRepository;
 import com.grandelite.payrollsystem.repository.EmployeeRepository;
@@ -15,10 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -51,8 +49,9 @@ public class AttendanceServiceImpl implements AttendanceService {
     }
 
     @Override
-    public List<Attendance> findAttendanceByEmployeeId(Long employeeId) {
-        return attendanceRepository.findAttendanceByEmployeeId(employeeId);
+    public List<Attendance> findAttendanceByEmployeeId(Long employeeId,String year,String month) {
+        return attendanceRepository.findAttendanceByEmployeeId(employeeId,year,
+                Month.valueOf(month.toUpperCase()).getValue());
     }
 
     @Override

@@ -45,9 +45,9 @@ export const addEmployee = async (employeeData) => {
     }
   };
 
-  export const fetchAttendance = async (employeeId) => {
+  export const fetchAttendance = async (employeeId,selectedYear,selectedMonth) => {
     try {
-      const response =await axios.get(`${API_BASE_URL}/employee/${employeeId}/attendance`);
+      const response =await axios.get(`${API_BASE_URL}/employee/${employeeId}/attendance/${selectedYear}/${selectedMonth}`);
       return response.data;
     } catch (error) {
       console.error('Error fetching employee attendance:', error);
