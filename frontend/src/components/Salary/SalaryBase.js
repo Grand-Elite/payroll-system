@@ -6,14 +6,17 @@ import {
   TextField,
   Button,
   Grid,
+  MenuItem,
   Autocomplete,
 } from '@mui/material';
-import MenuItem from '@mui/material/MenuItem';
 import {
   fetchEmployees,
   getSalaryDetailByEmployeeId,
+  getMonthlySalaryDetails,
   updateSalaryDetails,
   createSalaryDetails,
+  createMonthlySalaryUpdate,
+  updateMonthlySalaryUpdate,
 } from '../../services/api';
 import './SalaryBase.css';
 
@@ -23,11 +26,18 @@ function SalaryBase() {
   const [loadingEmployees, setLoadingEmployees] = useState(false);
   const [loadingSalaryDetails, setLoadingSalaryDetails] = useState(false);
   const [salaryDetailsNotFound, setSalaryDetailsNotFound] = useState(false);
+  const [monthlySalaryDetailsNotFound, setMonthlySalaryDetailsNotFound] = useState(false);
   const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 5 }, (_, i) => currentYear + i);
+  const years = Array.from({ length: 5 }, (_, i) => currentYear + i)    ;
 
   const [formData, setFormData] = useState({
     basicSalary: '',
+    ot1Rate: '',
+    ot2Rate: '',
+    lateChargesPerMin: '0.00',
+  });
+
+  const [monthlyData, setMonthlyData] = useState({
     bonus: '',
     attendanceAllowance: '',
     transportAllowance: '',
@@ -37,9 +47,8 @@ function SalaryBase() {
     foodBill: '',
     arrears: '',
     otherDeductions: '',
-    ot1Rate: '',
-    ot2Rate: '',
-    lateChargesPerMin: '0.00', // Default late charges per minute
+    year: '', 
+    month: '',
   });
 
   useEffect(() => {
@@ -69,28 +78,42 @@ function SalaryBase() {
 
     try {
       const salaryDetails = await getSalaryDetailByEmployeeId(employee.employeeId);
+      const monthlySalaryDetails = await getMonthlySalaryDetails(employee.employeeId, monthlyData.year, monthlyData.month);
 
-      const isSalaryEmpty = Object.values(salaryDetails).every(
+      const isSalaryEmpty = Object.values(salaryDetails || {}).every(
         (value) => value === 0 || value === false || value === null
       );
 
+      const isMonthlySalaryEmpty = Object.values(monthlySalaryDetails || {}).every(
+        (value) => value === 0 || value === false || value === null
+      );
+
+      
+
       setSalaryDetailsNotFound(isSalaryEmpty);
+      setMonthlySalaryDetailsNotFound(isMonthlySalaryEmpty);
 
       setFormData({
         basicSalary: salaryDetails.basicSalary || '',
-        bonus: salaryDetails.bonus || '',
-        attendanceAllowance: salaryDetails.attendanceAllowance || '',
-        transportAllowance: salaryDetails.transportAllowance || '',
-        performanceAllowance: salaryDetails.performanceAllowance || '',
-        incentives: salaryDetails.incentives || '',
-        salaryAdvance: salaryDetails.salaryAdvance || '',
-        foodBill: salaryDetails.foodBill || '',
-        arrears: salaryDetails.arrears || '',
-        otherDeductions: salaryDetails.otherDeductions || '',
         ot1Rate: salaryDetails.ot1Rate || '',
         ot2Rate: salaryDetails.ot2Rate || '',
         lateChargesPerMin: calculateLateChargesPerMin(salaryDetails.basicSalary || 0),
       });
+
+      setMonthlyData({
+        bonus: monthlySalaryDetails.bonus || '',
+        attendanceAllowance: monthlySalaryDetails.attendanceAllowance || '',
+        transportAllowance: monthlySalaryDetails.transportAllowance || '',
+        performanceAllowance: monthlySalaryDetails.performanceAllowance || '',
+        incentives: monthlySalaryDetails.incentives || '',
+        salaryAdvance: monthlySalaryDetails.salaryAdvance || '',
+        foodBill: monthlySalaryDetails.foodBill || '',
+        arrears: monthlySalaryDetails.arrears || '',
+        otherDeductions: monthlySalaryDetails.otherDeductions || '',
+        year: monthlySalaryDetails.year || '',
+        month: monthlySalaryDetails.month || '',
+      });
+
     } catch (error) {
       console.error('Error fetching salary details:', error);
       setSalaryDetailsNotFound(true);
@@ -112,12 +135,50 @@ function SalaryBase() {
       return updatedData;
     });
   };
+/*
+  const handleMonthlyDataChange = (event) => {
+    const { name, value } = event.target;
+    setMonthlyData((prevData) => ({ ...prevData, [name]: value }));
+  };
+*/
+
+
+const handleMonthlyDataChange = (event) => {
+  const { name, value } = event.target;
+  setMonthlyData((prevData) => {
+    if (name === 'year') {
+      // Ensure year is saved as a string
+      return { ...prevData, [name]: String(value) };
+    }
+    if (name === 'month') {
+      // Map numerical month value to month name
+      const monthNames = [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December',
+      ];
+      return { ...prevData, [name]: monthNames[value - 1] };
+    }
+    return { ...prevData, [name]: value };
+  });
+};
+
+
 
   const calculateLateChargesPerMin = (basicSalary) => {
     return (basicSalary / (8 * 60 * 30)).toFixed(2);
   };
 
-  const handleSubmit = async () => {
+  const handleSalaryBaseSubmit = async () => {
     if (!selectedEmployee) {
       alert('Please select an employee.');
       return;
@@ -138,6 +199,26 @@ function SalaryBase() {
     } catch (error) {
       console.error('Error submitting salary details:', error);
       alert('An error occurred while submitting salary details. Please try again.');
+    }
+  };
+
+  const handleMonthlySalarySubmit = async () => {
+    if (!selectedEmployee) {
+      alert('Please select an employee.');
+      return;
+    }
+
+    try {
+      const response = await (salaryDetailsNotFound
+        ? createMonthlySalaryUpdate(selectedEmployee.employeeId,monthlyData.year, monthlyData.month, monthlyData)
+        : updateMonthlySalaryUpdate(selectedEmployee.employeeId, monthlyData.year, monthlyData.month, monthlyData));
+
+      if (response.status === 200 || response.status === 201) {
+        alert('Monthly salary update submitted successfully!');
+      }
+    } catch (error) {
+      console.error('Error submitting monthly salary details:', error);
+      alert('An error occurred while submitting monthly salary details. Please try again.');
     }
   };
 
@@ -164,7 +245,7 @@ function SalaryBase() {
         />
       )}
 
-      {selectedEmployee ? (
+      {selectedEmployee && (
         <Box
           className="selected-employee-info"
           mt={1}
@@ -182,10 +263,6 @@ function SalaryBase() {
             </div>
           ))}
         </Box>
-      ) : (
-        <Typography color="textSecondary" variant="body1" mt={2}>
-          No employee selected.
-        </Typography>
       )}
 
       {salaryDetailsNotFound && selectedEmployee && (
@@ -194,161 +271,133 @@ function SalaryBase() {
         </Typography>
       )}
 
-{selectedEmployee && (
-  <>
-    {loadingSalaryDetails ? (
-      <CircularProgress />
-    ) : (
-<Box className="employee-form-container" mt={5} p={2}>
-  <Grid container spacing={4}>
-    {/* Left Column */}
-    <Grid item xs={5}>
-  <h3 style={{ marginBottom: '10px' }}>Salary Base Updates</h3>
-  {['basicSalary', 'ot1Rate', 'ot2Rate', 'lateChargesPerMin'].map((field) => (
-    <Grid container spacing={1} alignItems="center" key={field}>
-      <Grid item xs={5}>
-        <Typography variant="subtitle1">
-          {field === 'lateChargesPerMin'
-            ? 'Late Charges Per Minutes (Calculated)'
-            : field.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
-        </Typography>
-      </Grid>
-      <Grid item xs={7}>
-        <TextField
-          name={field}
-          value={formData[field]}
-          onChange={field === 'lateChargesPerMin' ? undefined : handleFormChange}
-          fullWidth
-          variant="outlined"
-          margin="normal"
-          size="small"
-          InputProps={{
-            readOnly: field === 'lateChargesPerMin',
-            style: { color: field === 'lateChargesPerMin' ? 'gray' : 'black' },
-          }}
-          sx={{ width: '85%'}} 
-        />
-      </Grid>
-    </Grid>
-  ))}
-      <Box mt={2}>
-        <Button variant="contained" color="primary" onClick={handleSubmit}>
-          Submit
-        </Button>
-      </Box>
-    </Grid>
+      {selectedEmployee && (
+        <>
+          {loadingSalaryDetails ? (
+            <CircularProgress />
+          ) : (
+            <Box className="employee-form-container" mt={5} p={2}>
+              <Grid container spacing={4}>
+                {/* Left Column: Salary Base Updates */}
+                <Grid item xs={5}>
+                  <h3 style={{ marginBottom: '10px' }}>Salary Base Updates</h3>
+                  {['basicSalary', 'ot1Rate', 'ot2Rate', 'lateChargesPerMin'].map((field) => (
+                    <Grid container spacing={1} alignItems="center" key={field}>
+                      <Grid item xs={5}>
+                        <Typography variant="subtitle1">
+                          {field === 'lateChargesPerMin'
+                            ? 'Late Charges Per Minutes (Calculated)'
+                            : field.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={7}>
+                        <TextField
+                          fullWidth
+                          name={field}
+                          value={formData[field]}
+                          onChange={handleFormChange}
+                          disabled={field === 'lateChargesPerMin'}
+                           size="small"
+                           sx={{ marginBottom: '16px' }}
+                        />
+                      </Grid>
+                    </Grid>
+                  ))}
+                  <Button
+                    variant="contained"
+                    onClick={handleSalaryBaseSubmit}
+                    color="primary"
+                    sx={{ marginTop: '20px' }}
+                  >
+                    {salaryDetailsNotFound ? 'Create' : 'Update'} Salary Base Details
+                  </Button>
+                </Grid>
 
-    {/* Right Column */}
-    <Grid item xs={5} >
-    <h3 style={{ marginBottom: '10px' }}>Monthly Salary Updates</h3>
-      {/* Year Dropdown */}
-      <Grid container spacing={1} alignItems="center">
-        <Grid item xs={5}>   
-          <Typography variant="subtitle1">Year</Typography>
-        </Grid>
-        <Grid item xs={7}>
-          <TextField
-            select
-            name="year"
-            value={formData.year || ''}
-            onChange={handleFormChange}
-            fullWidth
-            variant="outlined"
-            margin="normal"
-            size="small"
-            sx={{ width: '85%' }}
-          >
-      {years.map((year) => (
-        <MenuItem key={year} value={year}>
-          {year}
-        </MenuItem>
-      ))}
-          </TextField>
-        </Grid>
-      </Grid>
+                {/* Right Column: Monthly Salary Updates */}
+                <Grid item xs={7}>
+                  <h3 style={{ marginBottom: '10px' }}>Monthly Salary Updates</h3>
 
-      {/* Month Dropdown */}
-      <Grid container spacing={1} alignItems="center">
-        <Grid item xs={5}>
-          <Typography variant="subtitle1">Month</Typography>
-        </Grid>
-        <Grid item xs={7}>
-          <TextField
-            select
-            name="month"
-            value={formData.month || ''}
-            onChange={handleFormChange}
-            fullWidth
-            variant="outlined"
-            margin="normal"
-            size="small"
-            sx={{ width: '85%' }}
-          >
-            {[
-              'January',
-              'February',
-              'March',
-              'April',
-              'May',
-              'June',
-              'July',
-              'August',
-              'September',
-              'October',
-              'November',
-              'December',
-            ].map((month) => (
-              <MenuItem key={month} value={month}>
-                {month}
-              </MenuItem>
-            ))}
-          </TextField>
-        </Grid>
-      </Grid>
+                  {/* Year Field */}
+                  <Grid container spacing={1} alignItems="center">
+                    <Grid item xs={5}>
+                      <Typography variant="subtitle1">Year</Typography>
+                    </Grid>
+                    <Grid item xs={7}>
+                      <TextField
+                        select
+                        name="year"
+                        value={monthlyData.year}
+                        onChange={handleMonthlyDataChange}
+                        fullWidth
+                        size="small"
+                        sx={{ marginBottom: '16px' }}
+                      >
+                        {years.map((year) => (
+                          <MenuItem key={year} value={year}>
+                            {year}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+                    </Grid>
+                  </Grid>
 
-      {[
-        'bonus',
-        'attendanceAllowance',
-        'transportAllowance',
-        'performanceAllowance',
-        'incentives',
-        'salaryAdvance',
-        'foodBill',
-        'arrears',
-        'otherDeductions',
-      ].map((field) => (
-        <Grid container spacing={1} alignItems="center" key={field}>
-          <Grid item xs={5}>
-            <Typography variant="subtitle1">
-              {field.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
-            </Typography>
-          </Grid>
-          <Grid item xs={7}>
-            <TextField
-              name={field}
-              value={formData[field]}
-              onChange={handleFormChange}
-              fullWidth
-              variant="outlined"
-              margin="normal"
-              size="small"
-              sx={{ width: '85%'}} 
-            />
-          </Grid>
-        </Grid>
-      ))}
-      <Box mt={2}>
-        <Button variant="contained" color="primary" onClick={handleSubmit}>
-          Submit
-        </Button>
-      </Box>
-    </Grid>
-  </Grid>
-</Box>
+                  {/* Month Field */}
+                  <Grid container spacing={1} alignItems="center">
+                    <Grid item xs={5}>
+                      <Typography variant="subtitle1">Month</Typography>
+                    </Grid>
+                    <Grid item xs={7}>
+                      <TextField
+                        select
+                        name="month"
+                        value={monthlyData.month}
+                        onChange={handleMonthlyDataChange}
+                        fullWidth
+                        size="small"
+                        sx={{ marginBottom: '16px' }}
+                      >
+                        {['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map((month, index) => (
+                          <MenuItem key={month} value={index + 1}>
+                            {month}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+                    </Grid>
+                  </Grid>
 
-    )}
-  </>
-)}
+                  {['bonus', 'attendanceAllowance', 'transportAllowance', 'performanceAllowance', 'incentives', 'salaryAdvance', 'foodBill', 'arrears', 'otherDeductions'].map((field) => (
+                    <Grid container spacing={1} alignItems="center" key={field}>
+                      <Grid item xs={5}>
+                        <Typography variant="subtitle1">
+                          {field.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={7}>
+                        <TextField
+                          fullWidth
+                          name={field}
+                          value={monthlyData[field]}
+                          onChange={handleMonthlyDataChange}
+                          size="small"
+                          sx={{ marginBottom: '16px' }}
+                        />
+                      </Grid>
+                    </Grid>
+                  ))}
+                  <Button
+                    variant="contained"
+                    onClick={handleMonthlySalarySubmit}
+                    color="primary"
+                    sx={{ marginTop: '20px' }}
+                  >
+                    {monthlySalaryDetailsNotFound ? 'Create' : 'Update'} Monthly Salary Details
+                  </Button>
+                </Grid>
+              </Grid>
+            </Box>
+          )}
+        </>
+      )}
     </Box>
   );
 }

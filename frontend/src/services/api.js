@@ -198,6 +198,8 @@ export const getSalaryDetailByEmployeeId = async (employeeId) =>{
 
 
 
+
+
 export const getMonthlyFullSalary = async (employeeId, year, month) => {
   try {
     const response = await fetch(
@@ -282,8 +284,56 @@ export const deleteHoliday = (formattedDate) => {
 };
 
 
+// Function to create monthly salary update
+export const createMonthlySalaryUpdate = async (employeeId, year, month, salaryUpdateData) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/monthly-salary-updates/${employeeId}/${year}/${month}`, salaryUpdateData);
+    return response; // Return the response from the API
+  } catch (error) {
+    console.error('Error creating monthly salary update:', error);
+    throw error; // Propagate the error for handling in the calling function
+  }
+};
 
+export const updateMonthlySalaryUpdate = async (employeeId, year, month, salaryData) => {
+  try {
+    console.log('Year:', year, 'Month:', month);  // Debugging log
+    console.log('API URL:', `${API_BASE_URL}/monthly-salary-updates/${employeeId}/${year}/${month}`); // Debugging URL
+    console.log('Salary Data:', salaryData); // Debugging salary data
 
+    const response = await axios.patch(
+      `${API_BASE_URL}/monthly-salary-updates/${employeeId}/${year}/${month}`,
+      salaryData,
+      {
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
+    return response;
+  } catch (error) {
+    console.error('Error updating monthly salary:', error.response?.data || error.message);
+    throw error; // Throw error so it can be caught in the component
+  }
+};
+
+export const getMonthlySalaryDetails = async (employeeId) => {
+  try {
+    const response = await fetch(`/api/monthly-salary-updates/${employeeId}`);
+    
+    // Check if response is successful
+    if (!response.ok) {
+      console.error(`Failed to fetch monthly salary details: ${response.statusText}`);
+      return {}; // Return empty object if response is not OK
+    }
+
+    const data = await response.json();
+
+    // Ensure the response data is an object, fallback to an empty object
+    return data || {};
+  } catch (error) {
+    console.error('Error fetching monthly salary details:', error);
+    return {}; // Return empty object in case of error
+  }
+};
 
 
 

@@ -22,16 +22,6 @@ public class SalaryServiceImpl implements SalaryService {
         this.employeeRepository = employeeRepository;
     }
 
-    /*
-    @Override
-    public SalaryBase getSalaryDetailsByEmployeeId(Long employeeId) {
-        // Use orElseGet to return default salary if not found
-        return salaryRepository.findByEmployeeEmployeeId(employeeId)
-                .orElseGet(this::createDefaultSalaryBase);  // Using orElseGet to provide the default object
-    }
-
-     */
-
     @Override
     public SalaryBase getSalaryDetailsByEmployeeId(Long employeeId) {
         // Use orElseGet to return default salary if not found
@@ -42,21 +32,14 @@ public class SalaryServiceImpl implements SalaryService {
                     return defaultSalaryBase;
                 });
     }
+
+
     // Method to create a default SalaryBase object with 0 values
     private SalaryBase createDefaultSalaryBase() {
         SalaryBase defaultSalaryBase = new SalaryBase();
         defaultSalaryBase.setBasicSalary(0.0);
-        defaultSalaryBase.setAttendanceAllowance(0.0);
-        defaultSalaryBase.setTransportAllowance(0.0);
-        defaultSalaryBase.setPerformanceAllowance(0.0);
         defaultSalaryBase.setOt1Rate(0.0);
         defaultSalaryBase.setOt2Rate(0.0);
-        defaultSalaryBase.setIncentives(0.0);
-        defaultSalaryBase.setSalaryAdvance(0.0);
-        defaultSalaryBase.setFoodBill(0.0);
-        defaultSalaryBase.setArrears(0.0);
-        defaultSalaryBase.setOtherDeductions(0.0);
-        defaultSalaryBase.setBonus(0.0);
         defaultSalaryBase.setLateChargesPerMin(0.0);
         return defaultSalaryBase;
     }
@@ -70,15 +53,6 @@ public class SalaryServiceImpl implements SalaryService {
 
             // Update the fields directly
             existingSalaryBase.setBasicSalary(updatedSalaryDetails.getBasicSalary());
-            existingSalaryBase.setBonus(updatedSalaryDetails.getBonus());
-            existingSalaryBase.setAttendanceAllowance(updatedSalaryDetails.getAttendanceAllowance());
-            existingSalaryBase.setTransportAllowance(updatedSalaryDetails.getTransportAllowance());
-            existingSalaryBase.setPerformanceAllowance(updatedSalaryDetails.getPerformanceAllowance());
-            existingSalaryBase.setIncentives(updatedSalaryDetails.getIncentives());
-            existingSalaryBase.setSalaryAdvance(updatedSalaryDetails.getSalaryAdvance());
-            existingSalaryBase.setFoodBill(updatedSalaryDetails.getFoodBill());
-            existingSalaryBase.setArrears(updatedSalaryDetails.getArrears());
-            existingSalaryBase.setOtherDeductions(updatedSalaryDetails.getOtherDeductions());
             existingSalaryBase.setOt1Rate(updatedSalaryDetails.getOt1Rate());
             existingSalaryBase.setOt2Rate(updatedSalaryDetails.getOt2Rate());
             existingSalaryBase.setLateChargesPerMin(updatedSalaryDetails.getLateChargesPerMin());
