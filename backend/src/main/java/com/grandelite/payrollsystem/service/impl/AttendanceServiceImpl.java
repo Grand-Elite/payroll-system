@@ -46,8 +46,7 @@ public class AttendanceServiceImpl implements AttendanceService {
     @Override
     public String processExcelFile(MultipartFile file) {
         List<Map<String,String>> parsedCsv = parseCsvFile(file);
-        List<Attendance> attendanceList= extractClockInOutTimes(parsedCsv);
-        attendanceRepository.saveAll(attendanceList);
+        processAndSaveAttendance(parsedCsv);
         return "Success";
     }
 
@@ -91,7 +90,7 @@ public class AttendanceServiceImpl implements AttendanceService {
         return overwrittenAttendanceStatus;
     }
 
-    private List<Attendance> extractClockInOutTimes(List<Map<String, String>> records) {
+    private void processAndSaveAttendance(List<Map<String, String>> records) {
         // Parse records and group by Person ID and Adjusted Date
         Map<String, Map<LocalDate, List<LocalDateTime>>> groupedRecords = new HashMap<>();
         Map<String, String> employeeDepartment = new HashMap<>();
@@ -116,9 +115,13 @@ public class AttendanceServiceImpl implements AttendanceService {
         Map<String,Employee> employeeMap = new HashMap<>();
         // Process each group to find the clock-in and clock-out times
         List<Attendance> summaries = new ArrayList<>();
+        Map<String,YearMonth> yearMonthMap = new HashMap<>();
         for (String personName : groupedRecords.keySet()) {
             Employee employee = employeeMap.get(personName);
             for (LocalDate date : groupedRecords.get(personName).keySet()) {
+                yearMonthMap.put(date.getYear()+":"+date.getMonthValue()
+                        ,new YearMonth(String.valueOf(date.getYear()),date.getMonthValue()));
+
                 List<LocalDateTime> times = groupedRecords.get(personName).get(date);
                 times.sort(LocalDateTime::compareTo);
 
@@ -147,9 +150,12 @@ public class AttendanceServiceImpl implements AttendanceService {
                     summaries.add(attendance);
                 }
             }
-            monthlyFullSalaryService.calculateMonthlyFullSalary(employee.getEmployeeId(),"2024",10);
+            attendanceRepository.saveAll(summaries);
+            System.out.println(yearMonthMap);
+            for (YearMonth yearMonth:yearMonthMap.values()) {
+                monthlyFullSalaryService.calculateMonthlyFullSalary(employee.getEmployeeId(),yearMonth.getYear(),yearMonth.getMonth());
+            }
         }
-        return summaries;
     }
 
 //    private void calcOtAndLateHours(Employee employee, Attendance attendance) {

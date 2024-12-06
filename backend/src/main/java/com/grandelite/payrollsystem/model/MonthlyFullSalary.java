@@ -14,7 +14,7 @@ public class MonthlyFullSalary {
     @Column(name="monthly_full_salary_record_id", nullable = false)
     private String monthlyFullSalaryRecordId;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name="employee_id",nullable = false)
     private Employee employee;
 

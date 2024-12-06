@@ -45,8 +45,7 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
             MonthlyFullSalary mfs = new MonthlyFullSalary();
             SalaryBase salaryBase = salaryRepository.findByEmployeeEmployeeId(employeeId).orElseThrow();
 
-            MonthlySalaryUpdates monthlySalaryUpdates = monthlySalaryUpdatesRepository.findByEmployee_EmployeeIdAndYearAndMonth(employeeId, year, monthStr).orElseThrow();
-
+            MonthlySalaryUpdates monthlySalaryUpdates = monthlySalaryUpdatesRepository.findByEmployee_EmployeeIdAndYearAndMonth(employeeId, year, monthStr).orElse(new MonthlySalaryUpdates());
 
             AttendanceSummary attendanceSummary = attendanceRepository.findAggregatedMonthlyAttendanceSummary(employeeId, year, month);
             System.out.println(employee.getShortName()+"::"+attendanceSummary);
@@ -54,14 +53,16 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
             mfs.setEmployee(employee);
             mfs.setYear(year);
             mfs.setMonth(monthStr);
-            //todo implement calculation logics
+
             mfs.setBasic(salaryBase.getBasicSalary());
 
             mfs.setAttendanceAllowance(
                     Objects.requireNonNullElse(monthlySalaryUpdates.getAttendanceAllowance(),Double.valueOf(0))
-                            *attendanceSummary.getAttendanceCount());
+                            *Objects.requireNonNullElse(attendanceSummary.getAttendanceCount(),0d));
 
-            mfs.setNoPayAmount(attendanceSummary.getNoPayDaysCount()*(salaryBase.getBasicSalary()/30));
+            mfs.setNoPayAmount(
+                    Objects.requireNonNullElse(attendanceSummary.getNoPayDaysCount(),0l)
+                            *(salaryBase.getBasicSalary()/30));
 
             mfs.setArrears(Objects.requireNonNullElse(monthlySalaryUpdates.getArrears(),Double.valueOf(0)));
 
@@ -69,7 +70,9 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
 
             mfs.setBonus(Objects.requireNonNullElse(monthlySalaryUpdates.getBonus(),Double.valueOf(0)));
 
-            mfs.setOt1(attendanceSummary.getOt1HoursSum()*60*((salaryBase.getBasicSalary()*
+            mfs.setOt1(
+                    Objects.requireNonNullElse(attendanceSummary.getOt1HoursSum(),0d)
+                            *60*((salaryBase.getBasicSalary()*
                     Objects.requireNonNullElse(salaryBase.getOt1Rate(),Double.valueOf(0)))/(30*8*60)));
 
             //todo fix this using two ot2 types
@@ -80,13 +83,14 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
 
             mfs.setTransportAllowance(
                     Objects.requireNonNullElse(monthlySalaryUpdates.getTransportAllowance(),Double.valueOf(0))
-                            *attendanceSummary.getAttendanceCount());
+                            *Objects.requireNonNullElse(attendanceSummary.getAttendanceCount(),0d));
 
             mfs.setPerformanceAllowance(Objects.requireNonNullElse(
                     monthlySalaryUpdates.getPerformanceAllowance(),Double.valueOf(0)));
 
             //todo fix this 26 days logic
-            double incentives = (attendanceSummary.getAttendanceCount()-26) * (salaryBase.getBasicSalary() / 30);
+            double incentives = (Objects.requireNonNullElse(
+                    attendanceSummary.getAttendanceCount(),0d)-26) * (salaryBase.getBasicSalary() / 30);
             if (incentives <= 0) {
                 incentives = Objects.requireNonNullElse(monthlySalaryUpdates.getIncentives(),Double.valueOf(0));
             }
