@@ -85,8 +85,9 @@ public class AttendanceServiceImpl implements AttendanceService {
                 overwrittenAttendanceStatus.getUpdatedTotalLcMins(),
                 overwrittenAttendanceStatus.getUpdatedTotalOtMins()
         );
-
-        //todo recalculate the monthly full salary here
+        Attendance attendance = attendanceRepository.getReferenceById(overwrittenAttendanceStatus.getAttendanceRecordId());
+        //recalculate the monthly full salary here
+        monthlyFullSalaryService.calculateMonthlyFullSalary(attendance.getEmployee().getEmployeeId(),String.valueOf(attendance.getDate().getYear()),attendance.getDate().getMonthValue());
         return overwrittenAttendanceStatus;
     }
 

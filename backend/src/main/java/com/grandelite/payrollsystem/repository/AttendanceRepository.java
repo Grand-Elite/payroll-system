@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface AttendanceRepository extends JpaRepository<Attendance,Long> {
+public interface AttendanceRepository extends JpaRepository<Attendance,String> {
     @Query("SELECT a FROM Attendance a WHERE a.employee.employeeId = :employeeId")
     List<Attendance> findAttendanceByEmployeeId(@Param("employeeId") Long employeeId);
 

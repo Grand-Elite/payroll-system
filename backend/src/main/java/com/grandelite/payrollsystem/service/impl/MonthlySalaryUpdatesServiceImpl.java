@@ -1,13 +1,16 @@
 package com.grandelite.payrollsystem.service.impl;
 
 import com.grandelite.payrollsystem.model.Employee;
+import com.grandelite.payrollsystem.model.MonthlyFullSalary;
 import com.grandelite.payrollsystem.model.MonthlySalaryUpdates;
 import com.grandelite.payrollsystem.repository.EmployeeRepository;
 import com.grandelite.payrollsystem.repository.MonthlySalaryUpdatesRepository;
+import com.grandelite.payrollsystem.service.MonthlyFullSalaryService;
 import com.grandelite.payrollsystem.service.MonthlySalaryUpdatesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Month;
 import java.util.Optional;
 
 @Service
@@ -16,6 +19,9 @@ public class MonthlySalaryUpdatesServiceImpl implements MonthlySalaryUpdatesServ
     @Autowired
     private MonthlySalaryUpdatesRepository repository;
     private final EmployeeRepository employeeRepository;
+
+    @Autowired
+    private MonthlyFullSalaryService monthlyFullSalaryService;
 
     public MonthlySalaryUpdatesServiceImpl(MonthlySalaryUpdatesRepository repository, EmployeeRepository employeeRepository) {
         this.repository = repository;
@@ -37,7 +43,10 @@ public class MonthlySalaryUpdatesServiceImpl implements MonthlySalaryUpdatesServ
         salaryUpdate.setMonth(month);
         salaryUpdate.setEmployee(employee);
         salaryUpdate.setMonthlySalaryUpdatesRecordId(employeeId+":"+year+":"+month);
-        return repository.save(salaryUpdate);
+        MonthlySalaryUpdates monthlyFullSalary = repository.save(salaryUpdate);
+        monthlyFullSalaryService.calculateMonthlyFullSalary(employee.getEmployeeId(),year,
+                Month.valueOf(month.toUpperCase()).getValue());
+        return monthlyFullSalary;
     }
 
     @Override
@@ -61,7 +70,10 @@ public class MonthlySalaryUpdatesServiceImpl implements MonthlySalaryUpdatesServ
                     existing.setOtherDeductions(salaryUpdate.getOtherDeductions());
 
                     // Save the updated record back to the repository
-                    return repository.save(existing);
+                    MonthlySalaryUpdates monthlySalaryUpdates = repository.save(existing);
+                    monthlyFullSalaryService.calculateMonthlyFullSalary(employeeId,year,
+                            Month.valueOf(month.toUpperCase()).getValue());
+                    return monthlySalaryUpdates;
                 });
     }
 

@@ -12,7 +12,7 @@ public class MonthlySalaryUpdates {
     @Column(name = "monthly_salary_updates_record_id", nullable = false)
     private String monthlySalaryUpdatesRecordId;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
 

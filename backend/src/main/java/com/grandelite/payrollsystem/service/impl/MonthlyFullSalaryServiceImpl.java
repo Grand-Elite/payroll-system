@@ -105,7 +105,8 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
             mfs.setSalaryAdvance(
                     Objects.requireNonNullElse(monthlySalaryUpdates.getSalaryAdvance(),Double.valueOf(0)));
 
-            mfs.setLateCharges(attendanceSummary.getLateHoursSum()*60*salaryBase.getLateChargesPerMin());
+            mfs.setLateCharges(
+                    Objects.requireNonNullElse(attendanceSummary.getLateHoursSum(),0d)*60*salaryBase.getLateChargesPerMin());
 
             mfs.setOtherDeductions(
                     Objects.requireNonNullElse(monthlySalaryUpdates.getOtherDeductions(),Double.valueOf(0)));
