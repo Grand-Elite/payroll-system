@@ -63,7 +63,7 @@ function AttendanceTable(props) {
 
     const loadEmployeeAttendance = async () => {
       try {
-        const employeeAttendanceList = await fetchAttendance(props.employeeId);
+        const employeeAttendanceList = await fetchAttendance(props.employeeId,props.selectedYear,props.selectedMonth);
         
         const attendanceMap = {};
         employeeAttendanceList.forEach(record => {
