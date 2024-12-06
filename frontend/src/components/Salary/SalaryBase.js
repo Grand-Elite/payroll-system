@@ -20,7 +20,7 @@ import {
 } from '../../services/api';
 import './SalaryBase.css';
 
-function SalaryBase() {
+function SalaryBase({ selectedMonth, selectedYear }) {
   const [employees, setEmployees] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [loadingEmployees, setLoadingEmployees] = useState(false);
@@ -28,7 +28,6 @@ function SalaryBase() {
   const [salaryDetailsNotFound, setSalaryDetailsNotFound] = useState(false);
   const [monthlySalaryDetailsNotFound, setMonthlySalaryDetailsNotFound] = useState(false);
   const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 5 }, (_, i) => currentYear + i)    ;
 
   const [formData, setFormData] = useState({
     basicSalary: '',
@@ -78,7 +77,7 @@ function SalaryBase() {
 
     try {
       const salaryDetails = await getSalaryDetailByEmployeeId(employee.employeeId);
-      const monthlySalaryDetails = await getMonthlySalaryDetails(employee.employeeId, monthlyData.year, monthlyData.month);
+      const monthlySalaryDetails = await getMonthlySalaryDetails(employee.employeeId, selectedYear, selectedMonth);
 
       const isSalaryEmpty = Object.values(salaryDetails || {}).every(
         (value) => value === 0 || value === false || value === null
@@ -145,28 +144,6 @@ function SalaryBase() {
 const handleMonthlyDataChange = (event) => {
   const { name, value } = event.target;
   setMonthlyData((prevData) => {
-    if (name === 'year') {
-      // Ensure year is saved as a string
-      return { ...prevData, [name]: String(value) };
-    }
-    if (name === 'month') {
-      // Map numerical month value to month name
-      const monthNames = [
-        'January',
-        'February',
-        'March',
-        'April',
-        'May',
-        'June',
-        'July',
-        'August',
-        'September',
-        'October',
-        'November',
-        'December',
-      ];
-      return { ...prevData, [name]: monthNames[value - 1] };
-    }
     return { ...prevData, [name]: value };
   });
 };
@@ -208,9 +185,9 @@ const handleMonthlyDataChange = (event) => {
     }
 
     try {
-      const response = await (salaryDetailsNotFound
-        ? createMonthlySalaryUpdate(selectedEmployee.employeeId,monthlyData.year, monthlyData.month, monthlyData)
-        : updateMonthlySalaryUpdate(selectedEmployee.employeeId, monthlyData.year, monthlyData.month, monthlyData));
+      const response = await (monthlySalaryDetailsNotFound
+        ? createMonthlySalaryUpdate(selectedEmployee.employeeId,selectedYear, selectedMonth, monthlyData)
+        : updateMonthlySalaryUpdate(selectedEmployee.employeeId, selectedYear, selectedMonth, monthlyData));
 
       if (response.status === 200 || response.status === 201) {
         alert('Monthly salary update submitted successfully!');
@@ -323,19 +300,13 @@ const handleMonthlyDataChange = (event) => {
                     </Grid>
                     <Grid item xs={7}>
                       <TextField
-                        select
+                        disabled
                         name="year"
-                        value={monthlyData.year}
-                        onChange={handleMonthlyDataChange}
+                        value={selectedYear}
                         fullWidth
                         size="small"
                         sx={{ marginBottom: '16px' }}
                       >
-                        {years.map((year) => (
-                          <MenuItem key={year} value={year}>
-                            {year}
-                          </MenuItem>
-                        ))}
                       </TextField>
                     </Grid>
                   </Grid>
@@ -347,19 +318,14 @@ const handleMonthlyDataChange = (event) => {
                     </Grid>
                     <Grid item xs={7}>
                       <TextField
-                        select
+                        disabled
                         name="month"
-                        value={monthlyData.month}
-                        onChange={handleMonthlyDataChange}
+                        value={selectedMonth}
                         fullWidth
                         size="small"
                         sx={{ marginBottom: '16px' }}
                       >
-                        {['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map((month, index) => (
-                          <MenuItem key={month} value={index + 1}>
-                            {month}
-                          </MenuItem>
-                        ))}
+                        
                       </TextField>
                     </Grid>
                   </Grid>
