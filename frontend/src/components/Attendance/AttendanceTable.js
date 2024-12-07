@@ -12,15 +12,17 @@ import {
   MenuItem,
   Typography,
   Button,
+  Box
 } from '@mui/material';
 import dayjs from 'dayjs';
-import { fetchAttendance, updateAttendanceStatus } from '../../services/api'; // Ensure your api service has the updateAttendanceStatus method
+import { fetchAttendance, updateAttendanceStatus,fetchAttendanceSummary } from '../../services/api'; // Ensure your api service has the updateAttendanceStatus method
 import OTHoursCell from './OTHoursCell';
 import LateHoursCell from './LateHoursCell';
 import { formatHourMins } from '../../util/DateTimeUtil';
 
 function AttendanceTable(props) {
   const [daysInMonth, setDaysInMonth] = useState([]);
+  const [attendanceSummary,setAttendanceSummary] = useState([]);
 
   
 
@@ -28,7 +30,7 @@ function AttendanceTable(props) {
     const currentMonth = dayjs(`01 ${props.selectedMonth} 2000`, "DD MMMM YYYY").month(); 
     const currentYear = props.selectedYear;
     const days = [];
-    const daysInCurrentMonth = dayjs().daysInMonth();
+    const daysInCurrentMonth = dayjs(new Date(currentYear, currentMonth, 1)).daysInMonth();
 
     for (let i = 1; i <= daysInCurrentMonth; i++) {
       const date = dayjs(new Date(currentYear, currentMonth, i));
@@ -85,7 +87,7 @@ function AttendanceTable(props) {
                                             attendanceRecord.overwrittenAttendanceStatus.updatedAttendanceStatus:null 
                                             || attendanceRecord.attendance || '',
                   workMins: attendanceRecord.workMins || 0,
-                  shift: attendanceRecord.shift.shiftPeriod || 'MORNING',
+                  shift: attendanceRecord.shift?attendanceRecord.shift.shiftPeriod || 'MORNING':'',
       
                   otMins: attendanceRecord.overwrittenAttendanceStatus?
                           attendanceRecord.overwrittenAttendanceStatus.updatedTotalOtMins:null 
@@ -132,6 +134,13 @@ function AttendanceTable(props) {
       });
       
         setDaysInMonth(updatedDays);
+        
+        const employeeAttendanceSummary = await fetchAttendanceSummary(props.employeeId,props.selectedYear,props.selectedMonth);
+        setAttendanceSummary({
+          daysInCurrentMonth,
+          ...employeeAttendanceSummary
+        });
+
       } catch (error) {
         console.error("Error fetching employee attendance:", error);
       }
@@ -222,6 +231,42 @@ const handleSave = async (index) => {
 
 
   return (
+    <Box>
+      <Box>
+        <Table>
+          <TableBody>
+            <TableRow>
+              <TableCell>Total number days in Month:</TableCell>
+              <TableCell>{attendanceSummary.daysInCurrentMonth}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>No of attendance:</TableCell>
+              <TableCell>{attendanceSummary.attendanceCount}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>No of No Pay Leaves:</TableCell>
+              <TableCell>{attendanceSummary.noPayDaysCount}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Total OT-1 Hours:</TableCell>
+              <TableCell>{attendanceSummary.ot1HoursSum}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Total OT-2 Saturday Hours:</TableCell>
+              <TableCell>{attendanceSummary.ot2HoursSaturdaySum}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Total OT-2 Holiday Hours:</TableCell>
+              <TableCell>{attendanceSummary.ot2HoursHolidaysSum}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Total Late Hours:</TableCell>
+              <TableCell>{attendanceSummary.lateHoursSum}</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </Box>
+      <br/>
     <TableContainer component={Paper} style={{ margin: 'auto' }}>
       <Table>
         <TableHead>
@@ -343,6 +388,7 @@ const handleSave = async (index) => {
         </TableBody>
       </Table>
     </TableContainer>
+    </Box>
   );
 }
 

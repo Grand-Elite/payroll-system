@@ -1,6 +1,7 @@
 package com.grandelite.payrollsystem.service;
 
 import com.grandelite.payrollsystem.model.Attendance;
+import com.grandelite.payrollsystem.model.AttendanceSummary;
 import com.grandelite.payrollsystem.model.OverwrittenAttendanceStatus;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,6 +15,5 @@ public interface AttendanceService {
     OverwrittenAttendanceStatus overwriteAttendanceStatus(Long employeeId, LocalDate date, OverwrittenAttendanceStatus overwrittenAttendanceStatus);
 
 
-
-
+    AttendanceSummary findAttendanceSummaryByEmployeeId(Long employeeId, String year, String month);
 }

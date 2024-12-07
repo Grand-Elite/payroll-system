@@ -58,7 +58,7 @@ public class AttendanceServiceImpl implements AttendanceService {
     @Transactional
     public OverwrittenAttendanceStatus overwriteAttendanceStatus(Long employeeId,LocalDate date,OverwrittenAttendanceStatus overwrittenAttendanceStatus) {
         if(overwrittenAttendanceStatus.getAttendanceRecordId()==null){
-            //todo insert an empty record into attendance table
+            //insert an empty record into attendance table
             Employee employee = employeeRepository.getReferenceById(employeeId);
             Attendance attendance = new Attendance();
             attendance.setAttendanceRecordId(employee.getShortName() + date);
@@ -98,6 +98,11 @@ public class AttendanceServiceImpl implements AttendanceService {
         //recalculate the monthly full salary here
         monthlyFullSalaryService.calculateMonthlyFullSalary(attendance.getEmployee().getEmployeeId(),String.valueOf(attendance.getDate().getYear()),attendance.getDate().getMonthValue());
         return overwrittenAttendanceStatus;
+    }
+
+    @Override
+    public AttendanceSummary findAttendanceSummaryByEmployeeId(Long employeeId, String year, String month) {
+        return attendanceRepository.findAggregatedMonthlyAttendanceSummary(employeeId,year,Month.valueOf(month.toUpperCase()).getValue());
     }
 
     private void processAndSaveAttendance(List<Map<String, String>> records) {

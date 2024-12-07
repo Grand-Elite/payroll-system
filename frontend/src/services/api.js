@@ -55,6 +55,16 @@ export const addEmployee = async (employeeData) => {
     }
   };
 
+  export const fetchAttendanceSummary = async (employeeId,selectedYear,selectedMonth) => {
+    try {
+      const response =await axios.get(`${API_BASE_URL}/employee/${employeeId}/attendance-summary/${selectedYear}/${selectedMonth}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching employee attendance summary:', error);
+      throw error;
+    }
+  };
+
   export const getLastEmployeeId = async () => {
     try {
         const response = await axios.get('/api/employee/last-id'); // Adjust the endpoint as necessary

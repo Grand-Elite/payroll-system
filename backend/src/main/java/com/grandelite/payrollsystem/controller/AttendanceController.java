@@ -1,6 +1,7 @@
 package com.grandelite.payrollsystem.controller;
 
 import com.grandelite.payrollsystem.model.Attendance;
+import com.grandelite.payrollsystem.model.AttendanceSummary;
 import com.grandelite.payrollsystem.model.Employee;
 import com.grandelite.payrollsystem.model.OverwrittenAttendanceStatus;
 import com.grandelite.payrollsystem.service.AttendanceService;
@@ -44,5 +45,11 @@ public class AttendanceController {
         return ResponseEntity.ok(attendanceService.overwriteAttendanceStatus(employeeId,date,overwrittenAttendanceStatus));
     }
 
+    @GetMapping("/employee/{employeeId}/attendance-summary/{year}/{month}")
+    public AttendanceSummary findAttendanceSummaryByEmployeeId(@PathVariable Long employeeId,
+                                                               @PathVariable String year,
+                                                               @PathVariable String month) {
+        return attendanceService.findAttendanceSummaryByEmployeeId(employeeId,year,month);
+    }
 
 }
