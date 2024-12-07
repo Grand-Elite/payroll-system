@@ -57,6 +57,9 @@ public class AttendanceServiceImpl implements AttendanceService {
     @Override
     @Transactional
     public OverwrittenAttendanceStatus overwriteAttendanceStatus(OverwrittenAttendanceStatus overwrittenAttendanceStatus) {
+        if(overwrittenAttendanceStatus.getAttendanceRecordId()==null){
+            //todo insert an empty record into attendance table
+        }
         // Update or insert into the overwritten_attendance_status table using String for attendanceRecordId
 
         System.out.println(overwrittenAttendanceStatus);
@@ -247,13 +250,18 @@ public class AttendanceServiceImpl implements AttendanceService {
         attendance.setLcMins(totalLcMins);
     }
 
-    private Duration compansateDayChange(LocalTime shiftEndTime, LocalTime actualClockOutTime) {
-        Duration duration = Duration.between(shiftEndTime,actualClockOutTime);
-        if(actualClockOutTime.isAfter(LocalTime.of(00,00))
-                && actualClockOutTime.isBefore(LocalTime.of(03,00))){
-            //return duration.plusHours(24);
+    public Duration compansateDayChange(LocalTime shiftEndTime, LocalTime actualClockOutTime) {
+        LocalDateTime shiftEndDateTime = shiftEndTime.atDate(LocalDate.EPOCH);
+        LocalDateTime actualClockOutDateTime = actualClockOutTime.atDate(LocalDate.EPOCH);
+        if (!shiftEndTime.equals(LocalTime.MIDNIGHT) &&
+                actualClockOutTime.isBefore(LocalTime.of(03,00))) {
+            actualClockOutDateTime = actualClockOutDateTime.plusDays(1);
+        }else if (shiftEndTime.equals(LocalTime.MIDNIGHT) &&
+                actualClockOutTime.isAfter(LocalTime.of(03,00))
+        ){
+            shiftEndDateTime = shiftEndDateTime.plusDays(1);
         }
-        return duration;
+        return Duration.between(shiftEndDateTime, actualClockOutDateTime);
     }
 
 
