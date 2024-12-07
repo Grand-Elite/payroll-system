@@ -185,6 +185,8 @@ const handleSave = async (index) => {
   ) {
     try {
       await updateAttendanceStatus(
+        props.employeeId,
+        day.date,
         day.attendanceRecordId,
         day.attendanceStatus,
         day.updatedLcEarlyClockoutMins,

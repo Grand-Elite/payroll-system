@@ -67,6 +67,7 @@ export const addEmployee = async (employeeData) => {
 
 
 const updateAttendanceStatus = async (
+  employeeId,date,
   attendanceRecordId,
   updatedStatus,
   updatedLcEarlyClockoutMins,
@@ -77,7 +78,7 @@ const updateAttendanceStatus = async (
   updatedTotalOtMins
 ) => {
   try {
-    const response = await axios.patch("api/attendance/overwritten-attendance", {
+    const response = await axios.patch(`api/employee/${employeeId}/attendance/${date}/overwritten-attendance`, {
       attendanceRecordId,
       updatedAttendanceStatus: updatedStatus,
       updatedLcEarlyClockoutMins,

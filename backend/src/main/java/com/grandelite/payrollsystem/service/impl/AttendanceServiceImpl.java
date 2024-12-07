@@ -56,9 +56,16 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     @Override
     @Transactional
-    public OverwrittenAttendanceStatus overwriteAttendanceStatus(OverwrittenAttendanceStatus overwrittenAttendanceStatus) {
+    public OverwrittenAttendanceStatus overwriteAttendanceStatus(Long employeeId,LocalDate date,OverwrittenAttendanceStatus overwrittenAttendanceStatus) {
         if(overwrittenAttendanceStatus.getAttendanceRecordId()==null){
             //todo insert an empty record into attendance table
+            Employee employee = employeeRepository.getReferenceById(employeeId);
+            Attendance attendance = new Attendance();
+            attendance.setAttendanceRecordId(employee.getShortName() + date);
+            attendance.setEmployee(employee);
+            attendance.setDate(date);
+            overwrittenAttendanceStatus.setAttendanceRecordId(employee.getShortName() + date);
+            attendanceRepository.save(attendance);
         }
         // Update or insert into the overwritten_attendance_status table using String for attendanceRecordId
 

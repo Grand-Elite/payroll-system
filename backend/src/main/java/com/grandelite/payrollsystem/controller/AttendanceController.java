@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -36,9 +37,11 @@ public class AttendanceController {
         return attendanceService.findAttendanceByEmployeeId(employeeId,year,month);
     }
 
-    @PatchMapping("/attendance/overwritten-attendance")
-    public OverwrittenAttendanceStatus overwriteAttendanceStatus(@RequestBody OverwrittenAttendanceStatus overwrittenAttendanceStatus){
-        return attendanceService.overwriteAttendanceStatus(overwrittenAttendanceStatus);
+    @PatchMapping("/employee/{employeeId}/attendance/{date}/overwritten-attendance")
+    public ResponseEntity<OverwrittenAttendanceStatus> overwriteAttendanceStatus(@PathVariable Long employeeId,
+                                                                 @PathVariable LocalDate date,
+                                                                 @RequestBody OverwrittenAttendanceStatus overwrittenAttendanceStatus){
+        return ResponseEntity.ok(attendanceService.overwriteAttendanceStatus(employeeId,date,overwrittenAttendanceStatus));
     }
 
 
