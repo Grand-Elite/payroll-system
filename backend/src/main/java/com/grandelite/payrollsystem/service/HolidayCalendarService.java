@@ -8,6 +8,7 @@ import java.util.List;
 public interface HolidayCalendarService {
 
     void saveHoliday(HolidayCalendar holidayCalendar);
+
     List<HolidayCalendar> getAllHolidays();
 
 

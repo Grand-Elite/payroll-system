@@ -38,9 +38,14 @@ public class SalaryServiceImpl implements SalaryService {
     private SalaryBase createDefaultSalaryBase() {
         SalaryBase defaultSalaryBase = new SalaryBase();
         defaultSalaryBase.setBasicSalary(0.0);
+        defaultSalaryBase.setAttendanceAllowance(0.0);
+        defaultSalaryBase.setTransportAllowance(0.0);
+        defaultSalaryBase.setPerformanceAllowance(0.0);
         defaultSalaryBase.setOt1Rate(0.0);
         defaultSalaryBase.setOt2Rate(0.0);
+        defaultSalaryBase.setWorkingHours(0.0);
         defaultSalaryBase.setLateChargesPerMin(0.0);
+
         return defaultSalaryBase;
     }
 
@@ -50,13 +55,15 @@ public class SalaryServiceImpl implements SalaryService {
 
         if (salaryBaseOptional.isPresent()) {
             SalaryBase existingSalaryBase = salaryBaseOptional.get();
-
             // Update the fields directly
             existingSalaryBase.setBasicSalary(updatedSalaryDetails.getBasicSalary());
+            existingSalaryBase.setAttendanceAllowance(updatedSalaryDetails.getAttendanceAllowance());
+            existingSalaryBase.setTransportAllowance(updatedSalaryDetails.getTransportAllowance());
+            existingSalaryBase.setPerformanceAllowance(updatedSalaryDetails.getPerformanceAllowance());
             existingSalaryBase.setOt1Rate(updatedSalaryDetails.getOt1Rate());
             existingSalaryBase.setOt2Rate(updatedSalaryDetails.getOt2Rate());
+            existingSalaryBase.setWorkingHours(updatedSalaryDetails.getWorkingHours());
             existingSalaryBase.setLateChargesPerMin(updatedSalaryDetails.getLateChargesPerMin());
-
             salaryRepository.save(existingSalaryBase);
             return "Salary details updated successfully!";
         } else {

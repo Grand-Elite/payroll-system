@@ -21,21 +21,58 @@ public class HolidayCalendarServiceImpl implements HolidayCalendarService {
     @Autowired
     private HolidayCalendarRepository holidayCalendarRepository;
 
-    // Save or update holiday
+//    // Save or update holiday
+//    @Override
+//    public void saveHoliday(HolidayCalendar holidayCalendar) {
+//        // Check if a holiday already exists for the given date
+//        HolidayCalendar existingHoliday = holidayCalendarRepository.findByHolidayDate(holidayCalendar.getHolidayDate());
+//
+//        if (existingHoliday != null) {
+//            // If holiday exists, update its description
+//            existingHoliday.setDescription(holidayCalendar.getDescription());
+//            holidayCalendarRepository.save(existingHoliday);  // Update existing holiday
+//        } else {
+//            // If holiday doesn't exist, insert a new holiday
+//            holidayCalendarRepository.save(holidayCalendar);  // Insert new holiday
+//        }
+//    }
+
+
     @Override
     public void saveHoliday(HolidayCalendar holidayCalendar) {
         // Check if a holiday already exists for the given date
         HolidayCalendar existingHoliday = holidayCalendarRepository.findByHolidayDate(holidayCalendar.getHolidayDate());
 
         if (existingHoliday != null) {
-            // If holiday exists, update its description
+            // If holiday exists, update its description and mandatory status
             existingHoliday.setDescription(holidayCalendar.getDescription());
+            existingHoliday.setMandatory(holidayCalendar.getMandatory()); // Update mandatory status
             holidayCalendarRepository.save(existingHoliday);  // Update existing holiday
+            // Optionally add logging here
         } else {
             // If holiday doesn't exist, insert a new holiday
             holidayCalendarRepository.save(holidayCalendar);  // Insert new holiday
+            // Optionally add logging here
         }
     }
+
+
+
+//    @Override
+//    public void saveHoliday(HolidayCalendar holidayCalendar) {
+//        // Check if a holiday already exists for the given date
+//        HolidayCalendar existingHoliday = holidayCalendarRepository.findByHolidayDate(holidayCalendar.getHolidayDate());
+//
+//        if (existingHoliday != null) {
+//            // Update existing holiday fields
+//            existingHoliday.setDescription(holidayCalendar.getDescription());
+//            existingHoliday.setMandatoryHoliday(holidayCalendar.getMandatoryHoliday());
+//            holidayCalendarRepository.save(existingHoliday);  // Save updated holiday
+//        } else {
+//            // Save new holiday
+//            holidayCalendarRepository.save(holidayCalendar);  // Insert new holiday
+//        }
+//    }
 
     // Get all holidays
     @Override

@@ -96,6 +96,4 @@ public class MonthlyFullSalary {
     @Column(name="etf_company_amount")
     private Double etfCompanyAmount;
 
-
-
 }

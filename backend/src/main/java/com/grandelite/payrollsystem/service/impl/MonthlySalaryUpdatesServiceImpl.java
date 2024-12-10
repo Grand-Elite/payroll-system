@@ -60,9 +60,6 @@ public class MonthlySalaryUpdatesServiceImpl implements MonthlySalaryUpdatesServ
                 .map(existing -> {
                     // Update the fields with the new values
                     existing.setBonus(salaryUpdate.getBonus());
-                    existing.setAttendanceAllowance(salaryUpdate.getAttendanceAllowance());
-                    existing.setTransportAllowance(salaryUpdate.getTransportAllowance());
-                    existing.setPerformanceAllowance(salaryUpdate.getPerformanceAllowance());
                     existing.setIncentives(salaryUpdate.getIncentives());
                     existing.setSalaryAdvance(salaryUpdate.getSalaryAdvance());
                     existing.setFoodBill(salaryUpdate.getFoodBill());

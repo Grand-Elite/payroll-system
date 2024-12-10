@@ -33,11 +33,12 @@ public class HolidayCalendarController {
     public ResponseEntity<?> saveHolidays(@RequestBody List<HolidayCalendar> holidayCalendars) {
         try {
             for (HolidayCalendar holiday : holidayCalendars) {
+                System.out.println("Holiday Date: " + holiday.getHolidayDate());
+                System.out.println("Mandatory: " + holiday.getMandatory()); // Log the mandatory value
                 holidayCalendarService.saveHoliday(holiday);
             }
             return ResponseEntity.ok().body(Map.of("message", "Holidays have been saved!"));
         } catch (Exception e) {
-            // Return a proper JSON response with the error message
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Error saving holidays", "details", e.getMessage()));
         }
@@ -72,6 +73,4 @@ public class HolidayCalendarController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
-
 }

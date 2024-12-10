@@ -25,14 +25,7 @@ public class MonthlySalaryUpdates {
     @Column(name = "bonus")
     private Double bonus;
 
-    @Column(name = "attendance_allowance")
-    private Double attendanceAllowance;
 
-    @Column(name = "transport_allowance")
-    private Double transportAllowance;
-
-    @Column(name = "performance_allowance")
-    private Double performanceAllowance;
 
     @Column(name = "incentives")
     private Double incentives;

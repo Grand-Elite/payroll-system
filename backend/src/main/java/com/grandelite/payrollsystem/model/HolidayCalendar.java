@@ -19,6 +19,7 @@ public class HolidayCalendar {
     @Column(name="description")
     private String description;
 
-
+    @Column(name = "mandatory_holiday", nullable = false)
+    private Boolean mandatory = false;
 
 }

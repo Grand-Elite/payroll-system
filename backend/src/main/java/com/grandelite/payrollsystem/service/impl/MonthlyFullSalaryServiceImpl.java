@@ -32,6 +32,9 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
     @Autowired
     MonthlySalaryUpdatesRepository monthlySalaryUpdatesRepository;
 
+    @Autowired
+    HolidayCalendarRepository holidayCalendarRepository;
+
     @Override
     public MonthlyFullSalary getMonthlyFullSalary(Long employeeId, String year, String month) {
         return monthlyFullSalaryRepository.findByEmployeeIdYearMonth(employeeId, year, month);
@@ -57,7 +60,7 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
             mfs.setBasic(salaryBase.getBasicSalary());
 
             mfs.setAttendanceAllowance(
-                    Objects.requireNonNullElse(monthlySalaryUpdates.getAttendanceAllowance(),Double.valueOf(0))
+                    Objects.requireNonNullElse(salaryBase.getAttendanceAllowance(),Double.valueOf(0))
                             *Objects.requireNonNullElse(attendanceSummary.getAttendanceCount(),0d));
 
             mfs.setNoPayAmount(
@@ -73,20 +76,27 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
             mfs.setOt1(
                     Objects.requireNonNullElse(attendanceSummary.getOt1HoursSum(),0d)
                             *60*((salaryBase.getBasicSalary()*
-                    Objects.requireNonNullElse(salaryBase.getOt1Rate(),Double.valueOf(0)))/(30*8*60)));
+                    Objects.requireNonNullElse(salaryBase.getOt1Rate(),Double.valueOf(0)))/(salaryBase.getWorkingHours()*60)));
+
+
 
             //todo fix this using two ot2 types
 //            mfs.setOt2(attendanceSummary.getOt2HoursSum()*(salaryBase.getBasicSalary()/8*30)*1.5*3);   //This calculation only handles the Saturday OT amount. But the OT-2 for Poya day is calculated through a separated formula.
                                                                                 // OT-2 for Poya Day = (Basic Salary)/(30*2)
+//            if(employee.getEpfNo() != 0L){
+//                if()
+//            }
             mfs.setOt2(0D);
+
+
             mfs.setGrossPay(mfs.getTotalForEpf()+mfs.getBonus()+mfs.getOt1()+mfs.getOt2());
 
             mfs.setTransportAllowance(
-                    Objects.requireNonNullElse(monthlySalaryUpdates.getTransportAllowance(),Double.valueOf(0))
+                    Objects.requireNonNullElse(salaryBase.getTransportAllowance(),Double.valueOf(0))
                             *Objects.requireNonNullElse(attendanceSummary.getAttendanceCount(),0d));
 
             mfs.setPerformanceAllowance(Objects.requireNonNullElse(
-                    monthlySalaryUpdates.getPerformanceAllowance(),Double.valueOf(0)));
+                    salaryBase.getPerformanceAllowance(),Double.valueOf(0)));
 
             //todo fix this 26 days logic
             double incentives = (Objects.requireNonNullElse(
@@ -95,6 +105,7 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
                 incentives = Objects.requireNonNullElse(monthlySalaryUpdates.getIncentives(),Double.valueOf(0));
             }
             mfs.setIncentives(incentives);
+
 
             mfs.setTotalAllowance(mfs.getAttendanceAllowance()+mfs.getTransportAllowance()+mfs.getPerformanceAllowance()+mfs.getIncentives());
 

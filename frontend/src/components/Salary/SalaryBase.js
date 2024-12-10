@@ -29,16 +29,18 @@ function SalaryBase({ selectedMonth, selectedYear }) {
 
   const [formData, setFormData] = useState({
     basicSalary: '',
+    attendanceAllowance: '',
+    transportAllowance: '',
+    performanceAllowance: '',
     ot1Rate: '',
     ot2Rate: '',
+    workingHours: '',
     lateChargesPerMin: '0.00',
+
   });
 
   const [monthlyData, setMonthlyData] = useState({
     bonus: '',
-    attendanceAllowance: '',
-    transportAllowance: '',
-    performanceAllowance: '',
     incentives: '',
     salaryAdvance: '',
     foodBill: '',
@@ -92,16 +94,18 @@ function SalaryBase({ selectedMonth, selectedYear }) {
 
       setFormData({
         basicSalary: salaryDetails.basicSalary || '',
+        attendanceAllowance: salaryDetails.attendanceAllowance || '',
+        transportAllowance: salaryDetails.transportAllowance || '',
+        performanceAllowance: salaryDetails.performanceAllowance || '',  
         ot1Rate: salaryDetails.ot1Rate || '',
         ot2Rate: salaryDetails.ot2Rate || '',
-        lateChargesPerMin: calculateLateChargesPerMin(salaryDetails.basicSalary || 0),
+        workingHours : salaryDetails.workingHours || '',
+        lateChargesPerMin: calculateLateChargesPerMin(salaryDetails.basicSalary || 0, salaryDetails.workingHours || 0),
+
       });
 
       setMonthlyData({
         bonus: monthlySalaryDetails.bonus || '',
-        attendanceAllowance: monthlySalaryDetails.attendanceAllowance || '',
-        transportAllowance: monthlySalaryDetails.transportAllowance || '',
-        performanceAllowance: monthlySalaryDetails.performanceAllowance || '',
         incentives: monthlySalaryDetails.incentives || '',
         salaryAdvance: monthlySalaryDetails.salaryAdvance || '',
         foodBill: monthlySalaryDetails.foodBill || '',
@@ -127,21 +131,19 @@ function SalaryBase({ selectedMonth, selectedYear }) {
     const { name, value } = event.target;
     setFormData((prevData) => {
       const updatedData = { ...prevData, [name]: value };
-
-      if (name === 'basicSalary') {
-        const basicSalary = parseFloat(value) || 0;
-        updatedData.lateChargesPerMin = calculateLateChargesPerMin(basicSalary);
-      }
-
+  
+      // Parse updated basicSalary and workingHours
+      const basicSalary = parseFloat(name === 'basicSalary' ? value : prevData.basicSalary) || 0;
+      const workingHours = parseFloat(name === 'workingHours' ? value : prevData.workingHours) || 0;
+  
+      // Recalculate lateChargesPerMin when either field changes
+      updatedData.lateChargesPerMin = calculateLateChargesPerMin(basicSalary, workingHours);
+  
       return updatedData;
     });
   };
-/*
-  const handleMonthlyDataChange = (event) => {
-    const { name, value } = event.target;
-    setMonthlyData((prevData) => ({ ...prevData, [name]: value }));
-  };
-*/
+  
+
 
 const handleMonthlyDataChange = (event) => {
   const { name, value } = event.target;
@@ -151,10 +153,16 @@ const handleMonthlyDataChange = (event) => {
 };
 
 
+const calculateLateChargesPerMin = (basicSalary, workingHours) => {
+  if (workingHours === 0) {
+    return 0; // Avoid division by zero
+  }
+  let result = basicSalary / (workingHours * 60);
+  result = parseFloat(result.toFixed(2)); // Round to 2 decimal places and convert to number
+  return result;
+};
 
-  const calculateLateChargesPerMin = (basicSalary) => {
-    return (basicSalary / (8 * 60 * 30)).toFixed(2);
-  };
+
 
   const handleSalaryBaseSubmit = async () => {
     if (!selectedEmployee) {
@@ -259,7 +267,7 @@ const handleMonthlyDataChange = (event) => {
                 {/* Left Column: Salary Base Updates */}
                 <Grid item xs={5}>
                   <h3 style={{ marginBottom: '10px' }}>Salary Base Updates</h3>
-                  {['basicSalary', 'ot1Rate', 'ot2Rate', 'lateChargesPerMin'].map((field) => (
+                  {['basicSalary', 'attendanceAllowance', 'transportAllowance', 'performanceAllowance', 'ot1Rate', 'ot2Rate', 'workingHours', 'lateChargesPerMin'].map((field) => (
                     <Grid container spacing={1} alignItems="center" key={field}>
                       <Grid item xs={5}>
                         <Typography variant="subtitle1">
@@ -332,7 +340,7 @@ const handleMonthlyDataChange = (event) => {
                     </Grid>
                   </Grid>
 
-                  {['bonus', 'attendanceAllowance', 'transportAllowance', 'performanceAllowance', 'incentives', 'salaryAdvance', 'foodBill', 'arrears', 'otherDeductions'].map((field) => (
+                  {['bonus', 'incentives', 'salaryAdvance', 'foodBill', 'arrears', 'otherDeductions'].map((field) => (
                     <Grid container spacing={1} alignItems="center" key={field}>
                       <Grid item xs={5}>
                         <Typography variant="subtitle1">
