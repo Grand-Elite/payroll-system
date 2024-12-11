@@ -100,43 +100,30 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
             mfs.setPerformanceAllowance(Objects.requireNonNullElse(
                     salaryBase.getPerformanceAllowance(),Double.valueOf(0)));
 
-            //todo fix this 26 days logic
-//            double incentives = (Objects.requireNonNullElse(
-//                    attendanceSummary.getAttendanceCount(),0d)-26) * (salaryBase.getBasicSalary() / 30);
-//            if (incentives <= 0) {
-//                incentives = Objects.requireNonNullElse(monthlySalaryUpdates.getIncentives(),Double.valueOf(0));
-//            }
-//            mfs.setIncentives(incentives);
 
-//
-//            double incentives = (Objects.requireNonNullElse(
-//                    attendanceSummary.getAttendanceCount(),0d)-(mfs.getMonth().length()-4)) * ((salaryBase.getBasicSalary() / 30));
-//            if (incentives <= 0) {
-//                incentives = Objects.requireNonNullElse(monthlySalaryUpdates.getIncentives(),Double.valueOf(0));
-//            }
-//            mfs.setIncentives(incentives);
-
-
-
-//            Month monthEnum = Month.valueOf(mfs.getMonth().toUpperCase());
-//            int selectedYear = Integer.parseInt(mfs.getYear());
-//            double incentives =  monthEnum.length(Year.isLeap(selectedYear)); // Get the number of days considering leap year
-//            if (incentives <= 0) {
-//                incentives = Objects.requireNonNullElse(monthlySalaryUpdates.getIncentives(),Double.valueOf(0));
-//            }
-//            mfs.setIncentives(incentives);
-
+            // Extract the month and year
             Month monthEnum = Month.valueOf(mfs.getMonth().toUpperCase());
             int selectedYear = Integer.parseInt(mfs.getYear());
-            double  incentives = (Objects.requireNonNullElse(
-                    attendanceSummary.getAttendanceCount(), 0d)
-                    - (monthEnum.length(Year.isLeap(selectedYear)) - 4))
-                    * (salaryBase.getBasicSalary() / 30)
+
+            // Count non-mandatory public holidays for the specific month and year
+            int nonMandatoryPublicHolidays = holidayCalendarRepository.countNonMandatoryHolidaysByYearAndMonth(selectedYear, monthEnum.getValue());
+
+            // Calculate incentives
+            double attendanceCount = Objects.requireNonNullElse(attendanceSummary.getAttendanceCount(), 0d);
+            int totalDaysInMonth = monthEnum.length(Year.isLeap(selectedYear));
+            int nonWorkingDays = 4 + nonMandatoryPublicHolidays; // Sundays + non-mandatory public holidays
+            double dailySalary = salaryBase.getBasicSalary() / 30;
+
+            double incentives = (attendanceCount - (totalDaysInMonth - nonWorkingDays)) * dailySalary
                     + Objects.requireNonNullElse(monthlySalaryUpdates.getIncentives(), 0d);
+
             if (incentives <= 0) {
-                incentives = Objects.requireNonNullElse(monthlySalaryUpdates.getIncentives(),Double.valueOf(0));
+                incentives = Objects.requireNonNullElse(monthlySalaryUpdates.getIncentives(), 0d);
             }
+
             mfs.setIncentives(incentives);
+
+
 
 
             mfs.setTotalAllowance(mfs.getAttendanceAllowance()+mfs.getTransportAllowance()+mfs.getPerformanceAllowance()+mfs.getIncentives());

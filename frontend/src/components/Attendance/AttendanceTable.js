@@ -161,26 +161,6 @@ function AttendanceTable(props) {
     setDaysInMonth(updatedDays);
 };
 
-/* WORKING HANDLE SAVE FUNCTION
-  const handleSave = async (index) => {
-    const day = daysInMonth[index];
-    if (day.attendanceStatus !== day.originalAttendanceStatus) {
-        try {
-            await updateAttendanceStatus(props.employeeId,day.date, day.attendanceStatus);
-            // Update the original status after saving
-            const updatedDays = [...daysInMonth];
-            updatedDays[index].originalAttendanceStatus = day.attendanceStatus;
-            setDaysInMonth(updatedDays);
-            alert('Attendance status updated successfully');
-        } catch (error) {
-            console.error('Error updating attendance status:', error);
-            alert('Failed to update attendance status');
-        }
-    }
-};
-*/
-
-
 const handleSave = async (index) => {
   const day = daysInMonth[index];
   if (
@@ -240,12 +220,16 @@ const handleSave = async (index) => {
               <TableCell>{attendanceSummary.daysInCurrentMonth}</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell>No of attendance:</TableCell>
+              <TableCell>No. of attendance:</TableCell>
               <TableCell>{attendanceSummary.attendanceCount}</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell>No of No Pay Leaves:</TableCell>
+              {/* 
+              <TableCell>No. of No Pay Leaves:</TableCell>
               <TableCell>{attendanceSummary.noPayDaysCount}</TableCell>
+              */}
+               <TableCell>No. of Leaves:</TableCell>
+               <TableCell>{attendanceSummary.daysInCurrentMonth-attendanceSummary.attendanceCount}</TableCell>
             </TableRow>
             <TableRow>
               <TableCell>Total OT-1 Hours:</TableCell>
@@ -346,7 +330,7 @@ const handleSave = async (index) => {
                       displayEmpty
                   >
                       <MenuItem value="ab">ab</MenuItem>
-                      <MenuItem value="ab-nopay">ab-nopay</MenuItem>
+                      {/*<MenuItem value="ab-nopay">ab-nopay</MenuItem> */}
                       <MenuItem value="0.5">0.5</MenuItem>
                       <MenuItem value="1">1</MenuItem>
                   </Select>
