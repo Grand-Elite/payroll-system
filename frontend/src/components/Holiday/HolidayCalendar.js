@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Calendar from 'react-calendar';
-import 'react-calendar/dist/Calendar.css'; // Import default styles
-import './HolidayCalendar.css'; // Import custom styles
+import 'react-calendar/dist/Calendar.css';
+import './HolidayCalendar.css';
 import { saveHolidays, fetchHolidays, deleteHoliday } from '../../services/api';
 
 function HolidayCalendar() {
@@ -13,16 +13,31 @@ function HolidayCalendar() {
     fetchHolidays()
       .then((data) => {
         const holidayMap = data.reduce((acc, holiday) => {
-          acc[new Date(holiday.holidayDate).toDateString()] = holiday.description;
+          acc[new Date(holiday.holidayDate).toDateString()] = {
+            description: holiday.description,
+            mandatory: holiday.mandatory || false,
+          };
           return acc;
         }, {});
         setConfirmedHolidays(holidayMap);
       })
-      .catch((error) => console.error("Error fetching holidays:", error));
+      .catch((error) => console.error('Error fetching holidays:', error));
   }, []);
 
   const handleViewChange = ({ activeStartDate }) => {
     setViewDate(activeStartDate);
+  };
+
+  const handleMandatoryChange = (event, dateString) => {
+    const { checked } = event.target;
+    console.log('Updating mandatory to:', checked);  // Check the checkbox value
+    setHolidays((prevHolidays) => ({
+      ...prevHolidays,
+      [dateString]: {
+        ...prevHolidays[dateString],
+        mandatory: checked,  // Update the state
+      },
+    }));
   };
 
   const toggleHoliday = (date) => {
@@ -54,7 +69,10 @@ function HolidayCalendar() {
     } else {
       setHolidays((prevHolidays) => ({
         ...prevHolidays,
-        [dateString]: '',
+        [dateString]: {
+          description: '',
+          mandatory: false, // Default to false for new holidays
+        },
       }));
     }
   };
@@ -68,12 +86,17 @@ function HolidayCalendar() {
     const { value } = event.target;
     setHolidays((prevHolidays) => ({
       ...prevHolidays,
-      [dateString]: value,
+      [dateString]: {
+        ...prevHolidays[dateString],
+        description: value,
+      },
     }));
   };
 
   const handleConfirmHolidays = () => {
-    saveHolidays(holidays)
+    const updatedHolidays = { ...holidays };
+    console.log('Sending holidays to backend:', updatedHolidays);  // Log the holidays data
+    saveHolidays(updatedHolidays)
       .then(() => {
         setConfirmedHolidays((prev) => ({
           ...prev,
@@ -87,11 +110,11 @@ function HolidayCalendar() {
 
   const tileContent = ({ date }) => {
     const dateString = date.toDateString();
-    if (dateString in confirmedHolidays) {
-      return <div className="holiday-marker">{confirmedHolidays[dateString]}</div>;
+    if (confirmedHolidays[dateString]) {
+      return <div className="holiday-marker">{confirmedHolidays[dateString].description}</div>;
     }
-    if (dateString in holidays) {
-      return <div className="holiday-marker">{holidays[dateString] || 'Pending'}</div>;
+    if (holidays[dateString]) {
+      return <div className="holiday-marker">{holidays[dateString]?.description || 'Pending'}</div>;
     }
     return null;
   };
@@ -109,17 +132,26 @@ function HolidayCalendar() {
         </div>
       </div>
       <div className="holiday-details-container">
-        {Object.entries(holidays).map(([dateString, description]) => (
+        {Object.entries(holidays).map(([dateString, holidayData]) => (
           <div key={dateString} className="holiday-details">
             <h3>Selected Date: {dateString}</h3>
             <label htmlFor={`description-${dateString}`}>Description:</label>
             <input
               type="text"
               id={`description-${dateString}`}
-              value={description}
+              value={holidayData?.description || ''}
               onChange={(e) => handleDescriptionChange(e, dateString)}
               placeholder="Enter holiday description"
             />
+            <div className="checkbox-container">
+              <input
+                type="checkbox"
+                checked={holidayData?.mandatory || false}
+                onChange={(e) => handleMandatoryChange(e, dateString)}
+                id={`mandatory-${dateString}`}
+              />
+              <label htmlFor={`mandatory-${dateString}`}>Mandatory Holiday - Poya Day</label>
+            </div>
           </div>
         ))}
       </div>

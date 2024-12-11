@@ -237,15 +237,16 @@ export const saveHolidays = (holidays) => {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(
-      Object.entries(holidays).map(([date, description]) => {
+      Object.entries(holidays).map(([date, holidayData]) => {
         const localDate = new Date(date);
 
         // Manually adjust to UTC time to avoid shifting the day
         const utcDate = new Date(Date.UTC(localDate.getFullYear(), localDate.getMonth(), localDate.getDate()));
 
         return {
-          holidayDate: utcDate.toISOString(), // Send as UTC ISO string to the backend
-          description: description,
+          holidayDate: utcDate.toISOString(), // Send as UTC ISO string
+          description: holidayData.description || '', // Extract description
+          mandatory: holidayData.mandatory || false,  // Extract mandatory status
         };
       })
     ),

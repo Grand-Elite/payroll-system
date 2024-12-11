@@ -102,3 +102,18 @@
   font-size: large;
   font-weight: bold;
 }
+
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  color: red;
+  font-weight: bold;
+}
+
+.checkbox-container input[type="checkbox"] {
+  margin-right: 8px;
+  width: 16px;
+  height: 16px;
+}

@@ -7,7 +7,9 @@ import org.apache.poi.ss.usermodel.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.Month;
+import java.time.Year;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.Locale;
@@ -99,8 +101,38 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
                     salaryBase.getPerformanceAllowance(),Double.valueOf(0)));
 
             //todo fix this 26 days logic
-            double incentives = (Objects.requireNonNullElse(
-                    attendanceSummary.getAttendanceCount(),0d)-26) * (salaryBase.getBasicSalary() / 30);
+//            double incentives = (Objects.requireNonNullElse(
+//                    attendanceSummary.getAttendanceCount(),0d)-26) * (salaryBase.getBasicSalary() / 30);
+//            if (incentives <= 0) {
+//                incentives = Objects.requireNonNullElse(monthlySalaryUpdates.getIncentives(),Double.valueOf(0));
+//            }
+//            mfs.setIncentives(incentives);
+
+//
+//            double incentives = (Objects.requireNonNullElse(
+//                    attendanceSummary.getAttendanceCount(),0d)-(mfs.getMonth().length()-4)) * ((salaryBase.getBasicSalary() / 30));
+//            if (incentives <= 0) {
+//                incentives = Objects.requireNonNullElse(monthlySalaryUpdates.getIncentives(),Double.valueOf(0));
+//            }
+//            mfs.setIncentives(incentives);
+
+
+
+//            Month monthEnum = Month.valueOf(mfs.getMonth().toUpperCase());
+//            int selectedYear = Integer.parseInt(mfs.getYear());
+//            double incentives =  monthEnum.length(Year.isLeap(selectedYear)); // Get the number of days considering leap year
+//            if (incentives <= 0) {
+//                incentives = Objects.requireNonNullElse(monthlySalaryUpdates.getIncentives(),Double.valueOf(0));
+//            }
+//            mfs.setIncentives(incentives);
+
+            Month monthEnum = Month.valueOf(mfs.getMonth().toUpperCase());
+            int selectedYear = Integer.parseInt(mfs.getYear());
+            double  incentives = (Objects.requireNonNullElse(
+                    attendanceSummary.getAttendanceCount(), 0d)
+                    - (monthEnum.length(Year.isLeap(selectedYear)) - 4))
+                    * (salaryBase.getBasicSalary() / 30)
+                    + Objects.requireNonNullElse(monthlySalaryUpdates.getIncentives(), 0d);
             if (incentives <= 0) {
                 incentives = Objects.requireNonNullElse(monthlySalaryUpdates.getIncentives(),Double.valueOf(0));
             }

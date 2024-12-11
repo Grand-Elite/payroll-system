@@ -53,9 +53,9 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (employee.getNicNo() != null) existingEmployee.setNicNo(employee.getNicNo());
         if (employee.getEmployeeType() != null) existingEmployee.setEmployeeType(employee.getEmployeeType());
         if (employee.getEpfNo() != null) existingEmployee.setEpfNo(employee.getEpfNo());
+        if (employee.getJoiningDate() != null) existingEmployee.setJoiningDate(employee.getJoiningDate()); // Update joiningDate
 
         // Save the updated employee back to the database
         return employeeRepository.save(existingEmployee);
     }
-
 }

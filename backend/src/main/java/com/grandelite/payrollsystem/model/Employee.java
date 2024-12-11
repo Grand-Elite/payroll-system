@@ -51,5 +51,7 @@ public class Employee {
 
     @Column(name = "epf_no")
     private Long epfNo;
-    
+
+    @Column(name = "joining_date")
+    private LocalDate joiningDate;
 }
