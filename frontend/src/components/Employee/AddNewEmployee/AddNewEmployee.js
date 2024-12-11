@@ -10,6 +10,7 @@ function AddNewEmployee() {
     const [nicNo, setNicNo] = useState('');
     const [employeeType, setEmployeeType] = useState('');
     const [epfNo, setEpfNo] = useState('');
+    const [joiningDate, setJoiningDate] = useState(''); // New state for Joining Date input
     const [lastEmployeeId, setLastEmployeeId] = useState(null); // State for displaying the last employee ID
 
     const departments = [
@@ -61,6 +62,7 @@ function AddNewEmployee() {
             nicNo,
             employeeType,
             epfNo: employeeType === 'PERMANENT' ? epfNo : '', // Include EPF No if Permanent
+            joiningDate, // Include Joining Date
             status: "ACTIVE"
         };
 
@@ -86,6 +88,7 @@ function AddNewEmployee() {
         setNicNo('');
         setEmployeeType('');
         setEpfNo('');
+        setJoiningDate('');
     };
 
     return (
@@ -212,6 +215,18 @@ function AddNewEmployee() {
                     </div>
                 )}
 
+                <div className='add-new-employee'>
+                    <label>
+                        <span>Joining Date:</span>
+                        <input
+                            type="date"
+                            value={joiningDate}
+                            onChange={(e) => setJoiningDate(e.target.value)}
+                            required
+                        />
+                    </label>
+                </div>
+
                 <button type="submit" className="add-button">Add</button>
                 {error && <p style={{ color: 'red' }}>{error}</p>}
                 {success && <p style={{ color: 'green' }}>{success}</p>}
@@ -221,7 +236,3 @@ function AddNewEmployee() {
 }
 
 export default AddNewEmployee;
-
-
-
-

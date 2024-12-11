@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';  // Import useParams
-import { getEmployeeById} from '../../../services/api';
+import { useParams } from 'react-router-dom';
+import { getEmployeeById } from '../../../services/api';
 
 function UpdateEmployee() {
-    const { employeeId } = useParams();  // Extract employeeId from URL
+    const { employeeId } = useParams();
     const [employeeData, setEmployeeData] = useState({
         shortName: '',
         fullName: '',
@@ -12,6 +12,7 @@ function UpdateEmployee() {
         nicNo: '',
         employeeType: '',
         epfNo: '',
+        joiningDate: '' // Added joiningDate field
     });
 
     const departments = [
@@ -25,68 +26,56 @@ function UpdateEmployee() {
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
 
-    // Fetch employee details when employeeId changes
     useEffect(() => {
-        console.log(employeeId);  // Check if employeeId is correctly extracted
         if (employeeId) {
             const fetchEmployeeDetails = async () => {
                 try {
                     const data = await getEmployeeById(employeeId);
-                    console.log(data);  // Log data to verify the structure
-                    setEmployeeData(data);  // Pre-fill form fields with fetched data
-                    setSuccess(null); // Reset success message
+                    setEmployeeData(data);
+                    setSuccess(null);
                 } catch (error) {
                     console.error('Error fetching employee details:', error);
                     setError('Failed to fetch employee details');
                 }
             };
-            fetchEmployeeDetails();  // Call the function to fetch employee data
+            fetchEmployeeDetails();
         }
-    }, [employeeId]);  // Run this effect when employeeId changes
+    }, [employeeId]);
 
-    // Handle input changes to update state
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setEmployeeData({ ...employeeData, [name]: value });
     };
 
-            // Handle form submission for updating employee details
-        const handleSubmit = async (e) => {
-            e.preventDefault();
-            
-            try {
-                // Make a PATCH request to update the employee details
-                const response = await fetch(`/api/employee/${employeeId}`, {
-                    method: 'PATCH',  // Use PATCH for partial updates
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(employeeData), // Send updated employee data
-                });
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await fetch(`/api/employee/${employeeId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(employeeData),
+            });
 
-                if (response.ok) {
-                    setSuccess('Employee updated successfully!');
-                    setError(null);
-                } else {
-                    const errorData = await response.json();
-                    setError(errorData.message || 'Failed to update employee details');
-                }
-            } catch (error) {
-                console.error('Error updating employee:', error);
-                setError('Failed to update employee details');
+            if (response.ok) {
+                setSuccess('Employee updated successfully!');
+                setError(null);
+            } else {
+                const errorData = await response.json();
+                setError(errorData.message || 'Failed to update employee details');
             }
-        };
+        } catch (error) {
+            console.error('Error updating employee:', error);
+            setError('Failed to update employee details');
+        }
+    };
 
-        const handleUpdate = (employeeId) => {
-            // Ask for confirmation
-            const confirm = window.confirm("Are you sure you want to update this employee's details?");
-            if (!confirm) return; // If user cancels, exit the function
-        
-            // If confirmed, show a success message (this can be replaced with a real API call later)
-            setSuccess('Employee details updated successfully!');
-        };
-        
-        
+    const handleUpdate = (employeeId) => {
+        const confirm = window.confirm("Are you sure you want to update this employee's details?");
+        if (!confirm) return;
+        setSuccess('Employee details updated successfully!');
+    };
 
     return (
         <div className="form-container">
@@ -96,8 +85,8 @@ function UpdateEmployee() {
                         <span>Employee ID:</span>
                         <input
                             type="text"
-                            value={employeeId}  // This is now automatically filled from the URL
-                            readOnly  // Make the input readonly so user can't change it
+                            value={employeeId}
+                            readOnly
                         />
                     </label>
                 </div>
@@ -185,7 +174,7 @@ function UpdateEmployee() {
                             onChange={(e) => {
                                 setEmployeeData({ ...employeeData, employeeType: e.target.value });
                                 if (e.target.value !== 'PERMANENT') {
-                                    setEmployeeData({ ...employeeData, epfNo: '' }); // Clear EPF No if not Permanent
+                                    setEmployeeData({ ...employeeData, epfNo: '' });
                                 }
                             }}
                             required
@@ -212,6 +201,19 @@ function UpdateEmployee() {
                     </div>
                 )}
 
+                <div className='add-new-employee'>
+                    <label>
+                        <span>Joining Date:</span>
+                        <input
+                            type="date"
+                            name="joiningDate"
+                            value={employeeData.joiningDate}
+                            onChange={handleInputChange}
+                            required
+                        />
+                    </label>
+                </div>
+
                 <button type="submit" className="add-button" onClick={() => handleUpdate(employeeId)}>Update</button>
                 {error && <p style={{ color: 'red' }}>{error}</p>}
                 {success && <p style={{ color: 'green' }}>{success}</p>}
@@ -220,4 +222,4 @@ function UpdateEmployee() {
     );
 }
 
-export default UpdateEmployee;    
+export default UpdateEmployee;

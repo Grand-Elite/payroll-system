@@ -1,6 +1,7 @@
 import Employee from './components/Employee/Employee';
 import AddNewEmployee from './components/Employee/AddNewEmployee/AddNewEmployee';
-import UpdateEmployee from './components/Employee/UpdateEmployee/UpdateEmployee'
+import UpdateEmployee from './components/Employee/UpdateEmployee/UpdateEmployee';
+import ViewEmployee from './components/Employee/ViewEmployee/ViewEmployee';
 //import 'bootstrap/dist/css/bootstrap.min.css';
 import Sidebar from './components/Sidebar/Sidebar';
 import { BrowserRouter as Router, Routes, Route,Navigate } from 'react-router-dom';
@@ -64,6 +65,7 @@ function App() {
             <Route path="/employee" element={<Employee />} />
             <Route path="/add-new-employee" element={<AddNewEmployee />}/>
             <Route path="/update-employee/:employeeId" element={<UpdateEmployee />}/>
+            <Route path="/view-employee/:employeeId" element={<ViewEmployee />}/>
             <Route path="/attendance" element={<Attendance selectedMonth={selectedMonth} selectedYear={selectedYear}/>}/>
             <Route path="/upload-attendance-excel" element={<UploadAttendanceExcel />}/>
             <Route path="/shift" element={<Shift />}/>

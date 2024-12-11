@@ -84,6 +84,11 @@ function Employee() {
                         Update
                       </button>
                       </Link>
+                      <Link to={`/view-employee/${employee.employeeId}`}>
+                        <button className="btn-custom-update" style={{ marginLeft: '10px' , backgroundColor:'green', paddingInline:'15px'}}>
+                        View
+                      </button>
+                      </Link>
                     </div>
                   ) : (
                     <span>Inactive</span>
