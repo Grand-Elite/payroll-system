@@ -65,9 +65,9 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
                     Objects.requireNonNullElse(salaryBase.getAttendanceAllowance(),Double.valueOf(0))
                             *Objects.requireNonNullElse(attendanceSummary.getAttendanceCount(),0d));
 
-            mfs.setNoPayAmount(
-                    Objects.requireNonNullElse(attendanceSummary.getNoPayDaysCount(),0l)
-                            *(salaryBase.getBasicSalary()/30));
+//            mfs.setNoPayAmount(
+//                    Objects.requireNonNullElse(attendanceSummary.getNoPayDaysCount(),0l)
+//                            *(salaryBase.getBasicSalary()/30));
 
             mfs.setArrears(Objects.requireNonNullElse(monthlySalaryUpdates.getArrears(),Double.valueOf(0)));
 

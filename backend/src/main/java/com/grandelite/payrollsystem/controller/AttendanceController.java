@@ -1,3 +1,4 @@
+
 package com.grandelite.payrollsystem.controller;
 
 import com.grandelite.payrollsystem.model.Attendance;
@@ -40,8 +41,8 @@ public class AttendanceController {
 
     @PatchMapping("/employee/{employeeId}/attendance/{date}/overwritten-attendance")
     public ResponseEntity<OverwrittenAttendanceStatus> overwriteAttendanceStatus(@PathVariable Long employeeId,
-                                                                 @PathVariable LocalDate date,
-                                                                 @RequestBody OverwrittenAttendanceStatus overwrittenAttendanceStatus){
+                                                                                 @PathVariable LocalDate date,
+                                                                                 @RequestBody OverwrittenAttendanceStatus overwrittenAttendanceStatus){
         return ResponseEntity.ok(attendanceService.overwriteAttendanceStatus(employeeId,date,overwrittenAttendanceStatus));
     }
 
