@@ -98,7 +98,7 @@ public interface AttendanceRepository extends JpaRepository<Attendance,String> {
             "   WHEN oas.updatedTotalLcMins IS NOT NULL " +
             "   THEN oas.updatedTotalLcMins " +
             "   ELSE a.lcMins " +
-            "END) / 60.0 AS lateHoursSum, " +
+            "END) / 60.0 AS lateHoursSum " +
             ") FROM" +
             " Attendance a" +
             " LEFT JOIN OverwrittenAttendanceStatus oas ON a.attendanceRecordId = oas.attendanceRecordId" +
