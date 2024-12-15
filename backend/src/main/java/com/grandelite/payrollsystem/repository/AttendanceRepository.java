@@ -61,7 +61,7 @@ public interface AttendanceRepository extends JpaRepository<Attendance,String> {
             "           WHEN a.attendance = '0.5' THEN 0.5 " +
             "           ELSE 0.0 " +
             "       END " +
-            "END),"+
+            "END) AS attendanceCount,"+
             "SUM(" +
             "    CASE " +
             "        WHEN FUNCTION('DAYOFWEEK', a.date) <> 7 AND hc.holidayDate IS NULL THEN " +
@@ -71,36 +71,34 @@ public interface AttendanceRepository extends JpaRepository<Attendance,String> {
             "            END " +
             "        ELSE 0.0 " +
             "    END" +
-            ") / 60.0," +
+            ") / 60.0 AS ot1HoursSum," +
             "SUM(" +
             "    CASE " +
             "        WHEN FUNCTION('DAYOFWEEK', a.date) = 7 THEN " +
             "            CASE " +
-            "                WHEN oas.updatedTotalOtMins IS NOT NULL THEN oas.updatedTotalOtMins " +
-            "                ELSE a.otMins " +
+            "                WHEN oas.updatedTotalOtMins IS NOT NULL AND oas.updatedTotalOtMins > 0 THEN 1.0 " +
+            "                WHEN a.otMins > 0 THEN 1.0" +
+            "                ELSE 0.0 " +
             "            END " +
             "        ELSE 0.0 " +
             "    END" +
-            ") / 60.0,"+
+            ") AS saturdayWorkedCount,"+
             "SUM(" +
             "    CASE " +
-            "        WHEN hc.holidayDate IS NOT NULL THEN " +
+            "        WHEN hc.holidayDate IS NOT NULL AND hc.mandatory = true AND FUNCTION('DAYOFWEEK', a.date) = 7 THEN " +
             "            CASE " +
-            "                WHEN oas.updatedTotalOtMins IS NOT NULL THEN oas.updatedTotalOtMins " +
-            "                ELSE a.otMins " +
+            "                WHEN oas.updatedTotalOtMins IS NOT NULL AND oas.updatedTotalOtMins > 0 THEN 1.0 " +
+            "                WHEN a.otMins > 0 THEN 1.0" +
+            "                ELSE 0.0 " +
             "            END " +
             "        ELSE 0.0 " +
             "    END" +
-            ") / 60.0,"+
+            ") AS poyaOnSaturdayWorkedCount,"+
             "SUM(CASE " +
             "   WHEN oas.updatedTotalLcMins IS NOT NULL " +
             "   THEN oas.updatedTotalLcMins " +
             "   ELSE a.lcMins " +
-            "END) / 60.0, " +
-            "SUM(CASE " +
-            "   WHEN oas.updatedAttendanceStatus = 'ab-nopay' THEN 1" +
-            "   ELSE 0 " +
-            "END)" +
+            "END) / 60.0 AS lateHoursSum, " +
             ") FROM" +
             " Attendance a" +
             " LEFT JOIN OverwrittenAttendanceStatus oas ON a.attendanceRecordId = oas.attendanceRecordId" +
