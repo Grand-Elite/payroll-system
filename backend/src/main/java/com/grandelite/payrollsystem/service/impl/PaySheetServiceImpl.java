@@ -5,10 +5,12 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
+import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+@Service
 public class PaySheetServiceImpl implements PaySheetService {
     @Override
     public ByteArrayOutputStream getPaySheet(Long employeeId, String year, String month) {

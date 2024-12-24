@@ -229,6 +229,23 @@ export const getMonthlyFullSalary = async (employeeId, year, month) => {
   }
 };
 
+export const getPaySheet = async (employeeId, year, month) => {
+  try {
+    const response = await fetch(
+      `/api/employee/${employeeId}/pay-sheet/year/${year}/month/${month}`
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch pay sheet');
+    }
+
+    return await response.blob();
+  } catch (error) {
+    console.error('Error fetching pay sheet:', error);
+    return {};
+  }
+};
+
 
 export const saveHolidays = (holidays) => {
   return fetch("/api/holidays", {

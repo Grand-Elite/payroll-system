@@ -6,11 +6,13 @@ import {
   TextField,
   Grid,
   Autocomplete,
+  Button,
 } from '@mui/material';
 import {
   fetchEmployees,
   getMonthlyFullSalary,
   fetchAttendance,
+  getPaySheet
 } from '../../services/api';
 import dayjs from 'dayjs';
 
@@ -82,6 +84,18 @@ function MonthlySalary({ selectedMonth, selectedYear }) {
     
 
     const getEmployeeProperty = (property) => selectedEmployee?.[property] || '';
+
+    const handleDownloadPaysheet = async () => {
+      const pdfBlob = await getPaySheet(selectedEmployee.employeeId, selectedYear, selectedMonth);
+      // Create a link element to download the file
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(pdfBlob);
+      link.download = `pay-sheet-${selectedEmployee.employeeId}-${selectedYear}-${selectedMonth}.pdf`; // Suggested filename
+      link.click();
+
+      // Clean up the object URL
+      URL.revokeObjectURL(link.href);
+    }
 
     // Memoize handleEmployeeChange to avoid redefinition on every render
     const handleEmployeeChange = useCallback(async (employee) => {
@@ -253,7 +267,12 @@ function MonthlySalary({ selectedMonth, selectedYear }) {
             No salary for {selectedEmployee.shortName} in {selectedMonth}. Please check attendance records and salary base information
           </Typography>
         )}
-  
+        {selectedEmployee && (
+          <Button variant="contained"
+          onClick={handleDownloadPaysheet}
+          color="primary"
+          >Download Pay Sheet</Button>
+        )}
         {selectedEmployee && (
           <>
             {loadingSalaryDetails ? (
