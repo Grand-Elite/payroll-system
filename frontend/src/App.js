@@ -18,6 +18,11 @@ import Leaves from './components/Leaves/Leaves'
 //import 'bootstrap/dist/css/bootstrap.min.css';
 import { useState } from 'react';
 import dayjs from 'dayjs';
+import {
+  Select,
+  MenuItem,
+  FormControl
+} from '@mui/material';
 
 
 
@@ -42,24 +47,32 @@ function App() {
             <div className="title">
               <h1>GRAND ELITE</h1>
             </div>
-            <div className="date">
-              <select
+            <FormControl style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            justifyContent: 'flex-end',
+                            alignItems: 'center',
+                            gap: '1rem', // Adjust gap between elements
+                          }}>
+              <Select
                 value={selectedMonth}
+                label="Month"
                 onChange={(e) => setSelectedMonth(e.target.value)}
               >
-                {months.map((month, index) => (
-                  <option key={index} value={month}>{month}</option>
-                ))}
-              </select>
-              <select
+                  {months.map((month, index) => (
+                    <MenuItem key={index} value={month}>{month}</MenuItem>
+                  ))}
+              </Select>
+              <Select
                 value={selectedYear}
+                label="Year"
                 onChange={(e) => setSelectedYear(e.target.value)}
               >
                 {years.map((year, index) => (
-                  <option key={index} value={year}>{year}</option>
-                ))}
-              </select>
-            </div>
+                    <MenuItem key={index} value={year}>{year}</MenuItem>
+                  ))}
+              </Select>
+            </FormControl>
           </header>
           <Routes>
             <Route path="/" element={<Navigate to="/employee" replace />} />
