@@ -1,1 +1,1 @@
-java -jar ./backend/target/payrollsystem-0.0.1-SNAPSHOT.jar
+java -jar ./dist/grand-elite-payroll-system.jar

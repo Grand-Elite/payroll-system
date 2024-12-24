@@ -17,3 +17,15 @@ cd ..\backend
 
 :: Run the Maven clean install package command
 mvnw clean install package
+
+:: Navigate back to the root directory
+cd ..
+
+:: Remove the dist directory if it exists
+rmdir /s /q dist
+
+:: Create a new dist directory
+mkdir dist
+
+:: Copy the JAR file to the dist directory and rename it
+copy backend\target\payrollsystem-0.0.1-SNAPSHOT.jar dist\grand-elite-payroll-system.jar
