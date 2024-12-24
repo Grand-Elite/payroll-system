@@ -348,7 +348,78 @@ export const getMonthlySalaryDetails = async (employeeId, year, month) => {
 };
 
 
+export const fetchLeaveDetails = async (employeeId, year) => {
+  try {
+    const response = await axios.get(`/api/leave-details`, {
+      params: { employeeId, year },
+    });
+    return response.data;
+  } catch (error) {
+    if (error.response?.status === 404) {
+      return null; // Return null if no record is found
+    }
+    throw new Error(`Error fetching leave details: ${error.response?.data || error.message}`);
+  }
+};
+
+export const saveLeaveDetails = async ({ employeeId, year, annual, casual, medical }) => {
+  try {
+    // Ensure the leaveDetails object matches the backend's expected structure
+    const leaveDetails = {
+      employee: {
+        employeeId, // Nested employeeId inside an employee object
+      },
+      year,
+      annual,
+      casual,
+      medical,
+    };
+
+    const response = await axios.post(`/api/leave-details`, leaveDetails);
+    return response.data;
+  } catch (error) {
+    throw new Error(`Error saving leave details: ${error.response?.data || error.message}`);
+  }
+};
 
 
+export const saveLeaveUsage = async ({
+  employeeId,
+  annualLeaves = 0,
+  medical = 0,
+  casual = 0,
+  abOnPublicHoliday = 0,
+  other = 0,
+  noPayLeaves = 0,
+  monthlyMandatoryLeaves = 0,
+  year,
+  month,
+}) => {
+  try {
+    const leaveUsage = {
+      employee: {
+        employeeId,
+      },
+      annualLeaves,
+      medical,
+      casual,
+      abOnPublicHoliday,
+      other,
+      noPayLeaves,
+      monthlyMandatoryLeaves,
+      year,
+      month,
+    };
+
+    console.log("Payload being sent:", leaveUsage);
+
+    const response = await axios.post(`/api/leave-usage`, leaveUsage);
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      `Error saving leave details: ${error.response?.data || error.message}`
+    );
+  }
+};
 
 export {updateAttendanceStatus };

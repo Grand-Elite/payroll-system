@@ -15,17 +15,28 @@ import {
   Box
 } from '@mui/material';
 import dayjs from 'dayjs';
-import { fetchAttendance, updateAttendanceStatus,fetchAttendanceSummary } from '../../services/api'; // Ensure your api service has the updateAttendanceStatus method
+import { fetchAttendance, updateAttendanceStatus,fetchAttendanceSummary, saveLeaveUsage } from '../../services/api'; // Ensure your api service has the updateAttendanceStatus method
 import OTHoursCell from './OTHoursCell';
 import LateHoursCell from './LateHoursCell';
 import { formatHourMins } from '../../util/DateTimeUtil';
+import './Attendance.css';
 
 function AttendanceTable(props) {
   const [daysInMonth, setDaysInMonth] = useState([]);
   const [attendanceSummary,setAttendanceSummary] = useState([]);
+  const [saving, setSaving] = useState(false);
 
+  const [leaveUsage, setLeaveUsage] = useState({
+    annualLeaves: 0,
+    medical: 0,
+    casual: 0,
+    abOnPublicHoliday: 0,
+    other: 0,
+    noPayLeaves: 0,
+    monthlyMandatoryLeaves: 0,
+  });
   
-
+ 
   useEffect(() => {
     const currentMonth = dayjs(`01 ${props.selectedMonth} 2000`, "DD MMMM YYYY").month(); 
     const currentYear = props.selectedYear;
@@ -207,8 +218,36 @@ const handleSave = async (index) => {
   }
 };
 
+const handleInputChange = (field, value) => {
+  setLeaveUsage((prev) => ({
+    ...prev,
+    [field]: value,
+  }));
+};
 
+const handleLeaveSave = async () => {
+  if (!props.employeeId) {
+    alert('Please select an employee before saving.');
+    return;
+  }
 
+  setSaving(true);
+  try {
+    const saveData = {
+      employeeId: props.employeeId,
+      year: props.selectedYear,
+      month: props.selectedMonth,
+      ...leaveUsage, // Include all leave details from the state
+    };
+    await saveLeaveUsage(saveData);
+    alert('Leave details saved successfully!');
+  } catch (error) {
+    console.error('Error saving leave details:', error);
+    alert('Failed to save leave details. Please try again.');
+  } finally {
+    setSaving(false);
+  }
+};
 
   return (
     <Box>
@@ -223,13 +262,37 @@ const handleSave = async (index) => {
               <TableCell>No. of attendance:</TableCell>
               <TableCell>{attendanceSummary.attendanceCount}</TableCell>
             </TableRow>
+            
             <TableRow>
-              {/* 
-              <TableCell>No. of No Pay Leaves:</TableCell>
-              <TableCell>{attendanceSummary.noPayDaysCount}</TableCell>
-              */}
-               <TableCell>No. of Leaves:</TableCell>
-               <TableCell>{attendanceSummary.daysInCurrentMonth-attendanceSummary.attendanceCount}</TableCell>
+              <TableCell>No. of Leaves:</TableCell>
+              <TableCell>
+                <div>
+                  {attendanceSummary.daysInCurrentMonth - attendanceSummary.attendanceCount}
+                </div>
+                <div className="textbox-container">
+                  {[
+                    { label: 'Annual Leave:', field: 'annualLeaves' },
+                    { label: 'Casual Leave:', field: 'casual' },
+                    { label: 'Medical Leave:', field: 'medical' },
+                    { label: 'Absent on Public holiday:', field: 'abOnPublicHoliday' },
+                    { label: 'Other Leave:', field: 'other' },
+                    { label: 'No Pay Leave:', field: 'noPayLeaves' },
+                    { label: 'Monthly Mandatory Leave (Weekly):', field: 'monthlyMandatoryLeaves' },
+                  ].map(({ label, field }) => (
+                    <div key={field}>
+                      <label>{label}</label>
+                      <input
+                        type="text"
+                        value={leaveUsage[field] || ''}
+                        onChange={(e) => handleInputChange(field, parseInt(e.target.value, 10) || 0)}
+                      />
+                    </div>
+                  ))}
+                  <button type="button" className="save-button" onClick={handleLeaveSave} disabled={saving}>
+                    {saving ? 'Saving...' : 'Save'}
+                  </button>
+                </div>
+              </TableCell>
             </TableRow>
             <TableRow>
               <TableCell>Total OT-1 Hours:</TableCell>

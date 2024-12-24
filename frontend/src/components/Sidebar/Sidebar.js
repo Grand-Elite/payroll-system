@@ -23,6 +23,11 @@ function Sidebar() {
       <button>Monthly Salary</button>
       </Link>
 
+      <Link to="/leaves">
+      <button>Leaves</button>
+      </Link>
+
+
       <Link to="/holiday-calendar">
       <button>Holiday Calendar</button>
       </Link>
