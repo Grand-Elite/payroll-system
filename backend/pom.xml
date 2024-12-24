@@ -85,6 +85,13 @@
 			<version>9.0.0</version>
 			<type>pom</type>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.itextpdf/kernel -->
+		<dependency>
+			<groupId>com.itextpdf</groupId>
+			<artifactId>kernel</artifactId>
+			<version>9.0.0</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
