@@ -1,0 +1,1 @@
+java -jar ./backend/target/payrollsystem-0.0.1-SNAPSHOT.jar
