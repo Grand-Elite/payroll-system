@@ -379,6 +379,52 @@ export const fetchLeaveDetails = async (employeeId, year) => {
   }
 };
 
+
+export const fetchLeaveUsage = async (employeeId, year, month) => {
+  try {
+    const response = await axios.get(`/api/leave-usage`, {
+      params: { employeeId, year, month },
+    });
+    return response.data;
+  } catch (error) {
+    if (error.response?.status === 404) {
+      return null; // Return null if no record is found
+    }
+    throw new Error(`Error fetching leave details: ${error.response?.data || error.message}`);
+  }
+};
+
+
+export const fetchYearlyLeaveUsage = async (employeeId, year) => {
+  try {
+    const response = await axios.get(`/api/yearly-leave-usage`, {
+      params: { employeeId, year },
+    });
+
+    if (!response.data) {
+      return {
+        annual: 0,
+        casual: 0,
+        medical: 0,
+        year: null,
+      };
+    }
+
+    return {
+      annual: response.data.annual || 0,
+      casual: response.data.casual || 0,
+      medical: response.data.medical || 0,
+      year: response.data.year || year,
+    };
+  } catch (error) {
+    if (error.response?.status === 404) {
+      return null; // Return null if no record is found
+    }
+    throw new Error(`Error fetching leave details: ${error.response?.data || error.message}`);
+  }
+};
+
+
 export const saveLeaveDetails = async ({ employeeId, year, annual, casual, medical }) => {
   try {
     // Ensure the leaveDetails object matches the backend's expected structure

@@ -15,7 +15,16 @@ import {
   Box
 } from '@mui/material';
 import dayjs from 'dayjs';
-import { fetchAttendance, updateAttendanceStatus,fetchAttendanceSummary, saveLeaveUsage } from '../../services/api'; // Ensure your api service has the updateAttendanceStatus method
+import { 
+  fetchAttendance, 
+  updateAttendanceStatus,
+  fetchAttendanceSummary, 
+  saveLeaveUsage , 
+  fetchLeaveDetails,
+  fetchLeaveUsage, 
+  fetchYearlyLeaveUsage,
+} from '../../services/api'; 
+
 import OTHoursCell from './OTHoursCell';
 import LateHoursCell from './LateHoursCell';
 import { formatHourMins } from '../../util/DateTimeUtil';
@@ -25,6 +34,7 @@ function AttendanceTable(props) {
   const [daysInMonth, setDaysInMonth] = useState([]);
   const [attendanceSummary,setAttendanceSummary] = useState([]);
   const [saving, setSaving] = useState(false);
+  const [leaveDetails, setLeaveDetails] = useState(null);
 
   const [leaveUsage, setLeaveUsage] = useState({
     annualLeaves: 0,
@@ -35,7 +45,57 @@ function AttendanceTable(props) {
     noPayLeaves: 0,
     monthlyMandatoryLeaves: 0,
   });
+
+  const [yearlyLeaveUsage, setYearlyLeaveUsage] = useState({
+    annualLeaves: 0,
+    casual: 0,
+    medical: 0,
+  });
   
+// Fetch leave details when an employee is selected
+  useEffect(() => {
+    const loadLeaveDetails = async () => {
+      if (props.employeeId && props.selectedYear) {
+        try {
+          const details = await fetchLeaveDetails(
+            props.employeeId,
+            props.selectedYear
+          );
+          setLeaveDetails(details || { annualLeaves: 0, casual: 0, medical: 0 });
+        } catch (error) {
+          console.error('Error fetching leave details:', error);
+          alert(
+            `Failed to fetch leave details for this employee in ${props.selectedYear}. Please try again.`
+          );
+        }
+      }
+    };
+
+    loadLeaveDetails();
+  }, [props.employeeId, props.selectedYear]);
+
+
+    // Fetch yearly leave usage when an employee is selected
+    useEffect(() => {
+      const loadYearlyLeaveUsage = async () => {
+        if (props.employeeId && props.selectedYear) {
+          try {
+            const details = await fetchYearlyLeaveUsage(
+              props.employeeId,
+              props.selectedYear
+            );
+            setYearlyLeaveUsage(details || { annualLeaves: 0, casual: 0, medical: 0 });
+          } catch (error) {
+            console.error('Error fetching yearly leave usage:', error);
+            alert(
+              `Failed to fetch yearly leave usage for this employee in ${props.selectedYear}. Please try again.`
+            );
+          }
+        }
+      };
+  
+      loadYearlyLeaveUsage();
+    }, [props.employeeId, props.selectedYear]);
  
   useEffect(() => {
     const currentMonth = dayjs(`01 ${props.selectedMonth} 2000`, "DD MMMM YYYY").month(); 
@@ -160,6 +220,31 @@ function AttendanceTable(props) {
     loadEmployeeAttendance();
   }, [props.employeeId, props.selectedMonth, props.selectedYear]);
 
+
+  useEffect(() => {
+    const loadLeaveUsage = async () => {
+      if (props.employeeId && props.selectedYear && props.selectedMonth) {
+        try {
+          const details = await fetchLeaveUsage(props.employeeId, props.selectedYear, props.selectedMonth);
+
+          // If the API returns an empty response, handle it
+          if (!details || Object.keys(details).length === 0) {
+            setLeaveUsage({ annual: 0, casual: 0, medical: 0 });
+            //alert(`No leave details found for this employee in ${props.selectedMonth} ${props.selectedYear}.`);
+          } else {
+            setLeaveUsage(details);
+          }
+        } catch (error) {
+          // Handle any errors from the API call
+          console.error('Error fetching leave details:', error);
+          //alert(`Failed to fetch leave details for this employee in ${props.selectedMonth} ${props.selectedYear}. Please try again.`);
+        }
+      }
+    };
+
+    loadLeaveUsage();
+  }, [props.employeeId, props.selectedYear, props.selectedMonth]);
+
   const handleFieldChange = (index, field, value) => {
     const updatedDays = [...daysInMonth];
     updatedDays[index][field] = value;
@@ -263,37 +348,43 @@ const handleLeaveSave = async () => {
               <TableCell>{attendanceSummary.attendanceCount}</TableCell>
             </TableRow>
             
-            <TableRow>
-              <TableCell>No. of Leaves:</TableCell>
-              <TableCell>
-                <div>
-                  {attendanceSummary.daysInCurrentMonth - attendanceSummary.attendanceCount}
-                </div>
-                <div className="textbox-container">
-                  {[
-                    { label: 'Annual Leave:', field: 'annualLeaves' },
-                    { label: 'Casual Leave:', field: 'casual' },
-                    { label: 'Medical Leave:', field: 'medical' },
-                    { label: 'Absent on Public holiday:', field: 'abOnPublicHoliday' },
-                    { label: 'Other Leave:', field: 'other' },
-                    { label: 'No Pay Leave:', field: 'noPayLeaves' },
-                    { label: 'Monthly Mandatory Leave (Weekly):', field: 'monthlyMandatoryLeaves' },
-                  ].map(({ label, field }) => (
-                    <div key={field}>
-                      <label>{label}</label>
-                      <input
-                        type="text"
-                        value={leaveUsage[field] || ''}
-                        onChange={(e) => handleInputChange(field, parseInt(e.target.value, 10) || 0)}
-                      />
-                    </div>
-                  ))}
-                  <button type="button" className="save-button" onClick={handleLeaveSave} disabled={saving}>
-                    {saving ? 'Saving...' : 'Save'}
-                  </button>
-                </div>
-              </TableCell>
-            </TableRow>
+          <TableRow>
+            <TableCell>No. of Leaves:</TableCell>
+            <TableCell>
+              <div>
+                {attendanceSummary.daysInCurrentMonth - attendanceSummary.attendanceCount}
+              </div>
+              <div className="textbox-container">
+                {[
+                  { label: 'Annual Leave:', field: 'annual' },
+                  { label: 'Casual Leave:', field: 'casual' },
+                  { label: 'Medical Leave:', field: 'medical' },
+                  { label: 'Absent on Public holiday:', field: 'abOnPublicHoliday' },
+                  { label: 'Other Leave:', field: 'other' },
+                  { label: 'No Pay Leave:', field: 'noPayLeaves' },
+                  { label: 'Monthly Mandatory Leave (Weekly):', field: 'monthlyMandatoryLeaves' },
+                ].map(({ label, field }) => (
+                  <div key={field}>
+                    <label>{label}</label>
+                    <input
+                      type="text"
+                      value={leaveUsage[field] || ''}
+                      onChange={(e) => handleInputChange(field, parseInt(e.target.value, 10) || 0)}
+                    />
+                    {(field === 'annual' || field === 'casual' || field === 'medical') && (
+                      <span style={{ marginLeft: '20px' }}>
+                        Remaining: {(leaveDetails ? leaveDetails[field] : 0) - (yearlyLeaveUsage ? yearlyLeaveUsage[field] : 0)}
+                        </span>
+                    )}
+                  </div>
+                ))}
+                <button type="button" className="save-button" onClick={handleLeaveSave} disabled={saving}>
+                  {saving ? 'Saving...' : 'Save'}
+                </button>
+              </div>
+            </TableCell>
+          </TableRow>
+
             <TableRow>
               <TableCell>Total OT-1 Hours:</TableCell>
               <TableCell>{attendanceSummary.ot1HoursSum}</TableCell>
@@ -398,22 +489,7 @@ const handleLeaveSave = async () => {
                       <MenuItem value="1">1</MenuItem>
                   </Select>
                 </TableCell>
-              {/* <TableCell>
-                <Select
-                  value={day.leaveType}
-                  onChange={(e) => handleFieldChange(index, 'leaveType', e.target.value)}
-                  displayEmpty
-                  size="small"
-                >
-                  <MenuItem value="">
-                    <em>None</em>
-                  </MenuItem>
-                  <MenuItem value="full day leave">Full Day Leave</MenuItem>
-                  <MenuItem value="half day leave">Half Day Leave</MenuItem>
-                  <MenuItem value="no pay leave">No Pay Leave</MenuItem>
-                  <MenuItem value="holiday">Holiday</MenuItem>
-                </Select>
-              </TableCell> */}
+
               <TableCell>
                   {/* Only show the save button if the status has changed */}
                   {(day.attendanceStatus !== day.originalAttendanceStatus 

@@ -40,3 +40,13 @@
     margin-left: 16px;
   }
   
+
+  .leave-usage {
+    display: flex;
+    gap: 20px; /* Adjust the spacing between items */
+  }
+  
+  .leave-item {
+    white-space: nowrap; /* Prevent wrapping of text */
+  }
+  

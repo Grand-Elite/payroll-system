@@ -16,7 +16,7 @@ public class EmployeeMonthlyLeaveUsage {
     private Employee employee;
 
     @Column(name="annual_leaves")
-    private Long annualLeaves;
+    private Long annual;
 
     @Column(name="medical")
     private Long medical;
@@ -41,5 +41,4 @@ public class EmployeeMonthlyLeaveUsage {
 
     @Column(name="month", nullable = false)
     private String month;
-
 }

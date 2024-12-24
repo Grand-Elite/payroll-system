@@ -6,11 +6,17 @@ import {
   TextField,
   Autocomplete,
   Button,
+  Table, 
+  TableHead, 
+  TableRow, 
+  TableCell, 
+  TableBody 
 } from '@mui/material';
 import {
   fetchEmployees,
   fetchLeaveDetails,
   saveLeaveDetails,
+  fetchYearlyLeaveUsage,
 } from '../../services/api';
 
 import './Leaves.css';
@@ -20,6 +26,11 @@ function Leaves({ selectedYear }) {
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [loadingEmployees, setLoadingEmployees] = useState(false);
   const [leaveDetails, setLeaveDetails] = useState(null);
+  const [yearlyLeaveUsage, setYearlyLeaveUsage] = useState({
+    annual: 0,
+    casual: 0,
+    medical: 0,
+  });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
@@ -45,19 +56,16 @@ function Leaves({ selectedYear }) {
     const loadLeaveDetails = async () => {
       if (selectedEmployee && selectedYear) {
         try {
-          const details = await fetchLeaveDetails(selectedEmployee.employeeId, selectedYear);
-
-          // If the API returns an empty response, handle it
-          if (!details || Object.keys(details).length === 0) {
-            setLeaveDetails({ annual: 0, casual: 0, medical: 0 });
-            alert(`No leave details found for ${selectedEmployee.shortName} in ${selectedYear}.`);
-          } else {
-            setLeaveDetails(details);
-          }
+          const details = await fetchLeaveDetails(
+            selectedEmployee.employeeId,
+            selectedYear
+          );
+          setLeaveDetails(details || { annual: 0, casual: 0, medical: 0 });
         } catch (error) {
-          // Handle any errors from the API call
           console.error('Error fetching leave details:', error);
-          alert(`Failed to fetch leave details for ${selectedEmployee.shortName} in ${selectedYear}. Please try again.`);
+          alert(
+            `Failed to fetch leave details for ${selectedEmployee.shortName} in ${selectedYear}. Please try again.`
+          );
         }
       }
     };
@@ -65,17 +73,42 @@ function Leaves({ selectedYear }) {
     loadLeaveDetails();
   }, [selectedEmployee, selectedYear]);
 
+  // Fetch yearly leave usage when an employee is selected
+  useEffect(() => {
+    const loadYearlyLeaveUsage = async () => {
+      if (selectedEmployee && selectedYear) {
+        try {
+          const details = await fetchYearlyLeaveUsage(
+            selectedEmployee.employeeId,
+            selectedYear
+          );
+          setYearlyLeaveUsage(details || { annual: 0, casual: 0, medical: 0 });
+        } catch (error) {
+          console.error('Error fetching yearly leave usage:', error);
+          alert(
+            `Failed to fetch yearly leave usage for ${selectedEmployee.shortName} in ${selectedYear}. Please try again.`
+          );
+        }
+      }
+    };
+
+    loadYearlyLeaveUsage();
+  }, [selectedEmployee, selectedYear]);
+
   const handleEmployeeChange = (value) => {
     setSelectedEmployee(value);
     setError('');
-    setLeaveDetails(null); // Reset leave details for new employee
+    setLeaveDetails(null);
+    setYearlyLeaveUsage({ annual: 0, casual: 0, medical: 0 });
   };
 
   const handleInputChange = (field, value) => {
-    setLeaveDetails((prev) => ({ ...prev, [field]: parseInt(value, 10) || 0 }));
+    setLeaveDetails((prev) => ({
+      ...prev,
+      [field]: parseInt(value, 10) || 0,
+    }));
   };
 
-  
   const handleSave = async () => {
     if (!selectedEmployee) {
       alert('Please select an employee before saving.');
@@ -139,51 +172,68 @@ function Leaves({ selectedYear }) {
         </Typography>
       )}
 
-      {leaveDetails && (
-        <Box mt={2}>
-          {['Year', 'Annual', 'Casual', 'Medical'].map((label) => (
-            <Box key={label} display="flex" alignItems="center" marginBottom={2}>
-              <Typography style={{ fontWeight: 'bold', minWidth: '150px' }}>
-                {label}:
-              </Typography>
+{leaveDetails && (
+  <Box mt={2}>
+    <Table>
+      <TableHead>
+        <TableRow>
+          <TableCell><Typography style={{ fontWeight: 'bold' }}>Leave Type</Typography></TableCell>
+          <TableCell><Typography style={{ fontWeight: 'bold' }}>Leave Details</Typography></TableCell>
+          <TableCell><Typography style={{ fontWeight: 'bold' }}>Utilized</Typography></TableCell>
+          <TableCell><Typography style={{ fontWeight: 'bold' }}>Remaining</Typography></TableCell>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {['Annual', 'Casual', 'Medical'].map((label) => (
+          <TableRow key={label}>
+            <TableCell>
+              <Typography>{label}</Typography>
+            </TableCell>
+            <TableCell>
               <TextField
                 label={label}
-                value={
-                  label === 'Year' ? selectedYear : leaveDetails[label.toLowerCase()] || 0
-                }
+                value={leaveDetails[label.toLowerCase()] || 0}
                 onChange={(e) =>
-                  label !== 'Year' && handleInputChange(label.toLowerCase(), e.target.value)
+                  handleInputChange(label.toLowerCase(), e.target.value)
                 }
                 variant="outlined"
-                margin="normal"
                 size="small"
-                style={{ maxWidth: 'calc(50% - 16px)' }}
+                style={{ maxWidth: '100px' }}
               />
-              {/* Show Remaining Leaves for Annual, Casual, and Medical */}
-              {label !== 'Year' && (
-                <Typography style={{ marginLeft: '16px', fontWeight: 'normal' }}>
-                  Remaining Leaves: {}
-                </Typography>
-              )}
-            </Box>
-          ))}
-        </Box>
-      )}
+            </TableCell>
+            <TableCell>
+              <Typography>
+                {yearlyLeaveUsage[label.toLowerCase()] || 0}
+              </Typography>
+            </TableCell>
+            <TableCell>
+              <Typography>
+                {leaveDetails[label.toLowerCase()] - yearlyLeaveUsage[label.toLowerCase()] || 0}
+              </Typography>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  </Box>
+)}
 
-      <Button
-        variant="contained"
-        color="primary"
-        style={{
-          marginTop: '16px',
-          width: '100px', 
-          marginLeft: '10px', 
-          marginRight: 'auto',
-        }}
-        onClick={handleSave}
-        disabled={saving}
-      >
-        {saving ? 'Saving...' : 'Save'}
-      </Button>
+      {selectedEmployee && (
+        <Button
+          variant="contained"
+          color="primary"
+          style={{
+            marginTop: '16px',
+            width: '100px',
+            marginLeft: '10px',
+            marginRight: 'auto',
+          }}
+          onClick={handleSave}
+          disabled={saving}
+        >
+          {saving ? 'Saving...' : 'Save'}
+        </Button>
+)}
     </Box>
   );
 }

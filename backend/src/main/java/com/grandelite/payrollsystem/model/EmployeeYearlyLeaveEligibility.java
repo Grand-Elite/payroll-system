@@ -2,9 +2,12 @@ package com.grandelite.payrollsystem.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Data
+@NoArgsConstructor
+
 public class EmployeeYearlyLeaveEligibility {
 
     @Id
@@ -26,4 +29,8 @@ public class EmployeeYearlyLeaveEligibility {
 
     @Column(name="year", nullable = false)
     private String year;
+
+    public EmployeeYearlyLeaveEligibility(Long employeeId, String year, Long annualLeaves, Long casual, Long medical) {
+
+    }
 }
