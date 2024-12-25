@@ -91,7 +91,7 @@ function MonthlySalary({ selectedMonth, selectedYear }) {
       // Create a link element to download the file
       const link = document.createElement("a");
       link.href = URL.createObjectURL(pdfBlob);
-      link.download = `pay-sheet-${selectedEmployee.employeeId}-${selectedYear}-${selectedMonth}.pdf`; // Suggested filename
+      link.download = `pay-sheet-${selectedEmployee.shortName}-${selectedYear}-${selectedMonth}.pdf`; // Suggested filename
       link.click();
 
       // Clean up the object URL
