@@ -303,6 +303,7 @@ const handleSave = async (index) => {
   }
 };
 
+
 const handleInputChange = (field, value) => {
   setLeaveUsage((prev) => ({
     ...prev,
@@ -310,9 +311,25 @@ const handleInputChange = (field, value) => {
   }));
 };
 
+
+
 const handleLeaveSave = async () => {
   if (!props.employeeId) {
     alert('Please select an employee before saving.');
+    return;
+  }
+
+  const totalEnteredLeaves = Object.values(leaveUsage).reduce((total, value) => {
+    return total + (typeof value === 'number' ? value : 0);
+  }, 0);
+
+  const maxLeaves =
+    attendanceSummary && attendanceSummary.daysInCurrentMonth && attendanceSummary.attendanceCount !== undefined
+      ? attendanceSummary.daysInCurrentMonth - attendanceSummary.attendanceCount
+      : 0;
+
+  if (totalEnteredLeaves > maxLeaves) {
+    alert('The total Leave amount you entered is exceeded the acutual leave amount that has been taken by this employee for this month!!!! Please Check Your inputs again!!!');
     return;
   }
 
@@ -334,6 +351,7 @@ const handleLeaveSave = async () => {
   }
 };
 
+
   return (
     <Box>
       <Box>
@@ -347,101 +365,8 @@ const handleLeaveSave = async () => {
               <TableCell>No. of attendance:</TableCell>
               <TableCell>{attendanceSummary.attendanceCount}</TableCell>
             </TableRow>
-{/*
+
             <TableRow>
-              <TableCell>No. of Leaves:</TableCell>
-              <TableCell>
-                <div>
-                  {attendanceSummary && attendanceSummary.daysInCurrentMonth && attendanceSummary.attendanceCount !== undefined
-                    ? attendanceSummary.daysInCurrentMonth - attendanceSummary.attendanceCount
-                    : 'Loading...'}
-                </div>
-                <div className="textbox-container">
-                  {[
-                    { label: 'Annual Leave:', field: 'annual' },
-                    { label: 'Casual Leave:', field: 'casual' },
-                    { label: 'Medical Leave:', field: 'medical' },
-                    { label: 'Absent on Public holiday:', field: 'abOnPublicHoliday' },
-                    { label: 'Other Leave:', field: 'other' },
-                    { label: 'No Pay Leave:', field: 'noPayLeaves' },
-                    { label: 'Monthly Mandatory Leave (Weekly):', field: 'monthlyMandatoryLeaves' },
-                  ].map(({ label, field }) => {
-                    if (!leaveDetails || !yearlyLeaveUsage) {
-                      return (
-                        <div key={field}>
-                          <label>{label}</label>
-                          <span style={{ color: 'gray', marginLeft: '10px' }}>Loading...</span>
-                        </div>
-                      );
-                    }
-
-                    const leaveDetailValue = leaveDetails[field] || 0;
-                    const yearlyUsageValue = yearlyLeaveUsage[field] || 0;
-                    const remaining = leaveDetailValue - yearlyUsageValue;
-                    const disableInput = remaining <= 0 && (leaveDetailValue !== 0 || yearlyUsageValue !== 0);
-
-                    return (
-                      <div key={field}>
-                        <label>{label}</label>
-                        <input
-                          type="text"
-                          value={leaveUsage[field] || ''}
-                          onChange={(e) => {
-                            const inputValue = parseInt(e.target.value, 10) || 0;
-                            const totalUsage = Object.keys(leaveUsage).reduce((total, key) => {
-                              if (key === field) {
-                                return total + inputValue;
-                              }
-                              return total + (leaveUsage[key] || 0);
-                            }, 0);
-
-                            const maxLeaves = attendanceSummary && attendanceSummary.daysInCurrentMonth && attendanceSummary.attendanceCount !== undefined
-                              ? attendanceSummary.daysInCurrentMonth - attendanceSummary.attendanceCount
-                              : 0;
-
-                            if (totalUsage > maxLeaves) {
-                              alert(`Error: Total leave usage exceeds the available "No. of Leaves" (${maxLeaves}). Please adjust your inputs.`);
-                              return;
-                            }
-
-                            if (inputValue <= remaining) {
-                              handleInputChange(field, inputValue);
-                            } else {
-                              alert(`Error: Value exceeds remaining leaves (${remaining}). Please enter a valid number.`);
-                            }
-                          }}
-                          disabled={disableInput}
-                        />
-                        {(field === 'annual' || field === 'casual' || field === 'medical') && (
-                          <>
-                            <span style={{ marginLeft: '20px' }}>
-                              Remaining: {remaining}
-                            </span>
-                            {leaveDetailValue === 0 && (
-                              <span style={{ color: 'blue', marginLeft: '10px' }}>
-                                Yearly Leave Quota is not Available!
-                              </span>
-                            )}
-                            {disableInput && (
-                              <span style={{ color: 'red', marginLeft: '10px' }}>
-                                No more leaves can be allocated
-                              </span>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    );
-                  })}
-                  <button type="button" className="save-button" onClick={handleLeaveSave} disabled={saving}>
-                    {saving ? 'Saving...' : 'Save'}
-                  </button>
-                </div>
-              </TableCell>
-            </TableRow>
-*/}
-
-{/* 
-<TableRow>
   <TableCell>No. of Leaves:</TableCell>
   <TableCell>
     <div>
@@ -450,7 +375,7 @@ const handleLeaveSave = async () => {
         : 'Loading...'}
     </div>
     <div className="textbox-container">
-      {[
+      {[ 
         { label: 'Annual Leave:', field: 'annual' },
         { label: 'Casual Leave:', field: 'casual' },
         { label: 'Medical Leave:', field: 'medical' },
@@ -532,107 +457,14 @@ const handleLeaveSave = async () => {
           </div>
         );
       })}
-      <button type="button" className="save-button" onClick={handleLeaveSave} disabled={saving}>
-        {saving ? 'Saving...' : 'Save'}
-      </button>
-    </div>
-  </TableCell>
-</TableRow>
-*/}
-
-
-
-<TableRow>
-  <TableCell>No. of Leaves:</TableCell>
-  <TableCell>
-    <div>
-      {attendanceSummary && attendanceSummary.daysInCurrentMonth && attendanceSummary.attendanceCount !== undefined
-        ? attendanceSummary.daysInCurrentMonth - attendanceSummary.attendanceCount
-        : 'Loading...'}
-    </div>
-    <div className="textbox-container">
-      {[
-        { label: 'Annual Leave:', field: 'annual' },
-        { label: 'Casual Leave:', field: 'casual' },
-        { label: 'Medical Leave:', field: 'medical' },
-        { label: 'Absent on Public holiday:', field: 'abOnPublicHoliday' },
-        { label: 'Other Leave:', field: 'other' },
-        { label: 'No Pay Leave:', field: 'noPayLeaves' },
-        { label: 'Monthly Mandatory Leave (Weekly):', field: 'monthlyMandatoryLeaves' },
-      ].map(({ label, field }) => {
-        if (!leaveDetails || !yearlyLeaveUsage) {
-          return (
-            <div key={field}>
-              <label>{label}</label>
-              <span style={{ color: 'gray', marginLeft: '10px' }}>Loading...</span>
-            </div>
-          );
-        }
-
-        const leaveDetailValue = leaveDetails[field] || 0;
-        const yearlyUsageValue = yearlyLeaveUsage[field] || 0;
-        const remaining = leaveDetailValue - yearlyUsageValue;
-
-        // Only disable for Annual, Casual, and Medical fields if remaining is 0
-        const disableInput = ['annual', 'casual', 'medical'].includes(field) && remaining <= 0;
-
-        return (
-          <div key={field}>
-            <label>{label}</label>
-            <input
-              type="text"
-              value={leaveUsage[field] || ''}
-              onChange={(e) => {
-                const inputValue = parseInt(e.target.value, 10) || 0;
-                const totalUsage = Object.keys(leaveUsage).reduce((total, key) => {
-                  if (key === field) {
-                    return total + inputValue;
-                  }
-                  return total + (leaveUsage[key] || 0);
-                }, 0);
-
-                const maxLeaves =
-                  attendanceSummary && attendanceSummary.daysInCurrentMonth && attendanceSummary.attendanceCount !== undefined
-                    ? attendanceSummary.daysInCurrentMonth - attendanceSummary.attendanceCount
-                    : 0;
-
-                // For Annual, Casual, and Medical, check if the input exceeds remaining
-                if (['annual', 'casual', 'medical'].includes(field) && inputValue > remaining) {
-                  alert(`Error: Value exceeds remaining leaves (${remaining}). Please enter a valid number.`);
-                  return;
-                }
-
-                // For all fields, check if the total leave usage exceeds available leaves
-                if (totalUsage > maxLeaves) {
-                  alert(`Error: Total leave usage exceeds the available "No. of Leaves" (${maxLeaves}). Please adjust your inputs.`);
-                  return;
-                }
-
-                // Apply input change only if valid
-                handleInputChange(field, inputValue);
-              }}
-              disabled={disableInput}
-            />
-            {['annual', 'casual', 'medical'].includes(field) && (
-              <>
-                <span style={{ marginLeft: '20px' }}>
-                  Remaining: {remaining}
-                </span>
-                {leaveDetailValue === 0 && (
-                  <span style={{ color: 'blue', marginLeft: '10px' }}>
-                    Yearly Leave Quota is not Available!
-                  </span>
-                )}
-                {disableInput && (
-                  <span style={{ color: 'red', marginLeft: '10px' }}>
-                    No more leaves can be allocated
-                  </span>
-                )}
-              </>
-            )}
-          </div>
-        );
-      })}
+      <div>
+        <label>Total Entered Leaves:</label>
+        <span>
+          {Object.values(leaveUsage).reduce((total, value) => {
+            return total + (typeof value === 'number' ? value : 0);
+          }, 0)}
+        </span>
+      </div>
       <button type="button" className="save-button" onClick={handleLeaveSave} disabled={saving}>
         {saving ? 'Saving...' : 'Save'}
       </button>
