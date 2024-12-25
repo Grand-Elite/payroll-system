@@ -14,6 +14,7 @@ import com.itextpdf.kernel.utils.PdfMerger;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.borders.Border;
 import com.itextpdf.layout.borders.DashedBorder;
+import com.itextpdf.layout.borders.DoubleBorder;
 import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
@@ -150,7 +151,7 @@ public class PaySheetServiceImpl implements PaySheetService {
 
         table.addCell(getCell("Net Salary"));
         table.addCell(getCell(":"));
-        table.addCell(getCell(mfs.getNetSalary()));
+        table.addCell(getCellDoubleBorder(mfs.getNetSalary()));
         return table;
     }
 
@@ -164,6 +165,18 @@ public class PaySheetServiceImpl implements PaySheetService {
                 .setBorderRight(Border.NO_BORDER)
                 .setBorderTop(Border.NO_BORDER)
                 .setBorderBottom(new DashedBorder(1));
+    }
+
+    private Cell getCellDoubleBorder(Double dblValue) {
+        DecimalFormat df = new DecimalFormat("#.00");
+        String formattedValue = df.format(dblValue);
+        return new Cell().add(new Paragraph(
+                        formattedValue
+                ).setTextAlignment(TextAlignment.RIGHT))
+                .setBorderLeft(Border.NO_BORDER)
+                .setBorderRight(Border.NO_BORDER)
+                .setBorderTop(Border.NO_BORDER)
+                .setBorderBottom(new DoubleBorder(1));
     }
 
     private Cell getCell(String str) {
