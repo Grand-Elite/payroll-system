@@ -1,6 +1,5 @@
 package com.grandelite.payrollsystem.controller;
 
-import com.grandelite.payrollsystem.service.MonthlyFullSalaryService;
 import com.grandelite.payrollsystem.service.PaySheetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -20,12 +19,26 @@ public class PaySheetController {
     @Autowired
     private PaySheetService paySheetService;
 
+    @GetMapping("/pay-sheet/year/{year}/month/{month}")
+    public ResponseEntity<byte[]> getAllPaySheets
+            (
+             @PathVariable String year,
+             @PathVariable String month) {
+        ByteArrayOutputStream baos = paySheetService.getAllPaySheets(year,month);
+        String fileName = "pay-sheets-"+year+"-"+month+".pdf";
+        // Set headers for PDF response
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename="+fileName);
+        headers.add(HttpHeaders.CONTENT_TYPE, "application/pdf");
+        return new ResponseEntity<>(baos.toByteArray(), headers, HttpStatus.OK);
+    }
+
     @GetMapping("/employee/{employeeId}/pay-sheet/year/{year}/month/{month}")
     public ResponseEntity<byte[]> getPaySheet
             (@PathVariable Long employeeId,
              @PathVariable String year,
              @PathVariable String month) {
-        ByteArrayOutputStream baos = paySheetService.getPaySheet(employeeId,year,month);
+        ByteArrayOutputStream baos = paySheetService.getEmployeePaySheet(employeeId,year,month);
         String fileName = "pay-sheet-"+employeeId+"-"+year+"-"+month+".pdf";
         // Set headers for PDF response
         HttpHeaders headers = new HttpHeaders();

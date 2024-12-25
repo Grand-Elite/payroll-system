@@ -12,7 +12,8 @@ import {
   fetchEmployees,
   getMonthlyFullSalary,
   fetchAttendance,
-  getPaySheet
+  getPaySheet,
+  getAllPaySheets
 } from '../../services/api';
 import dayjs from 'dayjs';
 
@@ -91,6 +92,18 @@ function MonthlySalary({ selectedMonth, selectedYear }) {
       const link = document.createElement("a");
       link.href = URL.createObjectURL(pdfBlob);
       link.download = `pay-sheet-${selectedEmployee.employeeId}-${selectedYear}-${selectedMonth}.pdf`; // Suggested filename
+      link.click();
+
+      // Clean up the object URL
+      URL.revokeObjectURL(link.href);
+    }
+
+    const handleDownloadAllPaysheets = async () => {
+      const pdfBlob = await getAllPaySheets(selectedYear, selectedMonth);
+      // Create a link element to download the file
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(pdfBlob);
+      link.download = `all-pay-sheets-${selectedYear}-${selectedMonth}.pdf`; 
       link.click();
 
       // Clean up the object URL
@@ -214,7 +227,10 @@ function MonthlySalary({ selectedMonth, selectedYear }) {
         <Typography className="salary-updates-header" variant="h4" gutterBottom>
           Monthly Salary
         </Typography>
-  
+        <Button variant="contained"
+          onClick={handleDownloadAllPaysheets}
+          color="primary"
+          >Download All Pay Sheets</Button>
         {loadingEmployees ? (
           <CircularProgress />
         ) : (
