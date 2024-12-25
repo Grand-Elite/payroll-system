@@ -37,7 +37,7 @@ function AttendanceTable(props) {
   const [leaveDetails, setLeaveDetails] = useState(null);
 
   const [leaveUsage, setLeaveUsage] = useState({
-    annualLeaves: 0,
+    annual: 0,
     medical: 0,
     casual: 0,
     abOnPublicHoliday: 0,
@@ -47,7 +47,7 @@ function AttendanceTable(props) {
   });
 
   const [yearlyLeaveUsage, setYearlyLeaveUsage] = useState({
-    annualLeaves: 0,
+    annual: 0,
     casual: 0,
     medical: 0,
   });
@@ -61,7 +61,7 @@ function AttendanceTable(props) {
             props.employeeId,
             props.selectedYear
           );
-          setLeaveDetails(details || { annualLeaves: 0, casual: 0, medical: 0 });
+          setLeaveDetails(details || { annual: 0, casual: 0, medical: 0 });
         } catch (error) {
           console.error('Error fetching leave details:', error);
           alert(
@@ -84,7 +84,7 @@ function AttendanceTable(props) {
               props.employeeId,
               props.selectedYear
             );
-            setYearlyLeaveUsage(details || { annualLeaves: 0, casual: 0, medical: 0 });
+            setYearlyLeaveUsage(details || { annual: 0, casual: 0, medical: 0 });
           } catch (error) {
             console.error('Error fetching yearly leave usage:', error);
             alert(
@@ -347,43 +347,298 @@ const handleLeaveSave = async () => {
               <TableCell>No. of attendance:</TableCell>
               <TableCell>{attendanceSummary.attendanceCount}</TableCell>
             </TableRow>
-            
-          <TableRow>
-            <TableCell>No. of Leaves:</TableCell>
-            <TableCell>
-              <div>
-                {attendanceSummary.daysInCurrentMonth - attendanceSummary.attendanceCount}
-              </div>
-              <div className="textbox-container">
-                {[
-                  { label: 'Annual Leave:', field: 'annual' },
-                  { label: 'Casual Leave:', field: 'casual' },
-                  { label: 'Medical Leave:', field: 'medical' },
-                  { label: 'Absent on Public holiday:', field: 'abOnPublicHoliday' },
-                  { label: 'Other Leave:', field: 'other' },
-                  { label: 'No Pay Leave:', field: 'noPayLeaves' },
-                  { label: 'Monthly Mandatory Leave (Weekly):', field: 'monthlyMandatoryLeaves' },
-                ].map(({ label, field }) => (
-                  <div key={field}>
-                    <label>{label}</label>
-                    <input
-                      type="text"
-                      value={leaveUsage[field] || ''}
-                      onChange={(e) => handleInputChange(field, parseInt(e.target.value, 10) || 0)}
-                    />
-                    {(field === 'annual' || field === 'casual' || field === 'medical') && (
-                      <span style={{ marginLeft: '20px' }}>
-                        Remaining: {(leaveDetails ? leaveDetails[field] : 0) - (yearlyLeaveUsage ? yearlyLeaveUsage[field] : 0)}
-                        </span>
-                    )}
-                  </div>
-                ))}
-                <button type="button" className="save-button" onClick={handleLeaveSave} disabled={saving}>
-                  {saving ? 'Saving...' : 'Save'}
-                </button>
-              </div>
-            </TableCell>
-          </TableRow>
+{/*
+            <TableRow>
+              <TableCell>No. of Leaves:</TableCell>
+              <TableCell>
+                <div>
+                  {attendanceSummary && attendanceSummary.daysInCurrentMonth && attendanceSummary.attendanceCount !== undefined
+                    ? attendanceSummary.daysInCurrentMonth - attendanceSummary.attendanceCount
+                    : 'Loading...'}
+                </div>
+                <div className="textbox-container">
+                  {[
+                    { label: 'Annual Leave:', field: 'annual' },
+                    { label: 'Casual Leave:', field: 'casual' },
+                    { label: 'Medical Leave:', field: 'medical' },
+                    { label: 'Absent on Public holiday:', field: 'abOnPublicHoliday' },
+                    { label: 'Other Leave:', field: 'other' },
+                    { label: 'No Pay Leave:', field: 'noPayLeaves' },
+                    { label: 'Monthly Mandatory Leave (Weekly):', field: 'monthlyMandatoryLeaves' },
+                  ].map(({ label, field }) => {
+                    if (!leaveDetails || !yearlyLeaveUsage) {
+                      return (
+                        <div key={field}>
+                          <label>{label}</label>
+                          <span style={{ color: 'gray', marginLeft: '10px' }}>Loading...</span>
+                        </div>
+                      );
+                    }
+
+                    const leaveDetailValue = leaveDetails[field] || 0;
+                    const yearlyUsageValue = yearlyLeaveUsage[field] || 0;
+                    const remaining = leaveDetailValue - yearlyUsageValue;
+                    const disableInput = remaining <= 0 && (leaveDetailValue !== 0 || yearlyUsageValue !== 0);
+
+                    return (
+                      <div key={field}>
+                        <label>{label}</label>
+                        <input
+                          type="text"
+                          value={leaveUsage[field] || ''}
+                          onChange={(e) => {
+                            const inputValue = parseInt(e.target.value, 10) || 0;
+                            const totalUsage = Object.keys(leaveUsage).reduce((total, key) => {
+                              if (key === field) {
+                                return total + inputValue;
+                              }
+                              return total + (leaveUsage[key] || 0);
+                            }, 0);
+
+                            const maxLeaves = attendanceSummary && attendanceSummary.daysInCurrentMonth && attendanceSummary.attendanceCount !== undefined
+                              ? attendanceSummary.daysInCurrentMonth - attendanceSummary.attendanceCount
+                              : 0;
+
+                            if (totalUsage > maxLeaves) {
+                              alert(`Error: Total leave usage exceeds the available "No. of Leaves" (${maxLeaves}). Please adjust your inputs.`);
+                              return;
+                            }
+
+                            if (inputValue <= remaining) {
+                              handleInputChange(field, inputValue);
+                            } else {
+                              alert(`Error: Value exceeds remaining leaves (${remaining}). Please enter a valid number.`);
+                            }
+                          }}
+                          disabled={disableInput}
+                        />
+                        {(field === 'annual' || field === 'casual' || field === 'medical') && (
+                          <>
+                            <span style={{ marginLeft: '20px' }}>
+                              Remaining: {remaining}
+                            </span>
+                            {leaveDetailValue === 0 && (
+                              <span style={{ color: 'blue', marginLeft: '10px' }}>
+                                Yearly Leave Quota is not Available!
+                              </span>
+                            )}
+                            {disableInput && (
+                              <span style={{ color: 'red', marginLeft: '10px' }}>
+                                No more leaves can be allocated
+                              </span>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    );
+                  })}
+                  <button type="button" className="save-button" onClick={handleLeaveSave} disabled={saving}>
+                    {saving ? 'Saving...' : 'Save'}
+                  </button>
+                </div>
+              </TableCell>
+            </TableRow>
+*/}
+
+{/* 
+<TableRow>
+  <TableCell>No. of Leaves:</TableCell>
+  <TableCell>
+    <div>
+      {attendanceSummary && attendanceSummary.daysInCurrentMonth && attendanceSummary.attendanceCount !== undefined
+        ? attendanceSummary.daysInCurrentMonth - attendanceSummary.attendanceCount
+        : 'Loading...'}
+    </div>
+    <div className="textbox-container">
+      {[
+        { label: 'Annual Leave:', field: 'annual' },
+        { label: 'Casual Leave:', field: 'casual' },
+        { label: 'Medical Leave:', field: 'medical' },
+        { label: 'Absent on Public holiday:', field: 'abOnPublicHoliday' },
+        { label: 'Other Leave:', field: 'other' },
+        { label: 'No Pay Leave:', field: 'noPayLeaves' },
+        { label: 'Monthly Mandatory Leave (Weekly):', field: 'monthlyMandatoryLeaves' },
+      ].map(({ label, field }) => {
+        if (!leaveDetails || !yearlyLeaveUsage) {
+          return (
+            <div key={field}>
+              <label>{label}</label>
+              <span style={{ color: 'gray', marginLeft: '10px' }}>Loading...</span>
+            </div>
+          );
+        }
+
+        const leaveDetailValue = leaveDetails[field] || 0;
+        const yearlyUsageValue = yearlyLeaveUsage[field] || 0;
+        const remaining = leaveDetailValue - yearlyUsageValue;
+
+        // Only disable for Annual, Casual, and Medical fields if remaining is 0
+        const disableInput = ['annual', 'casual', 'medical'].includes(field) && remaining <= 0;
+
+        return (
+          <div key={field}>
+            <label>{label}</label>
+            <input
+              type="text"
+              value={leaveUsage[field] || ''}
+              onChange={(e) => {
+                const inputValue = parseInt(e.target.value, 10) || 0;
+                const totalUsage = Object.keys(leaveUsage).reduce((total, key) => {
+                  if (key === field) {
+                    return total + inputValue;
+                  }
+                  return total + (leaveUsage[key] || 0);
+                }, 0);
+
+                const maxLeaves =
+                  attendanceSummary && attendanceSummary.daysInCurrentMonth && attendanceSummary.attendanceCount !== undefined
+                    ? attendanceSummary.daysInCurrentMonth - attendanceSummary.attendanceCount
+                    : 0;
+
+                // For Annual, Casual, and Medical, check if the input exceeds remaining
+                if (['annual', 'casual', 'medical'].includes(field) && inputValue > remaining) {
+                  alert(`Error: Value exceeds remaining leaves (${remaining}). Please enter a valid number.`);
+                  return;
+                }
+
+                // For all fields, check if the total leave usage exceeds available leaves
+                if (totalUsage > maxLeaves) {
+                  alert(`Error: Total leave usage exceeds the available "No. of Leaves" (${maxLeaves}). Please adjust your inputs.`);
+                  return;
+                }
+
+                // Apply input change only if valid
+                handleInputChange(field, inputValue);
+              }}
+              disabled={disableInput}
+            />
+            {['annual', 'casual', 'medical'].includes(field) && (
+              <>
+                <span style={{ marginLeft: '20px' }}>
+                  Remaining: {remaining}
+                </span>
+                {leaveDetailValue === 0 && (
+                  <span style={{ color: 'blue', marginLeft: '10px' }}>
+                    Yearly Leave Quota is not Available!
+                  </span>
+                )}
+                {disableInput && (
+                  <span style={{ color: 'red', marginLeft: '10px' }}>
+                    No more leaves can be allocated
+                  </span>
+                )}
+              </>
+            )}
+          </div>
+        );
+      })}
+      <button type="button" className="save-button" onClick={handleLeaveSave} disabled={saving}>
+        {saving ? 'Saving...' : 'Save'}
+      </button>
+    </div>
+  </TableCell>
+</TableRow>
+*/}
+
+
+
+<TableRow>
+  <TableCell>No. of Leaves:</TableCell>
+  <TableCell>
+    <div>
+      {attendanceSummary && attendanceSummary.daysInCurrentMonth && attendanceSummary.attendanceCount !== undefined
+        ? attendanceSummary.daysInCurrentMonth - attendanceSummary.attendanceCount
+        : 'Loading...'}
+    </div>
+    <div className="textbox-container">
+      {[
+        { label: 'Annual Leave:', field: 'annual' },
+        { label: 'Casual Leave:', field: 'casual' },
+        { label: 'Medical Leave:', field: 'medical' },
+        { label: 'Absent on Public holiday:', field: 'abOnPublicHoliday' },
+        { label: 'Other Leave:', field: 'other' },
+        { label: 'No Pay Leave:', field: 'noPayLeaves' },
+        { label: 'Monthly Mandatory Leave (Weekly):', field: 'monthlyMandatoryLeaves' },
+      ].map(({ label, field }) => {
+        if (!leaveDetails || !yearlyLeaveUsage) {
+          return (
+            <div key={field}>
+              <label>{label}</label>
+              <span style={{ color: 'gray', marginLeft: '10px' }}>Loading...</span>
+            </div>
+          );
+        }
+
+        const leaveDetailValue = leaveDetails[field] || 0;
+        const yearlyUsageValue = yearlyLeaveUsage[field] || 0;
+        const remaining = leaveDetailValue - yearlyUsageValue;
+
+        // Only disable for Annual, Casual, and Medical fields if remaining is 0
+        const disableInput = ['annual', 'casual', 'medical'].includes(field) && remaining <= 0;
+
+        return (
+          <div key={field}>
+            <label>{label}</label>
+            <input
+              type="text"
+              value={leaveUsage[field] || ''}
+              onChange={(e) => {
+                const inputValue = parseInt(e.target.value, 10) || 0;
+                const totalUsage = Object.keys(leaveUsage).reduce((total, key) => {
+                  if (key === field) {
+                    return total + inputValue;
+                  }
+                  return total + (leaveUsage[key] || 0);
+                }, 0);
+
+                const maxLeaves =
+                  attendanceSummary && attendanceSummary.daysInCurrentMonth && attendanceSummary.attendanceCount !== undefined
+                    ? attendanceSummary.daysInCurrentMonth - attendanceSummary.attendanceCount
+                    : 0;
+
+                // For Annual, Casual, and Medical, check if the input exceeds remaining
+                if (['annual', 'casual', 'medical'].includes(field) && inputValue > remaining) {
+                  alert(`Error: Value exceeds remaining leaves (${remaining}). Please enter a valid number.`);
+                  return;
+                }
+
+                // For all fields, check if the total leave usage exceeds available leaves
+                if (totalUsage > maxLeaves) {
+                  alert(`Error: Total leave usage exceeds the available "No. of Leaves" (${maxLeaves}). Please adjust your inputs.`);
+                  return;
+                }
+
+                // Apply input change only if valid
+                handleInputChange(field, inputValue);
+              }}
+              disabled={disableInput}
+            />
+            {['annual', 'casual', 'medical'].includes(field) && (
+              <>
+                <span style={{ marginLeft: '20px' }}>
+                  Remaining: {remaining}
+                </span>
+                {leaveDetailValue === 0 && (
+                  <span style={{ color: 'blue', marginLeft: '10px' }}>
+                    Yearly Leave Quota is not Available!
+                  </span>
+                )}
+                {disableInput && (
+                  <span style={{ color: 'red', marginLeft: '10px' }}>
+                    No more leaves can be allocated
+                  </span>
+                )}
+              </>
+            )}
+          </div>
+        );
+      })}
+      <button type="button" className="save-button" onClick={handleLeaveSave} disabled={saving}>
+        {saving ? 'Saving...' : 'Save'}
+      </button>
+    </div>
+  </TableCell>
+</TableRow>
 
             <TableRow>
               <TableCell>Total OT-1 Hours:</TableCell>

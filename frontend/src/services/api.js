@@ -448,7 +448,7 @@ export const saveLeaveDetails = async ({ employeeId, year, annual, casual, medic
 
 export const saveLeaveUsage = async ({
   employeeId,
-  annualLeaves = 0,
+  annual = 0,
   medical = 0,
   casual = 0,
   abOnPublicHoliday = 0,
@@ -463,7 +463,7 @@ export const saveLeaveUsage = async ({
       employee: {
         employeeId,
       },
-      annualLeaves,
+      annual,
       medical,
       casual,
       abOnPublicHoliday,
