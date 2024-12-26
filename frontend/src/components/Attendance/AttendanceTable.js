@@ -471,22 +471,25 @@ const handleLeaveSave = async () => {
     </div>
   </TableCell>
 </TableRow>
-
             <TableRow>
-              <TableCell>Total OT-1 Hours:</TableCell>
-              <TableCell>{attendanceSummary.ot1HoursSum}</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Total OT-2 Saturday Hours:</TableCell>
-              <TableCell>{attendanceSummary.ot2HoursSaturdaySum}</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Total OT-2 Holiday Hours:</TableCell>
-              <TableCell>{attendanceSummary.ot2HoursHolidaysSum}</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Total Late Hours:</TableCell>
-              <TableCell>{attendanceSummary.lateHoursSum}</TableCell>
+              <TableCell>Cumulative OT and Late Time</TableCell>
+              <TableCell>
+                    <div>
+                      Total OT-1 Hours: {attendanceSummary.ot1HoursSum}
+                      <span className="adjustment-container">
+                        Adjustments if needed: <input type="text" />
+                      </span>
+                    </div>
+                    <div>
+                      Total Late Hours: {attendanceSummary.lateHoursSum}
+                      <span className="adjustment-container">
+                        Adjustments if needed: <input type="text" />
+                      </span>
+                    </div>
+                      <button type="button" className="save-button" onClick={handleLeaveSave} disabled={saving}>
+                        {saving ? 'Saving...' : 'Save'}
+                      </button>
+                  </TableCell>
             </TableRow>
           </TableBody>
         </Table>
@@ -504,7 +507,6 @@ const handleLeaveSave = async () => {
             <TableCell>OT Hours</TableCell>
             <TableCell>Late Hours</TableCell>
             <TableCell>Attendance Status</TableCell>
-            {/* <TableCell>Leave Type</TableCell> */}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -571,7 +573,6 @@ const handleLeaveSave = async () => {
                       displayEmpty
                   >
                       <MenuItem value="ab">ab</MenuItem>
-                      {/*<MenuItem value="ab-nopay">ab-nopay</MenuItem> */}
                       <MenuItem value="0.5">0.5</MenuItem>
                       <MenuItem value="1">1</MenuItem>
                   </Select>

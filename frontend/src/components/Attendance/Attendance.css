@@ -38,3 +38,18 @@
 .save-button:hover {
     background-color: #0056b3; /* Darker blue on hover */
 }
+
+
+.adjustment-container {
+    display: flex;
+    align-items: center; /* Align items vertically */
+    margin-left: 50px; /* Add spacing before the label */
+    line-height: 50px;
+    font-weight: bold;
+    font-style: italic;
+
+}
+
+.adjustment-container input {
+    margin-left: 10px; /* Add spacing between the label and the textbox */
+}

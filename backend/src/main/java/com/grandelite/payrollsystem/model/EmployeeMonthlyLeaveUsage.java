@@ -2,10 +2,15 @@ package com.grandelite.payrollsystem.model;
 
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
+
 public class EmployeeMonthlyLeaveUsage {
     @Id
     @Column(name="leave_usage_id", nullable = false)

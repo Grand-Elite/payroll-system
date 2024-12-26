@@ -3,18 +3,16 @@ package com.grandelite.payrollsystem.service.impl;
 import com.grandelite.payrollsystem.model.*;
 import com.grandelite.payrollsystem.repository.*;
 import com.grandelite.payrollsystem.service.MonthlyFullSalaryService;
-import org.apache.poi.ss.usermodel.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.Month;
 import java.time.Year;
-import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
@@ -37,6 +35,9 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
     @Autowired
     HolidayCalendarRepository holidayCalendarRepository;
 
+    @Autowired
+    EmployeeMonthlyLeaveUsageRepository employeeMonthlyLeaveUsageRepository;
+
     @Override
     public MonthlyFullSalary getMonthlyFullSalary(Long employeeId, String year, String month) {
         return monthlyFullSalaryRepository.findByEmployeeIdYearMonth(employeeId, year, month);
@@ -53,6 +54,7 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
             MonthlySalaryUpdates monthlySalaryUpdates = monthlySalaryUpdatesRepository.findByEmployee_EmployeeIdAndYearAndMonth(employeeId, year, monthStr).orElse(new MonthlySalaryUpdates());
 
             AttendanceSummary attendanceSummary = attendanceRepository.findAggregatedMonthlyAttendanceSummary(employeeId, year, month);
+
             System.out.println(employee.getShortName()+"::"+attendanceSummary);
             mfs.setMonthlyFullSalaryRecordId(employeeId+":" + year + ":"+month);
             mfs.setEmployee(employee);
@@ -65,13 +67,25 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
                     Objects.requireNonNullElse(salaryBase.getAttendanceAllowance(),Double.valueOf(0))
                             *Objects.requireNonNullElse(attendanceSummary.getAttendanceCount(),0d));
 
-//            mfs.setNoPayAmount(
-//                    Objects.requireNonNullElse(attendanceSummary.getNoPayDaysCount(),0l)
-//                            *(salaryBase.getBasicSalary()/30));
+            Optional<EmployeeMonthlyLeaveUsage> employeeMonthlyLeaveUsage = employeeMonthlyLeaveUsageRepository.findByEmployeeIdAndYearAndMonth(employeeId, year, monthStr);
+
+            if (employeeMonthlyLeaveUsage.isPresent()) {
+                EmployeeMonthlyLeaveUsage usage = employeeMonthlyLeaveUsage.get();
+                mfs.setNoPayAmount(
+                        Objects.requireNonNullElse(usage.getNoPayLeaves(), 0L)
+                                * (salaryBase.getBasicSalary() / 30)
+                );
+            } else {
+                // Handle the case where no data is found for the given employee, year, and month
+                mfs.setNoPayAmount(0d);
+            }
+
 
             mfs.setArrears(Objects.requireNonNullElse(monthlySalaryUpdates.getArrears(),Double.valueOf(0)));
 
-            mfs.setTotalForEpf(salaryBase.getBasicSalary()-(mfs.getNoPayAmount()+mfs.getArrears()));
+            mfs.setTotalForEpf(salaryBase.getBasicSalary()-(
+                    Objects.requireNonNullElse(mfs.getNoPayAmount(),0d)
+                            +Objects.requireNonNullElse(mfs.getArrears(),0d)));
 
             mfs.setBonus(Objects.requireNonNullElse(monthlySalaryUpdates.getBonus(),Double.valueOf(0)));
 
@@ -82,13 +96,18 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
 
 
 
-            //todo fix this using two ot2 types
-//            mfs.setOt2(attendanceSummary.getOt2HoursSum()*(salaryBase.getBasicSalary()/8*30)*1.5*3);   //This calculation only handles the Saturday OT amount. But the OT-2 for Poya day is calculated through a separated formula.
-                                                                                // OT-2 for Poya Day = (Basic Salary)/(30*2)
-//            if(employee.getEpfNo() != 0L){
-//                if()
-//            }
-            mfs.setOt2(0D);
+            // OT-2 for Saturday and Poya Day only for Permanent Employees
+                        if (employee.getEpfNo() != null && employee.getEpfNo() != 0L) {
+                            if (attendanceSummary.getPoyaOnSaturdayWorkedCount() != 0L) {
+                                mfs.setOt2((salaryBase.getBasicSalary() / (30 * 2)) +
+                                        (3 * ((salaryBase.getBasicSalary() * 1.5 * 3) / (30 * salaryBase.getWorkingHours()))));
+                            } else {
+                                mfs.setOt2((salaryBase.getBasicSalary() / (30 * 2)) +
+                                        (4 * ((salaryBase.getBasicSalary() * 1.5 * 3) / (30 * salaryBase.getWorkingHours()))));
+                            }
+                        } else {
+                            mfs.setOt2(0D);
+                        }
 
 
             mfs.setGrossPay(mfs.getTotalForEpf()+mfs.getBonus()+mfs.getOt1()+mfs.getOt2());
