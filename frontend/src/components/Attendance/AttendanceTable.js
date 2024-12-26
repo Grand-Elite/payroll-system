@@ -491,6 +491,11 @@ const handleLeaveSave = async () => {
                       </button>
                   </TableCell>
             </TableRow>
+            <TableRow>
+              <TableCell>Poya Day Attendance</TableCell>
+              <TableCell>{attendanceSummary.poyaNotSaturdayWorkedCount}</TableCell>
+            </TableRow>
+
           </TableBody>
         </Table>
       </Box>

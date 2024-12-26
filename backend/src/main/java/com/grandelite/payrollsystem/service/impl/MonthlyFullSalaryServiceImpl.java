@@ -61,14 +61,19 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
             mfs.setYear(year);
             mfs.setMonth(monthStr);
 
-            mfs.setBasic(salaryBase.getBasicSalary());
 
+            //Employee's Basic Salary (Just the Basic salary amount without any kind of calculation)
+            mfs.setBasic(Objects.requireNonNullElse(salaryBase.getBasicSalary(), 0.0));
+
+            //Employee's Attendance Allowance (Direct value without a
             mfs.setAttendanceAllowance(
                     Objects.requireNonNullElse(salaryBase.getAttendanceAllowance(),Double.valueOf(0))
                             *Objects.requireNonNullElse(attendanceSummary.getAttendanceCount(),0d));
 
+
             Optional<EmployeeMonthlyLeaveUsage> employeeMonthlyLeaveUsage = employeeMonthlyLeaveUsageRepository.findByEmployeeIdAndYearAndMonth(employeeId, year, monthStr);
 
+            //Calculation of NoPay deduction
             if (employeeMonthlyLeaveUsage.isPresent()) {
                 EmployeeMonthlyLeaveUsage usage = employeeMonthlyLeaveUsage.get();
                 mfs.setNoPayAmount(
@@ -80,42 +85,76 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
                 mfs.setNoPayAmount(0d);
             }
 
-
+            //Arrears Calculation (Direct Value)
             mfs.setArrears(Objects.requireNonNullElse(monthlySalaryUpdates.getArrears(),Double.valueOf(0)));
 
+            //Total For EPF (Total Salary Amount that is considered for 8% EPF Employee's Contribution)
             mfs.setTotalForEpf(salaryBase.getBasicSalary()-(
                     Objects.requireNonNullElse(mfs.getNoPayAmount(),0d)
                             +Objects.requireNonNullElse(mfs.getArrears(),0d)));
 
+            //Bonus Calculation (Direct Value)
             mfs.setBonus(Objects.requireNonNullElse(monthlySalaryUpdates.getBonus(),Double.valueOf(0)));
 
+
+            /*OT-1 Calculation for both Temporary and Permanent Employees based on their overtime each day. (No matter whether that day is a
+             Saturday/Poy day or normal working day*/
             mfs.setOt1(
                     Objects.requireNonNullElse(attendanceSummary.getOt1HoursSum(),0d)
                             *60*((salaryBase.getBasicSalary()*
                     Objects.requireNonNullElse(salaryBase.getOt1Rate(),Double.valueOf(0)))/(salaryBase.getWorkingHours()*60)));
 
 
-
             // OT-2 for Saturday and Poya Day only for Permanent Employees
-                        if (employee.getEpfNo() != null && employee.getEpfNo() != 0L) {
-                            if (attendanceSummary.getPoyaOnSaturdayWorkedCount() != 0L) {
-                                mfs.setOt2((salaryBase.getBasicSalary() / (30 * 2)) +
-                                        (3 * ((salaryBase.getBasicSalary() * 1.5 * 3) / (30 * salaryBase.getWorkingHours()))));
-                            } else {
-                                mfs.setOt2((salaryBase.getBasicSalary() / (30 * 2)) +
-                                        (4 * ((salaryBase.getBasicSalary() * 1.5 * 3) / (30 * salaryBase.getWorkingHours()))));
-                            }
-                        } else {
-                            mfs.setOt2(0D);
-                        }
+            if (!Objects.requireNonNullElse(employee.getEpfNo(), 0D).equals(0D)) { // Permanent Employee
+                // Cap SaturdayWorkedCount at 4
+                double saturdayWorkedCount = Math.min(
+                        Objects.requireNonNullElse(attendanceSummary.getSaturdayWorkedCount(), 0D), 4);
+
+                double poyaOnSaturdayWorkedCount = Objects.requireNonNullElse(
+                        attendanceSummary.getPoyaOnSaturdayWorkedCount(), 0D);
+                double poyaNotSaturdayWorkedCount = Objects.requireNonNullElse(
+                        attendanceSummary.getPoyaNotSaturdayWorkedCount(), 0D);
+                double basicSalary = Objects.requireNonNullElse(salaryBase.getBasicSalary(), 0D);
+                double workingHours = Objects.requireNonNullElse(salaryBase.getWorkingHours(), 1D); // Avoid division by zero
+
+                if (poyaOnSaturdayWorkedCount != 0D) {
+                    // If the Poya day is a Saturday, then consider Poya Day OT formula for that day
+                    mfs.setOt2((basicSalary / (30 * 2)) +
+                            ((saturdayWorkedCount - 1) * ((basicSalary * 1.5 * 3) / workingHours)));
+                } else {
+                    if (poyaNotSaturdayWorkedCount != 0D) { // To check whether the employee worked on Poya Day
+                        // If the employee worked on the Poya day
+                        mfs.setOt2((basicSalary / (30 * 2)) +
+                                (saturdayWorkedCount * ((basicSalary * 1.5 * 3) / workingHours)));
+                    } else { // If the employee did not work on the Poya day
+                        mfs.setOt2((saturdayWorkedCount * ((basicSalary * 1.5 * 3) / workingHours)));
+                    }
+                }
+            } else { // Temporary Employees
+                double poyaNotSaturdayWorkedCount = Objects.requireNonNullElse(
+                        attendanceSummary.getPoyaNotSaturdayWorkedCount(), 0D);
+                double basicSalary = Objects.requireNonNullElse(salaryBase.getBasicSalary(), 0D);
+
+                if (poyaNotSaturdayWorkedCount != 0D) {
+                    // Only the Poya Day OT is applicable for the Temporary employees under the OT-2 Category
+                    mfs.setOt2((basicSalary / (30 * 2)));
+                } else {
+                    // When the Temporary employee did not work on Poya day, they are not eligible for any OT-2 amount in that month.
+                    mfs.setOt2(0D);
+                }
+            }
 
 
+            //Gross Pay Calculation
             mfs.setGrossPay(mfs.getTotalForEpf()+mfs.getBonus()+mfs.getOt1()+mfs.getOt2());
 
+            //Transport Allowance Calculation
             mfs.setTransportAllowance(
                     Objects.requireNonNullElse(salaryBase.getTransportAllowance(),Double.valueOf(0))
                             *Objects.requireNonNullElse(attendanceSummary.getAttendanceCount(),0d));
 
+            //Performance Allowance (Direct Amount)
             mfs.setPerformanceAllowance(Objects.requireNonNullElse(
                     salaryBase.getPerformanceAllowance(),Double.valueOf(0)));
 
@@ -127,7 +166,8 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
             // Count non-mandatory public holidays for the specific month and year
             int nonMandatoryPublicHolidays = holidayCalendarRepository.countNonMandatoryHolidaysByYearAndMonth(selectedYear, monthEnum.getValue());
 
-            // Calculate incentives
+
+            // Incentives Calculations
             double attendanceCount = Objects.requireNonNullElse(attendanceSummary.getAttendanceCount(), 0d);
             int totalDaysInMonth = monthEnum.length(Year.isLeap(selectedYear));
             int nonWorkingDays = 4 + nonMandatoryPublicHolidays; // Sundays + non-mandatory public holidays
@@ -143,34 +183,76 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
             mfs.setIncentives(incentives);
 
 
+            //Total Allowance Calculation (Summation of the Attendance Allowance, Transport Allowance, Performance Allowance, and the other Incentives
+            mfs.setTotalAllowance(
+                    Objects.requireNonNullElse(mfs.getAttendanceAllowance(), 0d) +
+                            Objects.requireNonNullElse(mfs.getTransportAllowance(), 0d) +
+                            Objects.requireNonNullElse(mfs.getPerformanceAllowance(), 0d) +
+                            Objects.requireNonNullElse(mfs.getIncentives(), 0d)
+            );
 
 
-            mfs.setTotalAllowance(mfs.getAttendanceAllowance()+mfs.getTransportAllowance()+mfs.getPerformanceAllowance()+mfs.getIncentives());
+            //Total Monthly Salary
+            mfs.setTotalMonthlySalary(
+                    Objects.requireNonNullElse(mfs.getGrossPay(), 0d) +
+                            Objects.requireNonNullElse(mfs.getTotalAllowance(), 0d)
+            );
 
-            mfs.setTotalMonthlySalary(mfs.getGrossPay() + mfs.getTotalAllowance());
 
-            mfs.setEpfEmployeeAmount(mfs.getTotalForEpf()*0.08);
+            //EPF 8% Employee's Contribution (Only Applicable for the Permanent Employees (those who have an epf no)
+            if (Objects.requireNonNullElse(employee.getEpfNo(), 0L) != 0L) {
+                mfs.setEpfEmployeeAmount(Objects.requireNonNullElse(mfs.getTotalForEpf(), 0d) * 0.08);
+            }
 
+            //Salary Advance Deduction (Direct Value)
             mfs.setSalaryAdvance(
                     Objects.requireNonNullElse(monthlySalaryUpdates.getSalaryAdvance(),Double.valueOf(0)));
 
+            //Late Charges Deduction Amount
             mfs.setLateCharges(
                     Objects.requireNonNullElse(attendanceSummary.getLateHoursSum(),0d)*60*salaryBase.getLateChargesPerMin());
 
+            //Other Deduction (Direct Value)
             mfs.setOtherDeductions(
                     Objects.requireNonNullElse(monthlySalaryUpdates.getOtherDeductions(),Double.valueOf(0)));
 
+            //Food Bills (Direct Value)
             mfs.setFoodBill(Objects.requireNonNullElse(monthlySalaryUpdates.getFoodBill(),Double.valueOf(0)));
 
-            mfs.setTotalDeduction(mfs.getEpfEmployeeAmount()+mfs.getSalaryAdvance()+mfs.getLateCharges()+mfs.getOtherDeductions()+mfs.getFoodBill());
+            //Total Deduction Calculation
+            mfs.setTotalDeduction(
+                    Objects.requireNonNullElse(mfs.getEpfEmployeeAmount(), 0d) +
+                            Objects.requireNonNullElse(mfs.getSalaryAdvance(), 0d) +
+                            Objects.requireNonNullElse(mfs.getLateCharges(), 0d) +
+                            Objects.requireNonNullElse(mfs.getOtherDeductions(), 0d) +
+                            Objects.requireNonNullElse(mfs.getFoodBill(), 0d)
+            );
 
-            mfs.setNetSalary(mfs.getTotalMonthlySalary()-mfs.getTotalDeduction());
 
-            mfs.setEpfCompanyAmount(salaryBase.getBasicSalary()*0.12);
+            //Net Salary Calculation After all the deductions
+            mfs.setNetSalary(
+                    Objects.requireNonNullElse(mfs.getTotalMonthlySalary(), 0d) -
+                            Objects.requireNonNullElse(mfs.getTotalDeduction(), 0d)
+            );
 
-            mfs.setEpfTotal(mfs.getEpfEmployeeAmount()+ mfs.getEpfCompanyAmount());
 
-            mfs.setEtfCompanyAmount(salaryBase.getBasicSalary()*0.03);
+            //EPF 12% Company Contribution Calculation (Only Applicable for the Permanent Employees (those who have an epf no.)
+            if (Objects.requireNonNullElse(employee.getEpfNo(), 0L) != 0L) {
+                mfs.setEpfCompanyAmount(salaryBase.getBasicSalary() * 0.12);
+            }
+
+
+            //EPF Total Calculation from employee's salary (Only Applicable for the Permanent Employees (those who have an epf no.)
+            if (Objects.requireNonNullElse(employee.getEpfNo(), 0L) != 0L) {
+                mfs.setEpfTotal(mfs.getEpfEmployeeAmount() + mfs.getEpfCompanyAmount());
+            }
+
+
+            //ETF 3% Company Contribution Calculation (Only Applicable for the Permanent Employees (those who have an epf no.)
+            if (Objects.requireNonNullElse(employee.getEpfNo(), 0L) != 0L) {
+                mfs.setEtfCompanyAmount(salaryBase.getBasicSalary() * 0.03);
+            }
+
 
             monthlyFullSalaryRepository.save(mfs);
         }catch (NoSuchElementException e){

@@ -13,4 +13,5 @@ public class AttendanceSummary {
     private Double saturdayWorkedCount;
     private Double poyaOnSaturdayWorkedCount;
     private Double lateHoursSum;
+    private Double poyaNotSaturdayWorkedCount;
 }

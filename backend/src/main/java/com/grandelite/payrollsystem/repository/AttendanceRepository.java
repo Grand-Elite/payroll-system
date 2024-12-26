@@ -118,7 +118,27 @@ public interface AttendanceRepository extends JpaRepository<Attendance,String> {
             "   WHEN oas.updatedTotalLcMins IS NOT NULL " +
             "   THEN oas.updatedTotalLcMins " +
             "   ELSE a.lcMins " +
-            "END) / 60.0 AS lateHoursSum " +
+            "END) / 60.0 AS lateHoursSum, " +
+            "SUM(" +
+            "    CASE " +
+            "        WHEN hc.holidayDate IS NOT NULL AND hc.mandatory = true AND FUNCTION('DAYOFWEEK', a.date) <> 7 THEN " +
+                        "CASE " +
+                        "   WHEN oas.updatedAttendanceStatus IS NOT NULL THEN " +
+                        "       CASE " +
+                        "           WHEN oas.updatedAttendanceStatus = '1' THEN 1.0" +
+                        "           WHEN oas.updatedAttendanceStatus = '0.5' THEN 0.5 " +
+                        "           ELSE 0.0 " +
+                        "       END " +
+                        "   ELSE " +
+                        "       CASE " +
+                        "           WHEN a.attendance = '1' THEN 1.0" +
+                        "           WHEN a.attendance = '0.5' THEN 0.5 " +
+                        "           ELSE 0.0 " +
+                        "       END " +
+                        "END" +
+            "        ELSE 0.0 " +
+            "    END" +
+            ") AS poyaNotSaturdayWorkedCount"+
             ") FROM" +
             " Attendance a" +
             " LEFT JOIN OverwrittenAttendanceStatus oas ON a.attendanceRecordId = oas.attendanceRecordId" +
