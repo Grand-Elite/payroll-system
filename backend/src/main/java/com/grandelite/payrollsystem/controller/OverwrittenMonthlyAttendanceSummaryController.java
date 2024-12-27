@@ -19,12 +19,25 @@ public class OverwrittenMonthlyAttendanceSummaryController {
             @RequestParam("employeeId") String employeeId,
             @RequestParam("year") String year,
             @RequestParam("month") String month,
-            @RequestParam("adjustedLateTime") Long adjustedLateTime,
-            @RequestParam("adjustedOtHours") Long adjustedOtHours) {
+            @RequestParam(value = "adjustedLateTime", defaultValue = "0") Long adjustedLateTime,
+            @RequestParam(value = "adjustedOtHours", defaultValue = "0") Long adjustedOtHours) {
 
-        String recordId = employeeId + ":" + year + ":" + month;
+        // Validate parameters if needed
+        if (employeeId == null || year == null || month == null) {
+            return ResponseEntity.badRequest().body("Employee ID, year, and month are required.");
+        }
+
+        // Ensure that employeeId is parsed as a Long
+        Long empId;
+        try {
+            empId = Long.valueOf(employeeId);
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest().body("Invalid Employee ID.");
+        }
 
         // Create the OverwrittenMonthlyAttendanceSummary object
+        String recordId = employeeId + ":" + year + ":" + month;
+
         OverwrittenMonthlyAttendanceSummary attendanceSummary = new OverwrittenMonthlyAttendanceSummary();
         attendanceSummary.setOverwrittenMonthlyAttendanceRecordId(recordId);
         attendanceSummary.setAdjustedLateTime(adjustedLateTime);
@@ -32,14 +45,28 @@ public class OverwrittenMonthlyAttendanceSummaryController {
         attendanceSummary.setYear(year);
         attendanceSummary.setMonth(month);
 
-        // Assuming you have a method to fetch Employee by ID
         Employee employee = new Employee();
-        employee.setEmployeeId(Long.valueOf(employeeId)); // Replace with actual retrieval if required
+        employee.setEmployeeId(empId); // Using Long value directly
         attendanceSummary.setEmployee(employee);
 
         // Save to the database
         repository.save(attendanceSummary);
 
         return ResponseEntity.ok("Attendance summary saved successfully.");
+    }
+
+
+    @GetMapping
+    public ResponseEntity<Object> getAdjustedAttendanceSummary(@RequestParam("employeeId") Long employeeId,
+                                                       @RequestParam("year") String year,
+                                                       @RequestParam("month") String month) {
+        // Find the attendance summary by recordId
+        Object attendanceSummary = repository.findByEmployeeIdAndYearAndMonth(employeeId, year, month).orElse(null);
+
+        if (attendanceSummary == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(attendanceSummary);
     }
 }
