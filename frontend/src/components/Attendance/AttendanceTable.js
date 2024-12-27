@@ -23,6 +23,8 @@ import {
   fetchLeaveDetails,
   fetchLeaveUsage, 
   fetchYearlyLeaveUsage,
+  saveAdjustedAttendanceSummary,
+
 } from '../../services/api'; 
 
 import OTHoursCell from './OTHoursCell';
@@ -35,6 +37,8 @@ function AttendanceTable(props) {
   const [attendanceSummary,setAttendanceSummary] = useState([]);
   const [saving, setSaving] = useState(false);
   const [leaveDetails, setLeaveDetails] = useState(null);
+  const [adjustedLateTime, setAdjustedLateTime] = useState('');
+  const [adjustedOtHours, setAdjustedOtHours] = useState('');
 
   const [leaveUsage, setLeaveUsage] = useState({
     annual: 0,
@@ -96,6 +100,8 @@ function AttendanceTable(props) {
   
       loadYearlyLeaveUsage();
     }, [props.employeeId, props.selectedYear]);
+
+
  
   useEffect(() => {
     const currentMonth = dayjs(`01 ${props.selectedMonth} 2000`, "DD MMMM YYYY").month(); 
@@ -351,6 +357,25 @@ const handleLeaveSave = async () => {
   }
 };
 
+const handleAdjustedAttendanceSubmit = async () => {
+  setSaving(true);
+  try {
+      await saveAdjustedAttendanceSummary(
+          props.employeeId,
+          props.selectedYear,
+          props.selectedMonth,
+          adjustedLateTime,
+          adjustedOtHours
+      );
+      alert('Saved successfully');
+  } catch (error) {
+      console.error('Error saving adjustments:', error);
+      alert('Failed to save adjustments');
+  } finally {
+      setSaving(false);
+  }
+};
+
 
   return (
     <Box>
@@ -471,25 +496,40 @@ const handleLeaveSave = async () => {
     </div>
   </TableCell>
 </TableRow>
-            <TableRow>
+<TableRow>
               <TableCell>Cumulative OT and Late Time</TableCell>
               <TableCell>
-                    <div>
-                      Total OT-1 Hours: {attendanceSummary.ot1HoursSum}
-                      <span className="adjustment-container">
-                        Adjustments if needed: <input type="text" />
-                      </span>
-                    </div>
-                    <div>
-                      Total Late Hours: {attendanceSummary.lateHoursSum}
-                      <span className="adjustment-container">
-                        Adjustments if needed: <input type="text" />
-                      </span>
-                    </div>
-                      <button type="button" className="save-button" onClick={handleLeaveSave} disabled={saving}>
-                        {saving ? 'Saving...' : 'Save'}
-                      </button>
-                  </TableCell>
+            <div>
+                Total OT-1 Hours: {attendanceSummary.ot1HoursSum}
+                <span className="adjustment-container">
+                    Adjustments if needed: 
+                    <input 
+                        type="text" 
+                        value={adjustedOtHours} 
+                        onChange={(e) => setAdjustedOtHours(e.target.value)} 
+                    />
+                </span>
+            </div>
+            <div>
+                Total Late Hours: {attendanceSummary.lateHoursSum}
+                <span className="adjustment-container">
+                    Adjustments if needed: 
+                    <input 
+                        type="text" 
+                        value={adjustedLateTime} 
+                        onChange={(e) => setAdjustedLateTime(e.target.value)} 
+                    />
+                </span>
+            </div>
+            <button 
+                type="button" 
+                className="save-button" 
+                onClick={handleAdjustedAttendanceSubmit} 
+                disabled={saving}
+            >
+                {saving ? 'Saving...' : 'Save'}
+            </button>
+        </TableCell>
             </TableRow>
             <TableRow>
               <TableCell>Poya Day Attendance</TableCell>

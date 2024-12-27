@@ -502,4 +502,38 @@ export const saveLeaveUsage = async ({
   }
 };
 
+
+export const saveAdjustedAttendanceSummary = async (employeeId, year, month, adjustedLateTime, adjustedOtHours) => {
+  try {
+      const response = await axios.post('/api/attendance-summary/save', null, {
+          params: {
+              employeeId: employeeId,
+              year: year,
+              month: month,
+              adjustedLateTime: adjustedLateTime,
+              adjustedOtHours: adjustedOtHours,
+          },
+      });
+
+      console.log(response.data);
+      alert('Attendance summary saved successfully.');
+  } catch (error) {
+      console.error('Error saving attendance summary:', error);
+      alert('Failed to save attendance summary.');
+  }
+};
+
+export const getAdjustedAttendanceSummary = async (employeeId, year, month) => {
+  try {
+    const response = await axios.get(`/api/attendance-summary`, {
+      params: { employeeId, year, month },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching attendance summary:", error);
+    throw error;
+  }
+};
+
+
 export {updateAttendanceStatus };
