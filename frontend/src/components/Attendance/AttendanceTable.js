@@ -24,6 +24,7 @@ import {
   fetchLeaveUsage, 
   fetchYearlyLeaveUsage,
   saveAdjustedAttendanceSummary,
+  getAdjustedAttendanceSummary,
 
 } from '../../services/api'; 
 
@@ -77,6 +78,34 @@ function AttendanceTable(props) {
 
     loadLeaveDetails();
   }, [props.employeeId, props.selectedYear]);
+
+
+// Inside your component
+useEffect(() => {
+  const loadAdjustedAttendanceDetails = async () => {
+    if (props.employeeId && props.selectedYear && props.selectedMonth) {
+      try {
+        const details = await getAdjustedAttendanceSummary(
+          props.employeeId,
+          props.selectedYear,
+          props.selectedMonth
+        );
+
+        // Set the state with fetched values
+        setAdjustedOtHours(details?.adjustedOtHours || 0);
+        setAdjustedLateTime(details?.adjustedLateTime || 0);
+      } catch (error) {
+        console.error('Error fetching adjusted OT and Late Times details:', error);
+        alert(
+          `Failed to fetch adjusted OT and Late Times Details for this employee in ${props.selectedYear}. Please try again.`
+        );
+      }
+    }
+  };
+
+  loadAdjustedAttendanceDetails();
+}, [props.employeeId, props.selectedYear, props.selectedMonth]);
+
 
 
     // Fetch yearly leave usage when an employee is selected
@@ -494,46 +523,52 @@ const handleAdjustedAttendanceSubmit = async () => {
         {saving ? 'Saving...' : 'Save'}
       </button>
     </div>
-  </TableCell>
-</TableRow>
-<TableRow>
-              <TableCell>Cumulative OT and Late Time</TableCell>
-              <TableCell>
-            <div>
-                Total OT-1 Hours: {attendanceSummary.ot1HoursSum}
-                <span className="adjustment-container">
-                    Adjustments if needed: 
-                    <input 
-                        type="text" 
-                        value={adjustedOtHours} 
-                        onChange={(e) => setAdjustedOtHours(e.target.value)} 
-                    />
-                </span>
-            </div>
-            <div>
-                Total Late Hours: {attendanceSummary.lateHoursSum}
-                <span className="adjustment-container">
-                    Adjustments if needed: 
-                    <input 
-                        type="text" 
-                        value={adjustedLateTime} 
-                        onChange={(e) => setAdjustedLateTime(e.target.value)} 
-                    />
-                </span>
-            </div>
-            <button 
-                type="button" 
-                className="save-button" 
-                onClick={handleAdjustedAttendanceSubmit} 
-                disabled={saving}
-            >
-                {saving ? 'Saving...' : 'Save'}
-            </button>
+          </TableCell>
+        </TableRow>
+        <TableRow>
+                      <TableCell>Cumulative OT and Late Time</TableCell>
+                      <TableCell>
+          <div>
+            Total OT-1 Hours: {attendanceSummary.ot1HoursSum}
+            <span className="adjustment-container">
+              Adjustments if needed:
+              <input
+                type="text"
+                value={adjustedOtHours} // Tied to state variable
+                onChange={(e) => setAdjustedOtHours(e.target.value)} // Update state on change
+              />
+            </span>
+          </div>
+          <div>
+            Total Late Hours: {attendanceSummary.lateHoursSum}
+            <span className="adjustment-container">
+              Adjustments if needed:
+              <input
+                type="text"
+                value={adjustedLateTime} // Tied to state variable
+                onChange={(e) => setAdjustedLateTime(e.target.value)} // Update state on change
+              />
+            </span>
+          </div>
+          <button
+            type="button"
+            className="save-button"
+            onClick={handleAdjustedAttendanceSubmit}
+            disabled={saving}
+          >
+            {saving ? 'Saving...' : 'Save'}
+          </button>
         </TableCell>
+
             </TableRow>
             <TableRow>
               <TableCell>Poya Day Attendance</TableCell>
-              <TableCell>{attendanceSummary.poyaNotSaturdayWorkedCount}</TableCell>
+              <TableCell>{attendanceSummary.poyaNotSaturdayWorkedCount + attendanceSummary.poyaOnSaturdayWorkedCount}</TableCell>
+            </TableRow>
+
+            <TableRow>
+              <TableCell>Total No. of Saturday Attendance</TableCell>
+              <TableCell>{attendanceSummary.saturdayWorkedCount}</TableCell>
             </TableRow>
 
           </TableBody>
