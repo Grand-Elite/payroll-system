@@ -76,6 +76,21 @@ public interface AttendanceRepository extends JpaRepository<Attendance,String> {
             ") / 60.0 AS ot1HoursSum," +
             "SUM(" +
             "    CASE " +
+            "        WHEN a.employee.department.name = 'Cleaning & Maintenance' THEN " +
+            "            CASE " +
+            "                WHEN a.workMins > 9.5*60 THEN 0.5 " +
+            "                ELSE 0.0 "+
+            "            END " +
+            "        WHEN a.employee.department.name = 'Front Office' THEN " +
+            "            CASE " +
+            "                WHEN a.workMins > 12*60 THEN 3 " +
+            "                ELSE 0.0 "+
+            "            END " +
+            "        ELSE 0.0 " +
+            "    END" +
+            ") AS ot1CompulsoryHoursSum," +
+            "SUM(" +
+            "    CASE " +
             "        WHEN FUNCTION('DAYOFWEEK', a.date) = 7 THEN " +
                         "CASE " +
                         "   WHEN oas.updatedAttendanceStatus IS NOT NULL THEN " +
