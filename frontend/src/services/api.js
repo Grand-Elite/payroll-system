@@ -519,7 +519,7 @@ export const saveAdjustedAttendanceSummary = async (employeeId, year, month, adj
       alert('Attendance summary saved successfully.');
   } catch (error) {
       console.error('Error saving attendance summary:', error);
-      alert('Failed to save attendance summary.');
+      //alert('Failed to save attendance summary.');
   }
 };
 

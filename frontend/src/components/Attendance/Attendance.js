@@ -4,11 +4,9 @@ import AttendanceTable from './AttendanceTable';
 import React, { useState, useEffect } from 'react';
 import {
   Box,
-  Select,
-  MenuItem,
+  Autocomplete,
   Typography,
-  FormControl,
-  InputLabel,
+  TextField,
 } from '@mui/material';
 import { fetchEmployees, fetchShiftsByDepartment  } from '../../services/api';
 
@@ -46,13 +44,13 @@ function Attendance({ selectedMonth, selectedYear }) {
       }
     }, [selectedEmployee]);
 
-    // Handle employee selection
-    const handleEmployeeChange = (event) => {
-      const employeeId = event.target.value;
-      const employee = employees.find((emp) => emp.employeeId === employeeId);
-      setSelectedEmployee(employee);
-    };
-
+const handleEmployeeChange = (newValue) => {
+  if (newValue) {
+    setSelectedEmployee(newValue);
+  } else {
+    setSelectedEmployee(null);
+  }
+};
     return (
       <Box display="flex" flexDirection="column" alignItems="center" p={3}>
         <div className="buttons">
@@ -60,20 +58,17 @@ function Attendance({ selectedMonth, selectedYear }) {
             <button>Upload Employee Attendance</button>
           </Link>
         </div>
-        <FormControl fullWidth variant="outlined" margin="normal">
-          <InputLabel>Select Employee</InputLabel>
-          <Select
-            label="Select Employee"
-            value={selectedEmployee ? selectedEmployee.employeeId : ""}
-            onChange={handleEmployeeChange}
-          >
-            {employees.map((employee) => (
-              <MenuItem key={employee.employeeId} value={employee.employeeId}>
-                {employee.shortName}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <Autocomplete
+              fullWidth
+              options={employees}
+              getOptionLabel={(option) => option.shortName} // Define what is displayed in the dropdown
+              value={selectedEmployee || null} // Handle the selected value
+              onChange={(event, newValue) => handleEmployeeChange(newValue)} // Handle changes
+              renderInput={(params) => (
+                <TextField {...params} label="Select Employee" variant="outlined" margin="normal" />
+              )}
+              isOptionEqualToValue={(option, value) => option.employeeId === value?.employeeId} // Match logic
+            />
 
         {/* Show the Attendance Table and Shift Details only if an employee is selected */}
         {selectedEmployee && (
