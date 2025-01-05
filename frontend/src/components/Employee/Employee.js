@@ -52,11 +52,11 @@ function Employee() {
           <tr>
             <th>Employee ID</th>
             <th>EPF No.</th>
-            <th>Department</th>
             <th>Short Name</th>
             <th>Full Name</th>
+            <th>Department</th>
+            <th>Designation</th>
             <th>NIC No.</th>
-            
           </tr>
         </thead>
         <tbody>
@@ -69,9 +69,10 @@ function Employee() {
               <tr key={employee.employeeId}>
                 <td>{employee.employeeId}</td>
                 <td>{employee.epfNo}</td>
-                <td>{employee.department.name}</td>
                 <td>{employee.shortName}</td>
                 <td>{employee.fullName}</td>
+                <td>{employee.department.name}</td>
+                <td>{employee.designation}</td>
                 <td>{employee.nicNo}</td>
                 <td>
                   {employee.status === 'ACTIVE' ? (

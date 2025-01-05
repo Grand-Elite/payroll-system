@@ -37,6 +37,9 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
 
     @Autowired
     EmployeeMonthlyLeaveUsageRepository employeeMonthlyLeaveUsageRepository;
+    
+    @Autowired
+    OverwrittenMonthlyAttendanceSummaryRepository overwrittenMonthlyAttendanceSummaryRepository;
 
     @Override
     public MonthlyFullSalary getMonthlyFullSalary(Long employeeId, String year, String month) {
@@ -54,6 +57,7 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
             MonthlySalaryUpdates monthlySalaryUpdates = monthlySalaryUpdatesRepository.findByEmployee_EmployeeIdAndYearAndMonth(employeeId, year, monthStr).orElse(new MonthlySalaryUpdates());
 
             AttendanceSummary attendanceSummary = attendanceRepository.findAggregatedMonthlyAttendanceSummary(employeeId, year, month);
+            Optional<OverwrittenMonthlyAttendanceSummary> overwrittenMonthlyAttendanceSummary = overwrittenMonthlyAttendanceSummaryRepository.findByEmployeeIdAndYearAndMonth(employeeId, year, monthStr);
 
             System.out.println(employee.getShortName()+"::"+attendanceSummary);
             mfs.setMonthlyFullSalaryRecordId(employeeId+":" + year + ":"+month);
@@ -100,10 +104,16 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
             /*OT-1 Calculation for both Temporary and Permanent Employees based on their overtime each day. (No matter whether that day is a
              Saturday/Poy day or normal working day*/
             mfs.setOt1(
-                    Objects.requireNonNullElse(attendanceSummary.getOt1HoursSum(),0d)
-                            *60*((salaryBase.getBasicSalary()*
-                    Objects.requireNonNullElse(salaryBase.getOt1Rate(),Double.valueOf(0)))/(salaryBase.getWorkingHours()*60)));
-
+                    Objects.requireNonNullElse(
+                            overwrittenMonthlyAttendanceSummary
+                                    .map(OverwrittenMonthlyAttendanceSummary::getAdjustedOtHours)
+                                    .orElse(0L), 0L
+                    ) * 60 * (
+                            (salaryBase.getBasicSalary() *
+                                    Objects.requireNonNullElse(salaryBase.getOt1Rate(), 0.0)) /
+                                    (salaryBase.getWorkingHours() * 60)
+                    )
+            );
 
             // OT-2 for Saturday and Poya Day only for Permanent Employees
             if (!Objects.requireNonNullElse(employee.getEpfNo(), 0D).equals(0D)) { // Permanent Employee
@@ -210,7 +220,10 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
 
             //Late Charges Deduction Amount
             mfs.setLateCharges(
-                    Objects.requireNonNullElse(attendanceSummary.getLateHoursSum(),0d)*60*salaryBase.getLateChargesPerMin());
+                    overwrittenMonthlyAttendanceSummary
+                            .map(OverwrittenMonthlyAttendanceSummary::getAdjustedLateTime)
+                            .orElse(0L) * 60 * salaryBase.getLateChargesPerMin()
+            );
 
             //Other Deduction (Direct Value)
             mfs.setOtherDeductions(

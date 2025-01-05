@@ -80,7 +80,7 @@ function AttendanceTable(props) {
   }, [props.employeeId, props.selectedYear]);
 
 
-// Inside your component
+/*
 useEffect(() => {
   const loadAdjustedAttendanceDetails = async () => {
     if (props.employeeId && props.selectedYear && props.selectedMonth) {
@@ -100,6 +100,37 @@ useEffect(() => {
           `Failed to fetch adjusted OT and Late Times Details for this employee in ${props.selectedYear}. Please try again.`
         );
       }
+    }
+  };
+
+  loadAdjustedAttendanceDetails();
+}, [props.employeeId, props.selectedYear, props.selectedMonth]);
+*/
+
+
+useEffect(() => {
+  const loadAdjustedAttendanceDetails = async () => {
+    if (props.employeeId && props.selectedYear && props.selectedMonth) {
+      try {
+        const details = await getAdjustedAttendanceSummary(
+          props.employeeId,
+          props.selectedYear,
+          props.selectedMonth
+        );
+
+        // Set the state with fetched values or defaults
+        setAdjustedOtHours(details?.adjustedOtHours ?? 0);
+        setAdjustedLateTime(details?.adjustedLateTime ?? 0);
+      } catch (error) {
+        console.error('Error fetching adjusted OT and Late Times details:', error);
+        // Display 0 in textboxes in case of error
+        setAdjustedOtHours(0);
+        setAdjustedLateTime(0);
+      }
+    } else {
+      // Ensure state is reset to 0 if required fields are missing
+      setAdjustedOtHours(0);
+      setAdjustedLateTime(0);
     }
   };
 
@@ -526,19 +557,20 @@ const handleAdjustedAttendanceSubmit = async () => {
           </TableCell>
         </TableRow>
         <TableRow>
-                      <TableCell>Cumulative OT and Late Time</TableCell>
-                      <TableCell>
-          <div>
-            Total OT-1 Hours: {attendanceSummary.ot1HoursSum}
-            <span className="adjustment-container">
-              Adjustments if needed:
-              <input
-                type="text"
-                value={adjustedOtHours} // Tied to state variable
-                onChange={(e) => setAdjustedOtHours(e.target.value)} // Update state on change
-              />
-            </span>
-          </div>
+        <TableCell>Cumulative OT and Late Time</TableCell>
+        <TableCell>
+                <div>
+                    Total OT-1 Hours: {attendanceSummary.ot1HoursSum}
+                    <span className="adjustment-container" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      Adjustments if needed:
+                      <input
+                        type="text"
+                        value={adjustedOtHours} // Tied to state variable
+                        onChange={(e) => setAdjustedOtHours(e.target.value)} // Update state on change
+                      />
+                      <span style={{ marginLeft: '8px' }}>Compulsory OT Hours: {attendanceSummary.ot1CompulsoryHoursSum}</span>
+                    </span>
+                  </div>
           <div>
             Total Late Hours: {attendanceSummary.lateHoursSum}
             <span className="adjustment-container">

@@ -24,72 +24,78 @@ function AddNewEmployee() {
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
 
-    useEffect(() => {
-        // Fetch the last employee ID on component mount
-        const fetchLastEmployeeId = async () => {
-            try {
-                const lastId = await getLastEmployeeId();
-                setLastEmployeeId(lastId || 0); // If lastId is null or undefined, set it to 0
-                setEmployeeId((lastId || 0) + 1); // Set the next employee ID
-            } catch (error) {
-                console.error('Error fetching last employee ID:', error);
-                setLastEmployeeId(0); // Set lastEmployeeId to 0 in case of an error
-                setEmployeeId(1); // Start from 1 if there’s an error
-            }
-        };
-        fetchLastEmployeeId();
-    }, []);
-
-    const validateNIC = (nicNumber) => {
-        const nicRegex = /^([1-9][0-9]{11}|[1-9][0-9]{9}|[0-9]{9}[vVxX])$/;
-        return nicRegex.test(nicNumber);
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        if (!validateNIC(nicNo)) {
-            setError('Invalid NIC number format!');
-            return;
-        }
-
-        const employeeData = {
-            employeeId: employeeId || (lastEmployeeId + 1), // Auto-generate employee ID based on last employee ID
-            shortName,
-            fullName,
-            department,
-            designation,
-            nicNo,
-            employeeType,
-            epfNo: employeeType === 'PERMANENT' ? epfNo : '', // Include EPF No if Permanent
-            joiningDate, // Include Joining Date
-            status: "ACTIVE"
-        };
-
-        console.log('Employee Data:', employeeData);
-
+    
+useEffect(() => {
+    // Fetch the last employee ID on component mount
+    const fetchLastEmployeeId = async () => {
         try {
-            const responseData = await addEmployee(employeeData);
-            console.log('Employee added:', responseData);
-            setSuccess('Employee added successfully!');
-            setError(null);
+            const lastId = await getLastEmployeeId();
+            setLastEmployeeId(lastId || 0); // If lastId is null or undefined, set it to 0
+            setEmployeeId((lastId || 0) + 1); // Set the next employee ID
         } catch (error) {
-            console.error('Error:', error);
-            setError(error.message);
-            setSuccess(null);
+            console.error('Error fetching last employee ID:', error);
+            setLastEmployeeId(0); // Set lastEmployeeId to 0 in case of an error
+            setEmployeeId(1); // Start from 1 if there’s an error
         }
-
-        // Clear the form after submission
-        setEmployeeId('');
-        setShortName('');
-        setFullName('');
-        setDepartment(null);
-        setDesignation('');
-        setNicNo('');
-        setEmployeeType('');
-        setEpfNo('');
-        setJoiningDate('');
     };
+    fetchLastEmployeeId();
+}, []);
+
+const validateNIC = (nicNumber) => {
+    const nicRegex = /^([1-9][0-9]{11}|[1-9][0-9]{9}|[0-9]{9}[vVxX])$/;
+    return nicRegex.test(nicNumber);
+};
+
+const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Validate NIC only if a value is provided
+    if (nicNo && !validateNIC(nicNo)) {
+        setError('Invalid NIC number format!');
+        return;
+    }
+
+    // Reset error if NIC is valid or empty
+    setError(null);
+
+    const employeeData = {
+        employeeId: employeeId || (lastEmployeeId + 1), // Auto-generate employee ID based on last employee ID
+        shortName,
+        fullName,
+        department,
+        designation,
+        nicNo, // Include NIC only if entered
+        employeeType,
+        epfNo: employeeType === 'PERMANENT' ? epfNo : '', // Include EPF No if Permanent
+        joiningDate, // Include Joining Date
+        status: "ACTIVE"
+    };
+
+    console.log('Employee Data:', employeeData);
+
+    try {
+        const responseData = await addEmployee(employeeData);
+        console.log('Employee added:', responseData);
+        setSuccess('Employee added successfully!');
+        setError(null);
+    } catch (error) {
+        console.error('Error:', error);
+        setError(error.message);
+        setSuccess(null);
+    }
+
+    // Clear the form after submission
+    setEmployeeId('');
+    setShortName('');
+    setFullName('');
+    setDepartment(null);
+    setDesignation('');
+    setNicNo('');
+    setEmployeeType('');
+    setEpfNo('');
+    setJoiningDate('');
+};
+
 
     return (
         <div className="form-container">
@@ -176,7 +182,6 @@ function AddNewEmployee() {
                             type="text"
                             value={nicNo}
                             onChange={(e) => setNicNo(e.target.value)}
-                            required
                         />
                     </label>
                 </div>
@@ -222,7 +227,6 @@ function AddNewEmployee() {
                             type="date"
                             value={joiningDate}
                             onChange={(e) => setJoiningDate(e.target.value)}
-                            required
                         />
                     </label>
                 </div>
