@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import './HolidayCalendar.css';
+import { toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { saveHolidays, fetchHolidays, deleteHoliday } from '../../services/api';
 
 function HolidayCalendar() {
@@ -62,7 +65,7 @@ function HolidayCalendar() {
               const { [dateString]: _, ...remainingConfirmed } = prevConfirmed;
               return remainingConfirmed;
             });
-            alert('Holiday deleted successfully.');
+            toast.success('Holiday deleted successfully.');
           })
           .catch((error) => alert('Error deleting holiday: ' + error.message));
       }
@@ -103,7 +106,7 @@ function HolidayCalendar() {
           ...holidays,
         }));
         setHolidays({});
-        alert("Holidays have been confirmed!");
+        toast.success("Holidays have been confirmed!");
       })
       .catch((error) => alert("Error saving holidays: " + error.message));
   };
@@ -158,8 +161,9 @@ function HolidayCalendar() {
       {Object.keys(holidays).length > 0 && (
         <button className="confirm-button" onClick={handleConfirmHolidays}>
           Confirm Holidays
-        </button>
+        </button> 
       )}
+      <ToastContainer/>
     </div>
   );
 }

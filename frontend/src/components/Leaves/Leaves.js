@@ -12,6 +12,9 @@ import {
   TableCell, 
   TableBody 
 } from '@mui/material';
+import { toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import {
   fetchEmployees,
   fetchLeaveDetails,
@@ -123,7 +126,7 @@ function Leaves({ selectedYear }) {
         ...leaveDetails,
       };
       await saveLeaveDetails(saveData);
-      alert('Leave details saved successfully!');
+      toast.success('Leave details saved successfully!');
     } catch (error) {
       console.error('Error saving leave details:', error);
       alert('Failed to save leave details. Please try again.');
@@ -232,7 +235,9 @@ function Leaves({ selectedYear }) {
           disabled={saving}
         >
           {saving ? 'Saving...' : 'Save'}
+          <ToastContainer/>
         </Button>
+        
 )}
     </Box>
   );

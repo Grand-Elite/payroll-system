@@ -1,4 +1,7 @@
 import React, { useState, useEffect,useCallback } from 'react';
+import { toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import {
   Box,
   Typography,
@@ -174,12 +177,12 @@ const calculateLateChargesPerMin = (basicSalary, workingHours) => {
       if (salaryDetailsNotFound) {
         const response = await createSalaryDetails(selectedEmployee.employeeId, formData);
         if (response.status === 201) {
-          alert('Salary details created successfully!');
+          toast.success('Salary details created successfully!');
         }
       } else {
         const response = await updateSalaryDetails(selectedEmployee.employeeId, formData);
         if (response.status === 200) {
-          alert('Salary details updated successfully!');
+          toast.success('Salary details updated successfully!');
         }
       }
     } catch (error) {
@@ -200,7 +203,7 @@ const calculateLateChargesPerMin = (basicSalary, workingHours) => {
         : updateMonthlySalaryUpdate(selectedEmployee.employeeId, selectedYear, selectedMonth, monthlyData));
 
       if (response.status === 200 || response.status === 201) {
-        alert('Monthly salary update submitted successfully!');
+        toast.success('Monthly salary update submitted successfully!');
       }
     } catch (error) {
       console.error('Error submitting monthly salary details:', error);
@@ -366,14 +369,17 @@ const calculateLateChargesPerMin = (basicSalary, workingHours) => {
                     sx={{ marginTop: '20px' }}
                   >
                     {monthlySalaryDetailsNotFound ? 'Create' : 'Update'} Monthly Salary Details
+                    <ToastContainer/>
                   </Button>
                 </Grid>
               </Grid>
             </Box>
+            
           )}
         </>
       )}
     </Box>
+    
   );
 }
 

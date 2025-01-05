@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-
 const API_BASE_URL = '/api';
 
 export const fetchEmployees = async () => {
@@ -516,10 +515,8 @@ export const saveAdjustedAttendanceSummary = async (employeeId, year, month, adj
       });
 
       console.log(response.data);
-      alert('Attendance summary saved successfully.');
   } catch (error) {
       console.error('Error saving attendance summary:', error);
-      //alert('Failed to save attendance summary.');
   }
 };
 

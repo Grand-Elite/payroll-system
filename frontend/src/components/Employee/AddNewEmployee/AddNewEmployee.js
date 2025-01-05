@@ -1,4 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
 import { addEmployee, getLastEmployeeId } from '../../../services/api'; // Adjust the import path as necessary
 
 function AddNewEmployee() {
@@ -22,7 +27,7 @@ function AddNewEmployee() {
     ];
 
     const [error, setError] = useState(null);
-    const [success, setSuccess] = useState(null);
+    const [setSuccess] = useState(null);
 
     
 useEffect(() => {
@@ -51,7 +56,7 @@ const handleSubmit = async (e) => {
 
     // Validate NIC only if a value is provided
     if (nicNo && !validateNIC(nicNo)) {
-        setError('Invalid NIC number format!');
+        setError('Invalid NIC number format! Please re-check it or leave that field empty, if you are not sure !');
         return;
     }
 
@@ -76,7 +81,7 @@ const handleSubmit = async (e) => {
     try {
         const responseData = await addEmployee(employeeData);
         console.log('Employee added:', responseData);
-        setSuccess('Employee added successfully!');
+        toast.success('Employee added successfully!', {autoClose: 5000});
         setError(null);
     } catch (error) {
         console.error('Error:', error);
@@ -233,8 +238,9 @@ const handleSubmit = async (e) => {
 
                 <button type="submit" className="add-button">Add</button>
                 {error && <p style={{ color: 'red' }}>{error}</p>}
-                {success && <p style={{ color: 'green' }}>{success}</p>}
             </form>
+
+            <ToastContainer />
         </div>
     );
 }

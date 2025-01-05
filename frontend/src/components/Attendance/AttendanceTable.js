@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import {
   Table,
   TableBody,
@@ -78,35 +81,6 @@ function AttendanceTable(props) {
 
     loadLeaveDetails();
   }, [props.employeeId, props.selectedYear]);
-
-
-/*
-useEffect(() => {
-  const loadAdjustedAttendanceDetails = async () => {
-    if (props.employeeId && props.selectedYear && props.selectedMonth) {
-      try {
-        const details = await getAdjustedAttendanceSummary(
-          props.employeeId,
-          props.selectedYear,
-          props.selectedMonth
-        );
-
-        // Set the state with fetched values
-        setAdjustedOtHours(details?.adjustedOtHours || 0);
-        setAdjustedLateTime(details?.adjustedLateTime || 0);
-      } catch (error) {
-        console.error('Error fetching adjusted OT and Late Times details:', error);
-        alert(
-          `Failed to fetch adjusted OT and Late Times Details for this employee in ${props.selectedYear}. Please try again.`
-        );
-      }
-    }
-  };
-
-  loadAdjustedAttendanceDetails();
-}, [props.employeeId, props.selectedYear, props.selectedMonth]);
-*/
-
 
 useEffect(() => {
   const loadAdjustedAttendanceDetails = async () => {
@@ -361,7 +335,7 @@ const handleSave = async (index) => {
         originalOtMins: day.otMins
       };
       setDaysInMonth(updatedDays);
-      alert('Attendance record updated successfully');
+      toast.success('Attendance record updated successfully',{autoClose: 5000});
     } catch (error) {
       console.error('Error updating attendance record:', error);
       alert('Failed to update attendance record');
@@ -408,7 +382,7 @@ const handleLeaveSave = async () => {
       ...leaveUsage, // Include all leave details from the state
     };
     await saveLeaveUsage(saveData);
-    alert('Leave details saved successfully!');
+    toast.success('Leave details saved successfully!', { autoClose: 5000 });
   } catch (error) {
     console.error('Error saving leave details:', error);
     alert('Failed to save leave details. Please try again.');
@@ -427,15 +401,14 @@ const handleAdjustedAttendanceSubmit = async () => {
           adjustedLateTime,
           adjustedOtHours
       );
-      alert('Saved successfully');
+      toast.success('Adjusted OT and Late Times Saved successfully', { autoClose: 5000 }); // Toast success message
   } catch (error) {
       console.error('Error saving adjustments:', error);
-      alert('Failed to save adjustments');
+      alert('Failed to save adjustments'); // You can replace this with a toast error message too if needed
   } finally {
       setSaving(false);
   }
 };
-
 
   return (
     <Box>
@@ -558,39 +531,40 @@ const handleAdjustedAttendanceSubmit = async () => {
         </TableRow>
         <TableRow>
         <TableCell>Cumulative OT and Late Time</TableCell>
-        <TableCell>
-                <div>
-                    Total OT-1 Hours: {attendanceSummary.ot1HoursSum}
-                    <span className="adjustment-container" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      Adjustments if needed:
-                      <input
-                        type="text"
-                        value={adjustedOtHours} // Tied to state variable
-                        onChange={(e) => setAdjustedOtHours(e.target.value)} // Update state on change
-                      />
-                      <span style={{ marginLeft: '8px' }}>Compulsory OT Hours: {attendanceSummary.ot1CompulsoryHoursSum}</span>
-                    </span>
-                  </div>
-          <div>
-            Total Late Hours: {attendanceSummary.lateHoursSum}
-            <span className="adjustment-container">
+    <TableCell>
+        <div>
+            Total OT-1 Hours: {attendanceSummary.ot1HoursSum}
+            <span className="adjustment-container" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               Adjustments if needed:
               <input
                 type="text"
-                value={adjustedLateTime} // Tied to state variable
-                onChange={(e) => setAdjustedLateTime(e.target.value)} // Update state on change
+                value={adjustedOtHours} // Tied to state variable
+                onChange={(e) => setAdjustedOtHours(e.target.value)} // Update state on change
               />
+              <span style={{ marginLeft: '8px' }}>Compulsory OT Hours: {attendanceSummary.ot1CompulsoryHoursSum}</span>
             </span>
           </div>
-          <button
-            type="button"
-            className="save-button"
-            onClick={handleAdjustedAttendanceSubmit}
-            disabled={saving}
-          >
-            {saving ? 'Saving...' : 'Save'}
-          </button>
-        </TableCell>
+        <div>
+          Total Late Hours: {attendanceSummary.lateHoursSum}
+          <span className="adjustment-container">
+            Adjustments if needed:
+            <input
+              type="text"
+              value={adjustedLateTime} // Tied to state variable
+              onChange={(e) => setAdjustedLateTime(e.target.value)} // Update state on change
+            />
+          </span>
+        </div>
+        <button
+          type="button"
+          className="save-button"
+          onClick={handleAdjustedAttendanceSubmit}
+          disabled={saving}
+        >
+          {saving ? 'Saving...' : 'Save'}
+        </button>
+        <ToastContainer />
+    </TableCell>
 
             </TableRow>
             <TableRow>
