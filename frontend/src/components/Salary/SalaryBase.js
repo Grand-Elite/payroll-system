@@ -38,8 +38,8 @@ function SalaryBase({ selectedMonth, selectedYear }) {
     ot1Rate: '',
     ot2Rate: '',
     workingHours: '',
-    lateChargesPerMin: '0.00',
     compulsoryOt1HoursPerDay: '',
+    lateChargesPerMin: '0.00',
     compulsoryOt1AmountPerDay: '0.0',
     monthlyTotal: '0.0',
     ot1PerHour: '0.0',
@@ -108,10 +108,10 @@ function SalaryBase({ selectedMonth, selectedYear }) {
         ot1Rate: salaryDetails.ot1Rate || '',
         ot2Rate: salaryDetails.ot2Rate || '',
         workingHours : salaryDetails.workingHours || '',
-        lateChargesPerMin: calculateLateChargesPerMin(salaryDetails.basicSalary || 0, salaryDetails.workingHours || 0),
         compulsoryOt1HoursPerDay: salaryDetails.compulsoryOt1HoursPerDay || '',
+        lateChargesPerMin: calculateLateChargesPerMin(salaryDetails.basicSalary || 0, salaryDetails.workingHours || 0),
         compulsoryOt1AmountPerDay: calculateCompulsoryOt1AmountPerDay(salaryDetails.basicSalary || 0, salaryDetails.workingHours || 0, salaryDetails.ot1Rate || 0, salaryDetails.compulsoryOt1HoursPerDay || 0),
-        monthlyTotal: calculateMonthlyTotal( salaryDetails.basicSalary || 0 ,salaryDetails.attendanceAllowance || 0, salaryDetails.transportAllowance || 0, salaryDetails.compulsoryOt1AmountPerDay || 0 , salaryDetails.performanceAllowance || 0),
+        monthlyTotal: calculateMonthlyTotal( salaryDetails.basicSalary || 0 ,salaryDetails.performanceAllowance || 0, salaryDetails.transportAllowance || 0,  salaryDetails.attendanceAllowance || 0, salaryDetails.compulsoryOt1AmountPerDay || 0),
         ot1PerHour: calculateOt1PerHour(salaryDetails.basicSalary || 0, salaryDetails.workingHours || 0 , salaryDetails.ot1Rate || 0),
         ot2SatFullDay : calculateOt2SatFullDay(salaryDetails.basicSalary || 0,  salaryDetails.workingHours || 0, salaryDetails.ot2Rate || 0),
       });
@@ -144,27 +144,73 @@ function SalaryBase({ selectedMonth, selectedYear }) {
     setFormData((prevData) => {
       const updatedData = { ...prevData, [name]: value };
   
-      // Parse updated basicSalary and workingHours
-      const basicSalary = parseFloat(name === 'basicSalary' ? value : prevData.basicSalary) || 0;
-      const workingHours = parseFloat(name === 'workingHours' ? value : prevData.workingHours) || 0;
-      const ot1Rate = parseFloat(name=== 'ot1Rate' ? value : prevData.ot1Rate) || 0;
-      const compulsoryOt1HoursPerDay = parseFloat(name === 'compulsoryOt1HoursPerDay' ? value : prevData.compulsoryOt1HoursPerDay)|| 0;
-      const compulsoryOt1AmountPerDay = parseFloat(name === 'compulsoryOt1AmountPerDay' ? value : prevData.compulsoryOt1AmountPerDay) || 0;
-      const attendanceAllowance = parseFloat(name === 'attendanceAllowance' ? value : prevData.attendanceAllowance)|| 0;
-      const transportAllowance = parseFloat(name === 'transportAllowance' ? value : prevData) || 0 ;
-      const performanceAllowance = parseFloat(name === 'performanceAllowance' ? value : prevData) || 0;
-      const ot2Rate = parseFloat(name === 'ot2Rate' ? value : prevData.ot2Rate) || 0 ;
+      // Parse all inputs
+      const basicSalary = parseFloat(updatedData.basicSalary) || 0;
+      const workingHours = parseFloat(updatedData.workingHours) || 0;
+      const ot1Rate = parseFloat(updatedData.ot1Rate) || 0;
+      const compulsoryOt1HoursPerDay = parseFloat(updatedData.compulsoryOt1HoursPerDay) || 0;
+      const attendanceAllowance = parseFloat(updatedData.attendanceAllowance) || 0;
+      const transportAllowance = parseFloat(updatedData.transportAllowance) || 0;
+      const performanceAllowance = parseFloat(updatedData.performanceAllowance) || 0;
+      const ot2Rate = parseFloat(updatedData.ot2Rate) || 0;
   
-      // Recalculate lateChargesPerMin when either field changes
-      updatedData.lateChargesPerMin = calculateLateChargesPerMin(basicSalary, workingHours);
-      updatedData.compulsoryOt1AmountPerDay = calculateCompulsoryOt1AmountPerDay(basicSalary,workingHours,ot1Rate,compulsoryOt1HoursPerDay);
-      updatedData.monthlyTotal = calculateMonthlyTotal(basicSalary, performanceAllowance, transportAllowance, attendanceAllowance, compulsoryOt1AmountPerDay) || 0;
-      updatedData.ot1PerHour = calculateOt1PerHour(basicSalary, workingHours, ot1Rate) || 0;
-      updatedData.ot2SatFullDay = calculateOt2SatFullDay(basicSalary, workingHours, ot2Rate) || 0 ; 
+      switch (name) {
+        case 'basicSalary':
+        case 'workingHours':
+          updatedData.lateChargesPerMin = calculateLateChargesPerMin(basicSalary, workingHours);
+          updatedData.compulsoryOt1AmountPerDay = calculateCompulsoryOt1AmountPerDay(basicSalary, workingHours, ot1Rate, compulsoryOt1HoursPerDay);
+          updatedData.ot1PerHour = calculateOt1PerHour(basicSalary, workingHours, ot1Rate);
+          updatedData.ot2SatFullDay = calculateOt2SatFullDay(basicSalary, workingHours, ot2Rate);
+  
+          // Update monthlyTotal after calculating compulsoryOt1AmountPerDay
+          updatedData.monthlyTotal = calculateMonthlyTotal(
+            basicSalary,
+            performanceAllowance,
+            transportAllowance,
+            attendanceAllowance,
+            updatedData.compulsoryOt1AmountPerDay
+          );
+          break;
+  
+        case 'ot1Rate':
+        case 'compulsoryOt1HoursPerDay':
+          updatedData.compulsoryOt1AmountPerDay = calculateCompulsoryOt1AmountPerDay(basicSalary, workingHours, ot1Rate, compulsoryOt1HoursPerDay);
+  
+          // Update monthlyTotal after calculating compulsoryOt1AmountPerDay
+          updatedData.monthlyTotal = calculateMonthlyTotal(
+            basicSalary,
+            performanceAllowance,
+            transportAllowance,
+            attendanceAllowance,
+            updatedData.compulsoryOt1AmountPerDay
+          );
+          break;
+  
+        case 'attendanceAllowance':
+        case 'transportAllowance':
+        case 'performanceAllowance':
+          // Use the existing value of compulsoryOt1AmountPerDay
+          updatedData.monthlyTotal = calculateMonthlyTotal(
+            basicSalary,
+            performanceAllowance,
+            transportAllowance,
+            attendanceAllowance,
+            updatedData.compulsoryOt1AmountPerDay
+          );
+          break;
+  
+        case 'ot2Rate':
+          updatedData.ot2SatFullDay = calculateOt2SatFullDay(basicSalary, workingHours, ot2Rate);
+          break;
+  
+        default:
+          break;
+      }
   
       return updatedData;
     });
   };
+    
   
 
 
@@ -194,8 +240,8 @@ const calculateCompulsoryOt1AmountPerDay = (basicSalary, workingHours, ot1Rate, 
   return result;
 };
 
-const calculateMonthlyTotal = (basicSalary, compulsoryOt1AmountPerDay, attendanceAllowance, transportAllowance,performanceAllowance) => {
-  let result = (basicSalary+performanceAllowance +(26*(transportAllowance+attendanceAllowance+compulsoryOt1AmountPerDay)));
+const calculateMonthlyTotal = (basicSalary, performanceAllowance, transportAllowance,attendanceAllowance, compulsoryOt1AmountPerDay) => {
+  let result = ((basicSalary + performanceAllowance) +(26*(transportAllowance+attendanceAllowance+compulsoryOt1AmountPerDay)));
   result = parseFloat(result.toFixed(2)); // Round to 2 decimal places and convert to number
   return result;
 };
