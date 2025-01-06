@@ -42,4 +42,18 @@ public class SalaryBase {
     @Column(name="working_hours")
     private Double workingHours;
 
+    @Column(name="compulsory_ot_1_hours_per_day")
+    private Double compulsoryOt1HoursPerDay;
+
+    @Column(name="compulsory_ot_1_amount_per_day")
+    private  Double compulsoryOt1AmountPerDay;
+
+    @Column(name="monthly_total")
+    private Double monthlyTotal;
+
+    @Column(name= "ot_1_per_hour")
+    private Double ot1PerHour;
+
+    @Column(name="ot_2_sat_full_day")
+    private Double ot2SatFullDay;
 }

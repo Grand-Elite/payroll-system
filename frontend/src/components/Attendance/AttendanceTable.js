@@ -576,7 +576,6 @@ const handleAdjustedAttendanceSubmit = async () => {
               <TableCell>Total No. of Saturday Attendance</TableCell>
               <TableCell>{attendanceSummary.saturdayWorkedCount}</TableCell>
             </TableRow>
-
           </TableBody>
         </Table>
       </Box>
@@ -601,6 +600,7 @@ const handleAdjustedAttendanceSubmit = async () => {
               key={index}
               style={{
                 backgroundColor:
+                  day.attendanceStatus !== 'ab' &&  day.attendanceStatus !== '1'  &&  day.attendanceStatus !== '0.5'? '#ffbaba' : 
                   day.dayOfWeek === 0 || day.dayOfWeek === 6 ? '#f5f5f5' : 'inherit',
               }}
             >

@@ -127,18 +127,20 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
                         attendanceSummary.getPoyaNotSaturdayWorkedCount(), 0D);
                 double basicSalary = Objects.requireNonNullElse(salaryBase.getBasicSalary(), 0D);
                 double workingHours = Objects.requireNonNullElse(salaryBase.getWorkingHours(), 1D); // Avoid division by zero
+                double ot2Rate = Objects.requireNonNullElse(salaryBase.getOt2Rate(), 1D);
+                double saturdayOt2Amount =Objects.requireNonNullElse(saturdayWorkedCount * ((basicSalary * ot2Rate * 3) / workingHours), 1D);
 
                 if (poyaOnSaturdayWorkedCount != 0D) {
                     // If the Poya day is a Saturday, then consider Poya Day OT formula for that day
                     mfs.setOt2((basicSalary / (30 * 2)) +
-                            ((saturdayWorkedCount - 1) * ((basicSalary * 1.5 * 3) / workingHours)));
+                            ((saturdayWorkedCount - 1) * ((basicSalary * ot2Rate * 3) / workingHours)));
                 } else {
                     if (poyaNotSaturdayWorkedCount != 0D) { // To check whether the employee worked on Poya Day
                         // If the employee worked on the Poya day
                         mfs.setOt2((basicSalary / (30 * 2)) +
-                                (saturdayWorkedCount * ((basicSalary * 1.5 * 3) / workingHours)));
+                                (saturdayOt2Amount));
                     } else { // If the employee did not work on the Poya day
-                        mfs.setOt2((saturdayWorkedCount * ((basicSalary * 1.5 * 3) / workingHours)));
+                        mfs.setOt2((saturdayOt2Amount));
                     }
                 }
             } else { // Temporary Employees

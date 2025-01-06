@@ -45,7 +45,11 @@ public class SalaryServiceImpl implements SalaryService {
         defaultSalaryBase.setOt2Rate(0.0);
         defaultSalaryBase.setWorkingHours(0.0);
         defaultSalaryBase.setLateChargesPerMin(0.0);
-
+        defaultSalaryBase.setCompulsoryOt1HoursPerDay(0.0);
+        defaultSalaryBase.setCompulsoryOt1AmountPerDay(0.0);
+        defaultSalaryBase.setMonthlyTotal(0.0);
+        defaultSalaryBase.setOt1PerHour(0.0);
+        defaultSalaryBase.setOt2SatFullDay(0.0);
         return defaultSalaryBase;
     }
 
@@ -64,6 +68,11 @@ public class SalaryServiceImpl implements SalaryService {
             existingSalaryBase.setOt2Rate(updatedSalaryDetails.getOt2Rate());
             existingSalaryBase.setWorkingHours(updatedSalaryDetails.getWorkingHours());
             existingSalaryBase.setLateChargesPerMin(updatedSalaryDetails.getLateChargesPerMin());
+            existingSalaryBase.setCompulsoryOt1HoursPerDay(updatedSalaryDetails.getCompulsoryOt1HoursPerDay());
+            existingSalaryBase.setCompulsoryOt1AmountPerDay(updatedSalaryDetails.getCompulsoryOt1AmountPerDay());
+            existingSalaryBase.setMonthlyTotal(updatedSalaryDetails.getMonthlyTotal());
+            existingSalaryBase.setOt1PerHour(updatedSalaryDetails.getOt1PerHour());
+            existingSalaryBase.setOt2SatFullDay(updatedSalaryDetails.getOt2SatFullDay());
             salaryRepository.save(existingSalaryBase);
             return "Salary details updated successfully!";
         } else {

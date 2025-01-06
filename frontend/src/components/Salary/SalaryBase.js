@@ -39,6 +39,11 @@ function SalaryBase({ selectedMonth, selectedYear }) {
     ot2Rate: '',
     workingHours: '',
     lateChargesPerMin: '0.00',
+    compulsoryOt1HoursPerDay: '',
+    compulsoryOt1AmountPerDay: '0.0',
+    monthlyTotal: '0.0',
+    ot1PerHour: '0.0',
+    ot2SatFullDay: '0.0',
 
   });
 
@@ -104,7 +109,11 @@ function SalaryBase({ selectedMonth, selectedYear }) {
         ot2Rate: salaryDetails.ot2Rate || '',
         workingHours : salaryDetails.workingHours || '',
         lateChargesPerMin: calculateLateChargesPerMin(salaryDetails.basicSalary || 0, salaryDetails.workingHours || 0),
-
+        compulsoryOt1HoursPerDay: salaryDetails.compulsoryOt1HoursPerDay || '',
+        compulsoryOt1AmountPerDay: calculateCompulsoryOt1AmountPerDay(salaryDetails.basicSalary || 0, salaryDetails.workingHours || 0, salaryDetails.ot1Rate || 0, salaryDetails.compulsoryOt1HoursPerDay || 0),
+        monthlyTotal: calculateMonthlyTotal( salaryDetails.basicSalary || 0 ,salaryDetails.attendanceAllowance || 0, salaryDetails.transportAllowance || 0, salaryDetails.compulsoryOt1AmountPerDay || 0 , salaryDetails.performanceAllowance || 0),
+        ot1PerHour: calculateOt1PerHour(salaryDetails.basicSalary || 0, salaryDetails.workingHours || 0 , salaryDetails.ot1Rate || 0),
+        ot2SatFullDay : calculateOt2SatFullDay(salaryDetails.basicSalary || 0,  salaryDetails.workingHours || 0, salaryDetails.ot2Rate || 0),
       });
 
       setMonthlyData({
@@ -138,9 +147,20 @@ function SalaryBase({ selectedMonth, selectedYear }) {
       // Parse updated basicSalary and workingHours
       const basicSalary = parseFloat(name === 'basicSalary' ? value : prevData.basicSalary) || 0;
       const workingHours = parseFloat(name === 'workingHours' ? value : prevData.workingHours) || 0;
+      const ot1Rate = parseFloat(name=== 'ot1Rate' ? value : prevData.ot1Rate) || 0;
+      const compulsoryOt1HoursPerDay = parseFloat(name === 'compulsoryOt1HoursPerDay' ? value : prevData.compulsoryOt1HoursPerDay)|| 0;
+      const compulsoryOt1AmountPerDay = parseFloat(name === 'compulsoryOt1AmountPerDay' ? value : prevData.compulsoryOt1AmountPerDay) || 0;
+      const attendanceAllowance = parseFloat(name === 'attendanceAllowance' ? value : prevData.attendanceAllowance)|| 0;
+      const transportAllowance = parseFloat(name === 'transportAllowance' ? value : prevData) || 0 ;
+      const performanceAllowance = parseFloat(name === 'performanceAllowance' ? value : prevData) || 0;
+      const ot2Rate = parseFloat(name === 'ot2Rate' ? value : prevData.ot2Rate) || 0 ;
   
       // Recalculate lateChargesPerMin when either field changes
       updatedData.lateChargesPerMin = calculateLateChargesPerMin(basicSalary, workingHours);
+      updatedData.compulsoryOt1AmountPerDay = calculateCompulsoryOt1AmountPerDay(basicSalary,workingHours,ot1Rate,compulsoryOt1HoursPerDay);
+      updatedData.monthlyTotal = calculateMonthlyTotal(basicSalary, performanceAllowance, transportAllowance, attendanceAllowance, compulsoryOt1AmountPerDay) || 0;
+      updatedData.ot1PerHour = calculateOt1PerHour(basicSalary, workingHours, ot1Rate) || 0;
+      updatedData.ot2SatFullDay = calculateOt2SatFullDay(basicSalary, workingHours, ot2Rate) || 0 ; 
   
       return updatedData;
     });
@@ -165,6 +185,39 @@ const calculateLateChargesPerMin = (basicSalary, workingHours) => {
   return result;
 };
 
+const calculateCompulsoryOt1AmountPerDay = (basicSalary, workingHours, ot1Rate, compulsoryOt1HoursPerDay) => {
+  if (workingHours === 0) {
+    return 0; // Avoid division by zero
+  }
+  let result = ((basicSalary / workingHours )* ot1Rate* compulsoryOt1HoursPerDay);
+  result = parseFloat(result.toFixed(2)); // Round to 2 decimal places and convert to number
+  return result;
+};
+
+const calculateMonthlyTotal = (basicSalary, compulsoryOt1AmountPerDay, attendanceAllowance, transportAllowance,performanceAllowance) => {
+  //let result = (((attendanceAllowance+transportAllowance+compulsoryOt1AmountPerDay)*26)+(basicSalary+performanceAllowance));
+  let result = (basicSalary+performanceAllowance +(26*(transportAllowance+attendanceAllowance+compulsoryOt1AmountPerDay)));
+  result = parseFloat(result.toFixed(2)); // Round to 2 decimal places and convert to number
+  return result;
+};
+
+const calculateOt1PerHour = (basicSalary, workingHours,ot1Rate) => {
+  if (workingHours === 0) {
+    return 0; // Avoid division by zero
+  }
+  let result = ((basicSalary/workingHours)*ot1Rate);
+  result = parseFloat(result.toFixed(2)); // Round to 2 decimal places and convert to number
+  return result;
+};
+
+const calculateOt2SatFullDay = (basicSalary, workingHours,ot2Rate) => {
+  if (workingHours === 0) {
+    return 0; // Avoid division by zero
+  }
+  let result = ((basicSalary/workingHours)*ot2Rate*3);
+  result = parseFloat(result.toFixed(2)); // Round to 2 decimal places and convert to number
+  return result;
+};
 
 
   const handleSalaryBaseSubmit = async () => {
@@ -270,7 +323,7 @@ const calculateLateChargesPerMin = (basicSalary, workingHours) => {
                 {/* Left Column: Salary Base Updates */}
                 <Grid item xs={5}>
                   <h3 style={{ marginBottom: '10px' }}>Salary Base Updates</h3>
-                  {['basicSalary', 'attendanceAllowance', 'transportAllowance', 'performanceAllowance', 'ot1Rate', 'ot2Rate', 'workingHours', 'lateChargesPerMin'].map((field) => (
+                  {['basicSalary', 'attendanceAllowance', 'transportAllowance', 'performanceAllowance', 'ot1Rate', 'ot2Rate', 'workingHours', 'compulsoryOt1HoursPerDay','lateChargesPerMin','compulsoryOt1AmountPerDay' ,'monthlyTotal', 'ot1PerHour', 'ot2SatFullDay'].map((field) => (
                     <Grid container spacing={1} alignItems="center" key={field}>
                       <Grid item xs={5}>
                         <Typography variant="subtitle1">
@@ -285,13 +338,19 @@ const calculateLateChargesPerMin = (basicSalary, workingHours) => {
                           name={field}
                           value={formData[field]}
                           onChange={handleFormChange}
-                          disabled={field === 'lateChargesPerMin'}
+                          disabled={field === 'lateChargesPerMin'|| 
+                                    field === 'monthlyTotal'||
+                                    field === 'compulsoryOt1AmountPerDay' ||
+                                    field === 'ot1PerHour' ||
+                                    field === 'ot2SatFullDay'
+                                  }
                            size="small"
                            sx={{ marginBottom: '16px' }}
                         />
                       </Grid>
                     </Grid>
                   ))}
+                 
                   <Button
                     variant="contained"
                     onClick={handleSalaryBaseSubmit}
