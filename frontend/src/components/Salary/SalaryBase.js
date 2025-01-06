@@ -195,7 +195,6 @@ const calculateCompulsoryOt1AmountPerDay = (basicSalary, workingHours, ot1Rate, 
 };
 
 const calculateMonthlyTotal = (basicSalary, compulsoryOt1AmountPerDay, attendanceAllowance, transportAllowance,performanceAllowance) => {
-  //let result = (((attendanceAllowance+transportAllowance+compulsoryOt1AmountPerDay)*26)+(basicSalary+performanceAllowance));
   let result = (basicSalary+performanceAllowance +(26*(transportAllowance+attendanceAllowance+compulsoryOt1AmountPerDay)));
   result = parseFloat(result.toFixed(2)); // Round to 2 decimal places and convert to number
   return result;
