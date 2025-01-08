@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 
 public interface OverwrittenMonthlyAttendanceSummaryService {
     ResponseEntity<String> saveAdjustedAttendanceSummary(
-            String employeeId, String year, String month, Long adjustedLateTime, Long adjustedOtHours);
+            String employeeId, String year, String month, Double adjustedLateTime, Double adjustedOtHours);
 
     ResponseEntity<Object> getAdjustedAttendanceSummary(Long employeeId, String year, String month);
 }

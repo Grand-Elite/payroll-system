@@ -21,10 +21,10 @@ public class OverwrittenMonthlyAttendanceSummary {
     private Employee employee;
 
     @Column(name="adjusted_late_time")
-    private Long adjustedLateTime;
+    private Double adjustedLateTime;
 
     @Column(name="adjusted_ot_hours")
-    private Long adjustedOtHours;
+    private Double adjustedOtHours;
 
     @Column(name="year", nullable = false)
     private String year;

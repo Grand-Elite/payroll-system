@@ -92,8 +92,8 @@ public class OverwrittenMonthlyAttendanceSummaryController {
             @RequestParam("employeeId") String employeeId,
             @RequestParam("year") String year,
             @RequestParam("month") String month,
-            @RequestParam(value = "adjustedLateTime", defaultValue = "0") Long adjustedLateTime,
-            @RequestParam(value = "adjustedOtHours", defaultValue = "0") Long adjustedOtHours) {
+            @RequestParam(value = "adjustedLateTime", defaultValue = "0") Double adjustedLateTime,
+            @RequestParam(value = "adjustedOtHours", defaultValue = "0") Double adjustedOtHours) {
         return attendanceSummaryService.saveAdjustedAttendanceSummary(employeeId, year, month, adjustedLateTime, adjustedOtHours);
     }
 

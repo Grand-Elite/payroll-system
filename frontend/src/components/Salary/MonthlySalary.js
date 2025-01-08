@@ -11,11 +11,9 @@ import {
 import {
   fetchEmployees,
   getMonthlyFullSalary,
-  fetchAttendance,
   getPaySheet,
   getAllPaySheets
 } from '../../services/api';
-import dayjs from 'dayjs';
 
 function MonthlySalary({ selectedMonth, selectedYear }) {
     const [employees, setEmployees] = useState([]);
@@ -23,8 +21,6 @@ function MonthlySalary({ selectedMonth, selectedYear }) {
     const [loadingEmployees, setLoadingEmployees] = useState(false);
     const [loadingSalaryDetails, setLoadingSalaryDetails] = useState(false);
     const [salaryDetailsNotFound, setSalaryDetailsNotFound] = useState(false);
-    const [loadingAttendance, setLoadingAttendance] = useState(false);
-    const [totalWorkingDays, setTotalWorkingDays] = useState(0);
 
     const [formData, setFormData] = useState({
       basic: '',
@@ -115,7 +111,6 @@ function MonthlySalary({ selectedMonth, selectedYear }) {
         if (!employee) {
           setSelectedEmployee(null);
           setSalaryDetailsNotFound(false);
-          setTotalWorkingDays(0);
           return;
         }
       
@@ -165,37 +160,7 @@ function MonthlySalary({ selectedMonth, selectedYear }) {
           setSalaryDetailsNotFound(true);
         } finally {
           setLoadingSalaryDetails(false);
-        }
-      
-        // Fetch attendance data and calculate total working days
-        setLoadingAttendance(true);
-        try {
-          const attendanceData = await fetchAttendance(employee.employeeId,selectedYear,selectedMonth);
-      
-          // Filter attendance data based on selected month and year
-          const filteredAttendanceData = attendanceData.filter((record) => {
-            const recordDate = dayjs(record.date);
-            return (
-              recordDate.format("MMMM") === selectedMonth &&
-              recordDate.year() === parseInt(selectedYear, 10)
-            );
-          });
-      
-          // Calculate total working days
-          const totalDays = filteredAttendanceData.reduce((total, record) => {
-            const status = record.attendance;
-            if (status === '1') return total + 1; // Full day
-            if (status === '0.5') return total + 0.5; // Half day
-            return total; // Skip invalid or absent statuses
-          }, 0);
-      
-          setTotalWorkingDays(totalDays);
-        } catch (error) {
-          console.error('Error fetching attendance data:', error);
-          setTotalWorkingDays(0);
-        } finally {
-          setLoadingAttendance(false);
-        }
+        }     
       }, [selectedMonth, selectedYear]);
       
       
@@ -267,10 +232,6 @@ function MonthlySalary({ selectedMonth, selectedYear }) {
               <Typography>{getEmployeeProperty('epfNo')}</Typography>
             </div>
 
-            <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center' }}>
-              <Typography style={{ fontWeight: 'bold', marginRight: '20px' }}>No. of Days Worked in {selectedMonth}:</Typography>
-              {loadingAttendance ? <CircularProgress size={20} /> : <Typography>{totalWorkingDays}</Typography>}
-            </div>
           </Box>
         ) : (
           <Typography color="textSecondary" variant="body1" mt={2}>

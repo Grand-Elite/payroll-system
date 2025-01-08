@@ -107,7 +107,7 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
                     Objects.requireNonNullElse(
                             overwrittenMonthlyAttendanceSummary
                                     .map(OverwrittenMonthlyAttendanceSummary::getAdjustedOtHours)
-                                    .orElse(0L), 0L
+                                    .orElse(0D), 0D
                     ) * 60 * (
                             (salaryBase.getBasicSalary() *
                                     Objects.requireNonNullElse(salaryBase.getOt1Rate(), 0.0)) /
@@ -224,7 +224,7 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
             mfs.setLateCharges(
                     overwrittenMonthlyAttendanceSummary
                             .map(OverwrittenMonthlyAttendanceSummary::getAdjustedLateTime)
-                            .orElse(0L) * 60 * salaryBase.getLateChargesPerMin()
+                            .orElse(0D) * 60 * salaryBase.getLateChargesPerMin()
             );
 
             //Other Deduction (Direct Value)

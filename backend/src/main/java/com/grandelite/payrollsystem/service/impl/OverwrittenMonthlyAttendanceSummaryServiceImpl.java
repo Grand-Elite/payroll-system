@@ -22,7 +22,7 @@ public class OverwrittenMonthlyAttendanceSummaryServiceImpl implements Overwritt
 
     @Override
     public ResponseEntity<String> saveAdjustedAttendanceSummary(
-            String employeeId, String year, String month, Long adjustedLateTime, Long adjustedOtHours) {
+            String employeeId, String year, String month, Double adjustedLateTime, Double adjustedOtHours) {
 
         // Validate parameters
         if (employeeId == null || year == null || month == null) {
