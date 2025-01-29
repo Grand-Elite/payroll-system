@@ -207,9 +207,6 @@ export const getSalaryDetailByEmployeeId = async (employeeId) =>{
 };
 
 
-
-
-
 export const getMonthlyFullSalary = async (employeeId, year, month) => {
   try {
     const response = await fetch(
@@ -379,6 +376,25 @@ export const getMonthlySalaryDetails = async (employeeId, year, month) => {
     return {}; // Return empty object in case of error
   }
 };
+
+
+export const getMonthlySalaryDetailsForAll = async (year, month) => {
+  try {
+    const response = await fetch(`/api/monthly-full-salary/year/${year}/month/${month}`);
+    
+    if (!response.ok) {
+      console.error(`Failed to fetch salary details: ${response.statusText}`);
+      return []; // Return an empty array if the response fails
+    }
+
+    const data = await response.json();
+    return data; // Directly return the list of employee salary details
+  } catch (error) {
+    console.error("Error fetching salary details:", error);
+    return []; // Return an empty array in case of an error
+  }
+};
+
 
 
 export const fetchLeaveDetails = async (employeeId, year) => {

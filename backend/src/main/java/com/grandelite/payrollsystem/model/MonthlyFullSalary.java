@@ -1,8 +1,12 @@
 package com.grandelite.payrollsystem.model;
 
+
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CollectionId;
+
+import java.util.List;
+import java.util.Map;
 
 
 @Entity
@@ -16,6 +20,7 @@ public class MonthlyFullSalary {
 
     @ManyToOne
     @JoinColumn(name="employee_id",nullable = false)
+
     private Employee employee;
 
     @Column(name="year",nullable = false)

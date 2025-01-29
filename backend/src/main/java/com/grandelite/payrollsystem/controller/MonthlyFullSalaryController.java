@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api")
 public class MonthlyFullSalaryController {
@@ -23,4 +25,16 @@ public class MonthlyFullSalaryController {
         MonthlyFullSalary monthlyFullSalary = monthlyFullSalaryService.getMonthlyFullSalary(employeeId,year,month);
         return ResponseEntity.ok(monthlyFullSalary);
     }
+
+    @GetMapping("/monthly-full-salary/year/{year}/month/{month}")
+    public ResponseEntity<List<MonthlyFullSalary>> getMonthlySalaryDetailsForAll(
+            @PathVariable String year, @PathVariable String month) {
+        System.out.println("Received year: " + year + " and month: " + month); // Log to check values
+        List<MonthlyFullSalary> salaryDetails = monthlyFullSalaryService.getMonthlySalaryDetailsForAll(year, month);
+        return ResponseEntity.ok(salaryDetails);
+    }
+
+
+
+
 }

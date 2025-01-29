@@ -14,6 +14,8 @@ import SalaryBase from './components/Salary/SalaryBase';
 import MonthlySalary from './components/Salary/MonthlySalary';
 import HolidayCalendar from './components/Holiday/HolidayCalendar';
 import Leaves from './components/Leaves/Leaves'
+import EpfGenerater from './components/EpfReport/EpfGenerater';
+import SalaryPaymentSummary from './components/Summary/SalaryPaymentSummary';
 
 //import 'bootstrap/dist/css/bootstrap.min.css';
 import { useState } from 'react';
@@ -87,6 +89,8 @@ function App() {
             <Route path="/salary-base" element={<SalaryBase selectedMonth={selectedMonth} selectedYear={selectedYear} />} />
             <Route path="/holiday-calendar" element={<HolidayCalendar />}/>
             <Route path="/leaves" element={<Leaves  selectedYear={selectedYear} />} />
+            <Route path="/salary-payment-summary" element={<SalaryPaymentSummary selectedMonth={selectedMonth} selectedYear={selectedYear}/>} />
+            <Route path="/epf" element={<EpfGenerater />} />
             
           </Routes>
         </div>

@@ -9,10 +9,7 @@ import org.springframework.stereotype.Service;
 import java.time.Month;
 import java.time.Year;
 import java.time.format.TextStyle;
-import java.util.Locale;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
@@ -45,6 +42,16 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
     public MonthlyFullSalary getMonthlyFullSalary(Long employeeId, String year, String month) {
         return monthlyFullSalaryRepository.findByEmployeeIdYearMonth(employeeId, year, month);
     }
+
+    public List<MonthlyFullSalary> getMonthlySalaryDetailsForAll(String year, String month) {
+        // Your query logic here
+        System.out.println("Querying salary data for year: " + year + " and month: " + month);
+        List<MonthlyFullSalary> salaryDetails = monthlyFullSalaryRepository.findByYearMonth(year, month);
+        System.out.println("Fetched salary details: " + salaryDetails);
+        return salaryDetails;
+    }
+
+
 
     @Override
     public void calculateMonthlyFullSalary(Long employeeId, String year, int month) {

@@ -32,11 +32,16 @@ function Sidebar() {
       <button>Holiday Calendar</button>
       </Link>
 
-      
+      <Link to="/epf">
       <button>EPF</button>
+      </Link>
+      
       <button>ETF</button>
       <button>Service Charges</button>
-      <button>Summary</button>
+
+      <Link to="/salary-payment-summary">
+      <button>Salary Payment Summary</button>
+      </Link>
     </div>
   );
 }
