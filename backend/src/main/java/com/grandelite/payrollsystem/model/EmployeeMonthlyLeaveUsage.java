@@ -36,7 +36,7 @@ public class EmployeeMonthlyLeaveUsage {
     private Long other;
 
     @Column(name="no_pay_leaves")
-    private Long noPayLeaves;
+    private Double noPayLeaves;
 
     @Column(name="monthly_mandatory_leaves")
     private Long monthlyMandatoryLeaves;

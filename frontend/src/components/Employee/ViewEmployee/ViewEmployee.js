@@ -12,7 +12,8 @@ function ViewEmployee() {
         nicNo: '',
         employeeType: '',
         epfNo: '',
-        joiningDate: ''
+        joiningDate: '',
+        note: ''
     });
 
 
@@ -86,6 +87,11 @@ function ViewEmployee() {
                 <div className='employee-detail' style={{ marginBottom: '20px', paddingBottom: '10px', borderBottom: '1px dashed #ccc' }}>
                     <label style={{ display: 'inline-block', width: '200px' }}><strong>Joining Date:</strong></label>
                     <span>{formatValue(employeeData.joiningDate)}</span>
+                </div>
+
+                <div className='employee-detail' style={{ marginBottom: '20px', paddingBottom: '10px', borderBottom: '1px dashed #ccc' }}>
+                    <label style={{ display: 'inline-block', width: '200px' }}><strong>Special Notes:</strong></label>
+                    <span>{formatValue(employeeData.note)}</span>
                 </div>
             </div>
         </div>

@@ -54,6 +54,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (employee.getEmployeeType() != null) existingEmployee.setEmployeeType(employee.getEmployeeType());
         if (employee.getEpfNo() != null) existingEmployee.setEpfNo(employee.getEpfNo());
         if (employee.getJoiningDate() != null) existingEmployee.setJoiningDate(employee.getJoiningDate()); // Update joiningDate
+        if (employee.getNote() != null) existingEmployee.setNote(employee.getNote());   //update the notes
 
         // Save the updated employee back to the database
         return employeeRepository.save(existingEmployee);

@@ -28,6 +28,7 @@ import {
 
 
 
+
 function App() {
   // State for selected month and year
   const [selectedMonth, setSelectedMonth] = useState(dayjs().format("MMMM"));
@@ -90,7 +91,7 @@ function App() {
             <Route path="/holiday-calendar" element={<HolidayCalendar />}/>
             <Route path="/leaves" element={<Leaves  selectedYear={selectedYear} />} />
             <Route path="/salary-payment-summary" element={<SalaryPaymentSummary selectedMonth={selectedMonth} selectedYear={selectedYear}/>} />
-            <Route path="/epf" element={<EpfGenerater />} />
+            <Route path="/epf" element={<EpfGenerater selectedMonth={selectedMonth} selectedYear={selectedYear}/>} />
             
           </Routes>
         </div>

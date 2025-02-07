@@ -90,6 +90,11 @@ function Employee() {
                         View
                       </button>
                       </Link>
+                      <Link to={`/update-employee/${employee.employeeId}`}>
+                        <button className="btn-custom-update" style={{ marginLeft: '10px' , backgroundColor:"#343a40"}}>
+                       Notes
+                      </button>
+                      </Link>
                     </div>
                   ) : (
                     <span>Inactive</span>

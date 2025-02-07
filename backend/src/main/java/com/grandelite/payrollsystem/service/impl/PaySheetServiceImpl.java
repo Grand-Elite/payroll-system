@@ -116,7 +116,7 @@ public class PaySheetServiceImpl implements PaySheetService {
 
         table.addCell(getCell("EPF No."));
         table.addCell(getCell(":"));
-        table.addCell(getCell(employee.getEpfNo() != null ? String.valueOf(Double.valueOf(employee.getEpfNo())) : ""));
+        table.addCell(getCell(employee.getEpfNo() != null ? String.format("%d", Double.valueOf(employee.getEpfNo()).longValue()) : ""));
 
         table.addCell(getCell("Year/Month"));
         table.addCell(getCell(":"));
@@ -166,6 +166,10 @@ public class PaySheetServiceImpl implements PaySheetService {
         table.addCell(getCell(":"));
         table.addCell(getCell(mfs.getIncentives()));
 
+        table.addCell(getCell("Encouragement Allowance"));
+        table.addCell(":");
+        table.addCell(getCellSingleBorder(mfs.getServiceAllowance()));
+
         table.addCell(getCell("Total Allowance"));
         table.addCell(getCell(":"));
         table.addCell(getCellSingleBorder(mfs.getTotalAllowance()));
@@ -173,10 +177,6 @@ public class PaySheetServiceImpl implements PaySheetService {
         table.addCell(getCell("Total Monthly Salary"));
         table.addCell(getCell(":"));
         table.addCell(getCellSingleBorder(mfs.getTotalMonthlySalary()));
-
-        table.addCell(getCell("EPF 8%"));
-        table.addCell(getCell(":"));
-        table.addCell(getCell(mfs.getEpfEmployeeAmount()));
 
         table.addCell(getCell("Salary Advance"));
         table.addCell(getCell(":"));
@@ -202,18 +202,24 @@ public class PaySheetServiceImpl implements PaySheetService {
         table.addCell(getCell(":"));
         table.addCell(getCellSingleBorder(mfs.getNetSalary()));
 
-        table.addCell(getCell("EPF Total"));
-        table.addCell(getCell(":"));
-        table.addCell(getCell(mfs.getEpfTotal()));
+        // Only add EPF-related rows if EPF No. is not null
+        if (employee.getEpfNo() != null) {
+            table.addCell(getCell("EPF 8%"));
+            table.addCell(getCell(":"));
+            table.addCell(getCell(mfs.getEpfEmployeeAmount()));
 
-        table.addCell(getCell("Company Contribution EPF 12%"));
-        table.addCell(getCell(":"));
-        table.addCell(getCell(mfs.getEpfCompanyAmount()));
+            table.addCell(getCell("EPF Total"));
+            table.addCell(getCell(":"));
+            table.addCell(getCell(mfs.getEpfTotal()));
 
-        table.addCell(getCell("Company Contribution ETF 3%"));
-        table.addCell(getCell(":"));
-        table.addCell((getCellSingleBorder(mfs.getEtfCompanyAmount())));
+            table.addCell(getCell("Company Contribution EPF 12%"));
+            table.addCell(getCell(":"));
+            table.addCell(getCell(mfs.getEpfCompanyAmount()));
 
+            table.addCell(getCell("Company Contribution ETF 3%"));
+            table.addCell(getCell(":"));
+            table.addCell(getCellSingleBorder(mfs.getEtfCompanyAmount()));
+        }
         return table;
     }
 
@@ -284,9 +290,6 @@ public class PaySheetServiceImpl implements PaySheetService {
                 .setBorderBottom(new SolidBorder(0.1f)) // Add single bottom border
                 .setFontSize(5);
     }
-
-
-
 
     private Cell getCell(String str) {
         return new Cell().add(new Paragraph(str).setFontSize(5))

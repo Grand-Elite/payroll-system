@@ -54,4 +54,7 @@ public class Employee {
 
     @Column(name = "joining_date")
     private LocalDate joiningDate;
+
+    @Column(name = "Note")
+    private String note;
 }

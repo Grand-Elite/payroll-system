@@ -16,6 +16,7 @@ function AddNewEmployee() {
     const [employeeType, setEmployeeType] = useState('');
     const [epfNo, setEpfNo] = useState('');
     const [joiningDate, setJoiningDate] = useState(''); // New state for Joining Date input
+    const [note, setNote] = useState('');
     const [lastEmployeeId, setLastEmployeeId] = useState(null); // State for displaying the last employee ID
 
     const departments = [
@@ -73,6 +74,7 @@ const handleSubmit = async (e) => {
         employeeType,
         epfNo: employeeType === 'PERMANENT' ? epfNo : '', // Include EPF No if Permanent
         joiningDate, // Include Joining Date
+        note,
         status: "ACTIVE"
     };
 
@@ -99,6 +101,7 @@ const handleSubmit = async (e) => {
     setEmployeeType('');
     setEpfNo('');
     setJoiningDate('');
+    setNote('');
 };
 
 
@@ -235,6 +238,19 @@ const handleSubmit = async (e) => {
                         />
                     </label>
                 </div>
+
+                <div className='add-new-employee'>
+                    <label>
+                        <span>Special Notes:</span>
+                        <textarea
+                            value={note}
+                            onChange={(e) => setNote(e.target.value)}
+                            rows="4"
+                            cols="50" // Adjust as needed
+                        />
+                    </label>
+                </div>
+
 
                 <button type="submit" className="add-button">Add</button>
                 {error && <p style={{ color: 'red' }}>{error}</p>}

@@ -29,7 +29,6 @@ public class MonthlyFullSalaryController {
     @GetMapping("/monthly-full-salary/year/{year}/month/{month}")
     public ResponseEntity<List<MonthlyFullSalary>> getMonthlySalaryDetailsForAll(
             @PathVariable String year, @PathVariable String month) {
-        System.out.println("Received year: " + year + " and month: " + month); // Log to check values
         List<MonthlyFullSalary> salaryDetails = monthlyFullSalaryService.getMonthlySalaryDetailsForAll(year, month);
         return ResponseEntity.ok(salaryDetails);
     }

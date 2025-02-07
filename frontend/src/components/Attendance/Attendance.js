@@ -78,7 +78,7 @@ const handleEmployeeChange = (newValue) => {
             </Typography>
             <br />
             <Typography variant="body1" align="left" gutterBottom style={{ width: '100%' }}>
-              <span>{`Employee Name: ${selectedEmployee.shortName}`}</span>
+              <span>{`Employee Name: ${selectedEmployee.fullName}`}</span>
             </Typography>
 
             {/* Display shift details */}

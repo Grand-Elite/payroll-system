@@ -50,6 +50,7 @@ function SalaryBase({ selectedMonth, selectedYear }) {
   const [monthlyData, setMonthlyData] = useState({
     bonus: '',
     incentives: '',
+    serviceAllowance: '',
     salaryAdvance: '',
     foodBill: '',
     arrears: '',
@@ -119,6 +120,7 @@ function SalaryBase({ selectedMonth, selectedYear }) {
       setMonthlyData({
         bonus: monthlySalaryDetails.bonus || '',
         incentives: monthlySalaryDetails.incentives || '',
+        serviceAllowance: monthlySalaryDetails.serviceAllowance || '',
         salaryAdvance: monthlySalaryDetails.salaryAdvance || '',
         foodBill: monthlySalaryDetails.foodBill || '',
         arrears: monthlySalaryDetails.arrears || '',
@@ -447,7 +449,7 @@ const calculateOt2SatFullDay = (basicSalary, workingHours,ot2Rate) => {
                     </Grid>
                   </Grid>
 
-                  {['bonus', 'incentives', 'salaryAdvance', 'foodBill', 'arrears', 'otherDeductions'].map((field) => (
+                  {['bonus', 'incentives','serviceAllowance', 'salaryAdvance', 'foodBill', 'arrears', 'otherDeductions'].map((field) => (
                     <Grid container spacing={1} alignItems="center" key={field}>
                       <Grid item xs={5}>
                         <Typography variant="subtitle1">

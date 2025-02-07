@@ -25,10 +25,11 @@ public class MonthlySalaryUpdates {
     @Column(name = "bonus")
     private Double bonus;
 
-
-
     @Column(name = "incentives")
     private Double incentives;
+
+    @Column(name = "serviceAllowance")
+    private Double serviceAllowance;
 
     @Column(name = "salary_advance")
     private Double salaryAdvance;

@@ -44,10 +44,7 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
     }
 
     public List<MonthlyFullSalary> getMonthlySalaryDetailsForAll(String year, String month) {
-        // Your query logic here
-        System.out.println("Querying salary data for year: " + year + " and month: " + month);
         List<MonthlyFullSalary> salaryDetails = monthlyFullSalaryRepository.findByYearMonth(year, month);
-        System.out.println("Fetched salary details: " + salaryDetails);
         return salaryDetails;
     }
 
@@ -88,7 +85,7 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
             if (employeeMonthlyLeaveUsage.isPresent()) {
                 EmployeeMonthlyLeaveUsage usage = employeeMonthlyLeaveUsage.get();
                 mfs.setNoPayAmount(
-                        Objects.requireNonNullElse(usage.getNoPayLeaves(), 0L)
+                        Objects.requireNonNullElse(usage.getNoPayLeaves(), 0D)
                                 * (salaryBase.getBasicSalary() / 30)
                 );
             } else {
@@ -202,14 +199,19 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
             mfs.setIncentives(incentives);
 
 
+            //Service Allowance (Direct Amount)
+            mfs.setServiceAllowance(Objects.requireNonNullElse(
+                    monthlySalaryUpdates.getServiceAllowance(),Double.valueOf(0)));
+
+
             //Total Allowance Calculation (Summation of the Attendance Allowance, Transport Allowance, Performance Allowance, and the other Incentives
             mfs.setTotalAllowance(
                     Objects.requireNonNullElse(mfs.getAttendanceAllowance(), 0d) +
                             Objects.requireNonNullElse(mfs.getTransportAllowance(), 0d) +
                             Objects.requireNonNullElse(mfs.getPerformanceAllowance(), 0d) +
-                            Objects.requireNonNullElse(mfs.getIncentives(), 0d)
+                            Objects.requireNonNullElse(mfs.getIncentives(), 0d)+
+                            Objects.requireNonNullElse(mfs.getServiceAllowance(),0d)
             );
-
 
             //Total Monthly Salary
             mfs.setTotalMonthlySalary(

@@ -12,7 +12,8 @@ function UpdateEmployee() {
         nicNo: '',
         employeeType: '',
         epfNo: '',
-        joiningDate: '' // Added joiningDate field
+        joiningDate: '', // Added joiningDate field
+        note:''
     });
 
     const departments = [
@@ -213,7 +214,18 @@ function UpdateEmployee() {
                         />
                     </label>
                 </div>
-
+                <div className='add-new-employee'>
+                    <label>
+                        <span>Special Notes:</span>
+                        <textarea
+                            name="note"
+                            value={employeeData.note}
+                            onChange={handleInputChange}
+                            rows="10"
+                            cols="50" // Adjust these values as needed
+                        />
+                    </label>
+                </div>
                 <button type="submit" className="add-button" onClick={() => handleUpdate(employeeId)}>Update</button>
                 {error && <p style={{ color: 'red' }}>{error}</p>}
                 {success && <p style={{ color: 'green' }}>{success}</p>}
