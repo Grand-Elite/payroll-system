@@ -167,8 +167,8 @@ public class PaySheetServiceImpl implements PaySheetService {
         table.addCell(getCell(mfs.getIncentives()));
 
         table.addCell(getCell("Encouragement Allowance"));
-        table.addCell(":");
-        table.addCell(getCellSingleBorder(mfs.getServiceAllowance()));
+        table.addCell(getCell(":"));
+        table.addCell(getCell(mfs.getServiceAllowance()));
 
         table.addCell(getCell("Total Allowance"));
         table.addCell(getCell(":"));
