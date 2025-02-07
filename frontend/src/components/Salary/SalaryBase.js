@@ -449,7 +449,7 @@ const calculateOt2SatFullDay = (basicSalary, workingHours,ot2Rate) => {
                     </Grid>
                   </Grid>
 
-                  {['bonus', 'incentives','serviceAllowance', 'salaryAdvance', 'foodBill', 'arrears', 'otherDeductions'].map((field) => (
+                  {['bonus', 'incentives','encouragementAllowance', 'salaryAdvance', 'foodBill', 'arrears', 'otherDeductions'].map((field) => (
                     <Grid container spacing={1} alignItems="center" key={field}>
                       <Grid item xs={5}>
                         <Typography variant="subtitle1">
