@@ -154,7 +154,8 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
 
                 if (poyaNotSaturdayWorkedCount != 0D) {
                     // Only the Poya Day OT is applicable for the Temporary employees under the OT-2 Category
-                    mfs.setOt2((basicSalary / (30 * 2)));
+                    //mfs.setOt2((basicSalary / (30 * 2)));
+                    mfs.setOt2(0D);
                 } else {
                     // When the Temporary employee did not work on Poya day, they are not eligible for any OT-2 amount in that month.
                     mfs.setOt2(0D);
