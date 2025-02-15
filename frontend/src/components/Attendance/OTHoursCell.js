@@ -7,48 +7,92 @@ import {
   AccordionDetails,
   Typography,
   Box,
+  Checkbox,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { formatHourMins } from '../../util/DateTimeUtil';
 
 const OTHoursCell = ({ day, index, handleFieldChange }) => {
   const [expanded, setExpanded] = useState(false);
+  const [includeEarly, setIncludeEarly] = useState(true);
+  const [includeLate, setIncludeLate] = useState(true);
 
   const handleExpandClick = () => setExpanded(!expanded);
 
+  // Calculate total overtime minutes based on checkbox inclusion.
   const calculateTotalOTMins = (early = 0, late = 0) => {
-    return early + late;
+    return (includeEarly ? early : 0) + (includeLate ? late : 0);
   };
 
   const handleEarlyClockInChange = (event) => {
     const value = Number(event.target.value) || 0;
-    const updatedTotal = calculateTotalOTMins(
-      value,
-      day.updatedOtLateClockoutMins || 0
-    );
     handleFieldChange(index, 'updatedOtEarlyClockinMins', value);
-    handleFieldChange(index, 'otMins', updatedTotal);
+    handleFieldChange(
+      index,
+      'otMins',
+      calculateTotalOTMins(value, day.updatedOtLateClockoutMins || 0)
+    );
   };
 
   const handleLateClockOutChange = (event) => {
     const value = Number(event.target.value) || 0;
-    const updatedTotal = calculateTotalOTMins(
-      day.updatedOtEarlyClockinMins || 0,
-      value
-    );
     handleFieldChange(index, 'updatedOtLateClockoutMins', value);
-    handleFieldChange(index, 'otMins', updatedTotal);
+    handleFieldChange(
+      index,
+      'otMins',
+      calculateTotalOTMins(day.updatedOtEarlyClockinMins || 0, value)
+    );
+  };
+
+  const handleCheckboxChange = (type) => {
+    let newIncludeEarly = includeEarly;
+    let newIncludeLate = includeLate;
+
+    if (type === 'early') {
+      newIncludeEarly = !includeEarly;
+      setIncludeEarly(newIncludeEarly);
+      // When unchecked, clear the early clock-in value
+      if (!newIncludeEarly) {
+        handleFieldChange(index, 'updatedOtEarlyClockinMins', 0);
+      }
+    } else {
+      newIncludeLate = !includeLate;
+      setIncludeLate(newIncludeLate);
+      // When unchecked, clear the late clock-out value
+      if (!newIncludeLate) {
+        handleFieldChange(index, 'updatedOtLateClockoutMins', 0);
+      }
+    }
+
+    // Use the new checkbox values to determine the OT minutes to save.
+    const earlyValue = newIncludeEarly ? day.updatedOtEarlyClockinMins || 0 : 0;
+    const lateValue = newIncludeLate ? day.updatedOtLateClockoutMins || 0 : 0;
+    const newOtMins = earlyValue + lateValue;
+
+    handleFieldChange(index, 'otMins', newOtMins);
   };
 
   return (
     <TableCell>
       <Accordion expanded={expanded} onChange={handleExpandClick}>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography>{formatHourMins(day.otMins || 0)}{day.overwritten}</Typography>
+          <Typography>
+            {formatHourMins(
+              calculateTotalOTMins(
+                day.updatedOtEarlyClockinMins || 0,
+                day.updatedOtLateClockoutMins || 0
+              )
+            )}
+            {day.overwritten}
+          </Typography>
         </AccordionSummary>
 
         <AccordionDetails>
           <Box display="flex" alignItems="center" mb={2}>
+            <Checkbox
+              checked={includeEarly}
+              onChange={() => handleCheckboxChange('early')}
+            />
             <TextField
               label="Early Clock In OT Minutes"
               value={day.updatedOtEarlyClockinMins || 0}
@@ -58,10 +102,14 @@ const OTHoursCell = ({ day, index, handleFieldChange }) => {
               fullWidth
               margin="dense"
               helperText={`hh:mm - ${formatHourMins(day.updatedOtEarlyClockinMins || 0)}`}
-              disabled
+              disabled={!includeEarly}
             />
           </Box>
           <Box display="flex" alignItems="center" mb={2}>
+            <Checkbox
+              checked={includeLate}
+              onChange={() => handleCheckboxChange('late')}
+            />
             <TextField
               label="Late Clock Out OT Minutes"
               value={day.updatedOtLateClockoutMins || 0}
@@ -71,7 +119,7 @@ const OTHoursCell = ({ day, index, handleFieldChange }) => {
               fullWidth
               margin="dense"
               helperText={`hh:mm - ${formatHourMins(day.updatedOtLateClockoutMins || 0)}`}
-              disabled
+              disabled={!includeLate}
             />
           </Box>
         </AccordionDetails>
