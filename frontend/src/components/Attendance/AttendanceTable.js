@@ -297,6 +297,8 @@ useEffect(() => {
     setDaysInMonth(updatedDays);
 };
 
+/*   To save the attendance record changes individually row wise*/
+
 const handleSave = async (index) => {
   const day = daysInMonth[index];
   if (
@@ -344,14 +346,70 @@ const handleSave = async (index) => {
 };
 
 
+const handleSaveAll = async () => {
+  if (Array.isArray(daysInMonth)) {
+    // Iterate through each day in the month
+    for (let index = 0; index < daysInMonth.length; index++) {
+      const day = daysInMonth[index];
+
+      // Check if there are any changes compared to the original values
+      if (
+        day.attendanceStatus !== day.originalAttendanceStatus ||
+        day.updatedOtEarlyClockinMins !== day.otEarlyClockinMins ||
+        day.updatedOtLateClockoutMins !== day.otLateClockoutMins ||
+        day.updatedLcLateClockinMins !== day.lcLateClockinMins ||
+        day.updatedLcEarlyClockoutMins !== day.lcEarlyClockoutMins ||
+        day.lateMins !== day.originalLateMins ||
+        day.otMins !== day.originalOtMins
+      ) {
+        try {
+          // Call the API to update the attendance status
+          await updateAttendanceStatus(
+            props.employeeId,
+            day.date,
+            day.attendanceRecordId,
+            day.attendanceStatus,
+            day.updatedLcEarlyClockoutMins,
+            day.updatedLcLateClockinMins,
+            day.updatedOtEarlyClockinMins,
+            day.updatedOtLateClockoutMins,
+            day.lateMins,
+            day.otMins
+          );
+
+          // Update the original values to ensure consistency:
+          const updatedDays = [...daysInMonth];
+          updatedDays[index] = {
+            ...day,
+            originalAttendanceStatus: day.attendanceStatus,
+            otEarlyClockinMins: day.updatedOtEarlyClockinMins,
+            otLateClockoutMins: day.updatedOtLateClockoutMins,
+            lcLateClockinMins: day.updatedLcLateClockinMins,
+            lcEarlyClockoutMins: day.updatedLcEarlyClockoutMins,
+            originalLateMins: day.lateMins,
+            originalOtMins: day.otMins
+          };
+
+          setDaysInMonth(updatedDays);
+          toast.success('Attendance record updated successfully', { autoClose: 5000 });
+        } catch (error) {
+          console.error('Error updating attendance record:', error);
+          alert('Failed to update attendance record');
+        }
+      }
+    }
+  } else {
+    console.error('daysInMonth is not an array');
+  }
+};
+
+
 const handleInputChange = (field, value) => {
   setLeaveUsage((prev) => ({
     ...prev,
     [field]: value,
   }));
 };
-
-
 
 const handleLeaveSave = async () => {
   if (!props.employeeId) {
@@ -437,7 +495,7 @@ const handleAdjustedAttendanceSubmit = async () => {
         { label: 'Annual Leave:', field: 'annual' },
         { label: 'Casual Leave:', field: 'casual' },
         { label: 'Medical Leave:', field: 'medical' },
-        { label: 'Absent on Public holiday:', field: 'abOnPublicHoliday' },
+        { label: 'Public Leave:', field: 'abOnPublicHoliday' },
         { label: 'Other Leave:', field: 'other' },
         { label: 'No Pay Leave:', field: 'noPayLeaves' },
         { label: 'Monthly Mandatory Leave (Weekly):', field: 'monthlyMandatoryLeaves' },
@@ -664,8 +722,9 @@ const handleAdjustedAttendanceSubmit = async () => {
                   </Select>
                 </TableCell>
 
-              <TableCell>
-                  {/* Only show the save button if the status has changed */}
+{/* 
+Save Button in each individual row separately- Only show the save button if the status has changed */}
+              <TableCell> 
                   {(day.attendanceStatus !== day.originalAttendanceStatus 
                   || day.otMins !== day.originalOtMins 
                   || day.lateMins !== day.originalLateMins )
@@ -679,12 +738,23 @@ const handleAdjustedAttendanceSubmit = async () => {
                           Save
                       </Button>
                   )}
-                </TableCell>
+              </TableCell>
+
             </TableRow>
           ))}
         </TableBody>
       </Table>
     </TableContainer>
+<br></br>
+    <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            onClick={handleSaveAll}
+        >
+            Save All
+        </Button>
+
     </Box>
   );
 }

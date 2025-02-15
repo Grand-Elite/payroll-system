@@ -97,9 +97,11 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
             mfs.setArrears(Objects.requireNonNullElse(monthlySalaryUpdates.getArrears(),Double.valueOf(0)));
 
             //Total For EPF (Total Salary Amount that is considered for 8% EPF Employee's Contribution)
-            mfs.setTotalForEpf(salaryBase.getBasicSalary()-(
-                    Objects.requireNonNullElse(mfs.getNoPayAmount(),0d)
-                            +Objects.requireNonNullElse(mfs.getArrears(),0d)));
+            mfs.setTotalForEpf(
+                    Objects.requireNonNullElse(salaryBase.getBasicSalary(), 0d) -  // Default to 0 if null
+                            (Objects.requireNonNullElse(mfs.getNoPayAmount(), 0d) + Objects.requireNonNullElse(mfs.getArrears(), 0d))
+            );
+
 
             //Bonus Calculation (Direct Value)
             mfs.setBonus(Objects.requireNonNullElse(monthlySalaryUpdates.getBonus(),Double.valueOf(0)));
@@ -111,13 +113,15 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
                     Objects.requireNonNullElse(
                             overwrittenMonthlyAttendanceSummary
                                     .map(OverwrittenMonthlyAttendanceSummary::getAdjustedOtHours)
-                                    .orElse(0D), 0D
+                                    .orElse(0D),
+                            0D
                     ) * 60 * (
-                            (salaryBase.getBasicSalary() *
-                                    Objects.requireNonNullElse(salaryBase.getOt1Rate(), 0.0)) /
-                                    (salaryBase.getWorkingHours() * 60)
+                            (Objects.requireNonNullElse(salaryBase.getBasicSalary(), 0d) *
+                                    Objects.requireNonNullElse(salaryBase.getOt1Rate(), 0d)) /
+                                    (Objects.requireNonNullElse(salaryBase.getWorkingHours(), 1d) * 60)
                     )
             );
+
 
             // OT-2 for Saturday and Poya Day only for Permanent Employees
             if (!Objects.requireNonNullElse(employee.getEpfNo(), 0D).equals(0D)) { // Permanent Employee
@@ -188,7 +192,7 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
             double attendanceCount = Objects.requireNonNullElse(attendanceSummary.getAttendanceCount(), 0d);
             int totalDaysInMonth = monthEnum.length(Year.isLeap(selectedYear));
             int nonWorkingDays = 4 + nonMandatoryPublicHolidays; // Sundays + non-mandatory public holidays
-            double dailySalary = salaryBase.getBasicSalary() / 30;
+            double dailySalary = Objects.requireNonNullElse(salaryBase.getBasicSalary(), 0d) / 30;
 
             double incentives = (attendanceCount - (totalDaysInMonth - nonWorkingDays)) * dailySalary
                     + Objects.requireNonNullElse(monthlySalaryUpdates.getIncentives(), 0d);

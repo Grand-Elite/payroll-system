@@ -18,7 +18,7 @@ public class SalaryBase {
     @JoinColumn(name = "employee_id")
     private Employee employee;
 
-    @Column(name="basic_salary", nullable = false)
+    @Column(name="basic_salary")
     private Double basicSalary;
 
     @Column(name = "attendance_allowance")
