@@ -282,12 +282,12 @@ const calculateOt2SatFullDay = (basicSalary, workingHours,ot2Rate) => {
       if (salaryDetailsNotFound) {
         const response = await createSalaryDetails(selectedEmployee.employeeId, formData);
         if (response.status === 201) {
-          toast.success('Salary details created successfully!');
+          toast.success('Updated successfully!');
         }
       } else {
         const response = await updateSalaryDetails(selectedEmployee.employeeId, formData);
         if (response.status === 200) {
-          toast.success('Salary details updated successfully!');
+          toast.success('Updated successfully!');
         }
       }
     } catch (error) {
@@ -308,7 +308,7 @@ const calculateOt2SatFullDay = (basicSalary, workingHours,ot2Rate) => {
         : updateMonthlySalaryUpdate(selectedEmployee.employeeId, selectedYear, selectedMonth, monthlyData));
 
       if (response.status === 200 || response.status === 201) {
-        toast.success('Monthly salary update submitted successfully!');
+        toast.success('Updated successfully!');
       }
     } catch (error) {
       console.error('Error submitting monthly salary details:', error);
@@ -483,6 +483,20 @@ const calculateOt2SatFullDay = (basicSalary, workingHours,ot2Rate) => {
                     <ToastContainer/>
                   </Button>
                 </Grid>
+                <Button
+                  variant="contained"
+                  onClick={handleMonthlySalarySubmit}
+                  sx={{
+                    marginTop: '20px',
+                    backgroundColor: 'green',
+                    display: 'block',
+                    marginLeft: 'auto',
+                    marginRight: 'auto'
+                  }}
+                >
+                  Recalculate Monthly Salary
+                  <ToastContainer />
+                </Button>
               </Grid>
             </Box>
             
