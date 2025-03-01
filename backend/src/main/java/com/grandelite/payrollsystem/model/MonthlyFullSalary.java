@@ -80,8 +80,8 @@ public class MonthlyFullSalary {
     @Column(name="incentives")
     private Double incentives;
 
-    @Column(name="serviceAllowance")
-    private  Double serviceAllowance;
+    @Column(name="encouragement_allowance")
+    private  Double encouragementAllowance;
 
     @Column(name="total_allowance")
     private Double totalAllowance;

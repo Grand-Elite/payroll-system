@@ -41,6 +41,7 @@ public class SalaryServiceImpl implements SalaryService {
         defaultSalaryBase.setAttendanceAllowance(0.0);
         defaultSalaryBase.setTransportAllowance(0.0);
         defaultSalaryBase.setPerformanceAllowance(0.0);
+        defaultSalaryBase.setEncouragementAllowance(0.0);
         defaultSalaryBase.setOt1Rate(0.0);
         defaultSalaryBase.setOt2Rate(0.0);
         defaultSalaryBase.setWorkingHours(0.0);
@@ -64,6 +65,7 @@ public class SalaryServiceImpl implements SalaryService {
             existingSalaryBase.setAttendanceAllowance(updatedSalaryDetails.getAttendanceAllowance());
             existingSalaryBase.setTransportAllowance(updatedSalaryDetails.getTransportAllowance());
             existingSalaryBase.setPerformanceAllowance(updatedSalaryDetails.getPerformanceAllowance());
+            existingSalaryBase.setEncouragementAllowance(updatedSalaryDetails.getEncouragementAllowance());
             existingSalaryBase.setOt1Rate(updatedSalaryDetails.getOt1Rate());
             existingSalaryBase.setOt2Rate(updatedSalaryDetails.getOt2Rate());
             existingSalaryBase.setWorkingHours(updatedSalaryDetails.getWorkingHours());

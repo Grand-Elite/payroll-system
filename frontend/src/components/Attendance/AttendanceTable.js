@@ -52,6 +52,7 @@ function AttendanceTable(props) {
     other: 0,
     noPayLeaves: 0,
     monthlyMandatoryLeaves: 0,
+    leaveApproval: false,
   });
 
   const [yearlyLeaveUsage, setYearlyLeaveUsage] = useState({
@@ -481,7 +482,7 @@ const handleAdjustedAttendanceSubmit = async () => {
               <TableCell>No. of attendance:</TableCell>
               <TableCell>{attendanceSummary.attendanceCount}</TableCell>
             </TableRow>
-
+{/*
             <TableRow>
   <TableCell>No. of Leaves:</TableCell>
   <TableCell>
@@ -587,6 +588,140 @@ const handleAdjustedAttendanceSubmit = async () => {
     </div>
           </TableCell>
         </TableRow>
+        */}
+
+<TableRow>
+  <TableCell>No. of Leaves:</TableCell>
+  <TableCell>
+    <div>
+      {attendanceSummary?.daysInCurrentMonth !== undefined &&
+      attendanceSummary?.attendanceCount !== undefined
+        ? attendanceSummary.daysInCurrentMonth - attendanceSummary.attendanceCount
+        : 'Loading...'}
+    </div>
+
+    <div className="textbox-container">
+      {[
+        { label: 'Annual Leave:', field: 'annual' },
+        { label: 'Casual Leave:', field: 'casual' },
+        { label: 'Medical Leave:', field: 'medical' },
+        { label: 'Public Leave:', field: 'abOnPublicHoliday' },
+        { label: 'Other Leave:', field: 'other' },
+        { label: 'No Pay Leave:', field: 'noPayLeaves' },
+        { label: 'Monthly Mandatory Leave (Weekly):', field: 'monthlyMandatoryLeaves' },
+      ].map(({ label, field }) => {
+        if (!leaveDetails || !yearlyLeaveUsage) {
+          return (
+            <div key={field}>
+              <label>{label}</label>
+              <span style={{ color: 'gray', marginLeft: '10px' }}>Loading...</span>
+            </div>
+          );
+        }
+
+        const leaveDetailValue = leaveDetails[field] || 0;
+        const yearlyUsageValue = yearlyLeaveUsage[field] || 0;
+        const remaining = leaveDetailValue - yearlyUsageValue;
+        const disableInput = ['annual', 'casual', 'medical'].includes(field) && remaining <= 0;
+
+        return (
+          <div key={field}>
+            <label>{label}</label>
+            <input
+              type="number"
+              min="0"
+              value={leaveUsage[field] || ''}
+              onChange={(e) => {
+                const inputValue = Math.max(0, parseInt(e.target.value, 10) || 0);
+
+                const totalUsage = Object.keys(leaveUsage).reduce((total, key) => {
+                  return total + (leaveUsage[key] || 0);
+                }, 0);
+
+                const maxLeaves =
+                  attendanceSummary?.daysInCurrentMonth !== undefined &&
+                  attendanceSummary?.attendanceCount !== undefined
+                    ? attendanceSummary.daysInCurrentMonth - attendanceSummary.attendanceCount
+                    : 0;
+
+                if (['annual', 'casual', 'medical'].includes(field) && inputValue > remaining) {
+                  alert(`Error: Value exceeds remaining leaves (${remaining}). Please enter a valid number.`);
+                  return;
+                }
+
+                if (totalUsage > maxLeaves) {
+                  alert(`Error: Total leave usage exceeds available "No. of Leaves" (${maxLeaves}).`);
+                  return;
+                }
+
+                handleInputChange(field, inputValue);
+              }}
+              disabled={disableInput}
+            />
+            {['annual', 'casual', 'medical'].includes(field) && (
+              <>
+                <span style={{ marginLeft: '20px' }}>Remaining: {remaining}</span>
+                {leaveDetailValue === 0 && (
+                  <span style={{ color: 'blue', marginLeft: '10px' }}>
+                    Yearly Leave Quota is not Available!
+                  </span>
+                )}
+                {disableInput && (
+                  <span style={{ color: 'red', marginLeft: '10px' }}>
+                    No more leaves can be allocated
+                  </span>
+                )}
+              </>
+            )}
+          </div>
+        );
+      })}
+
+{/* Leaves Approval Section */}
+<div style={{ marginTop: '15px' }}>
+  <label>Leaves Approved:</label>
+  <div style={{ marginLeft: '20px', display: 'inline-block' }}>
+    <input
+      type="radio"
+      id="approvedYes"
+      name="leaveApproval"
+      value="yes"
+      checked={leaveUsage.leaveApproval === true} // Only check when explicitly true
+      onChange={() => handleInputChange('leaveApproval', true)}
+    />
+    <label htmlFor="approvedYes" style={{ marginRight: '15px' }}>Yes</label>
+
+    <input
+      type="radio"
+      id="approvedNo"
+      name="leaveApproval"
+      value="no"
+      checked={leaveUsage.leaveApproval === false} // Only check when explicitly false
+      onChange={() => handleInputChange('leaveApproval', false)}
+    />
+    <label htmlFor="approvedNo">No</label>
+  </div>
+</div>
+
+
+      {/* Total Entered Leaves */}
+      <div>
+        <label>Total Entered Leaves:</label>
+        <span>
+          {Object.values(leaveUsage).reduce((total, value) => total + (typeof value === 'number' ? value : 0), 0)}
+        </span>
+      </div>
+
+      {/* Save Button */}
+      <button type="button" className="save-button" onClick={handleLeaveSave} disabled={saving}>
+        {saving ? 'Saving...' : 'Save'}
+      </button>
+    </div>
+  </TableCell>
+</TableRow>
+
+
+
         <TableRow>
         <TableCell>Cumulative OT and Late Time</TableCell>
     <TableCell>

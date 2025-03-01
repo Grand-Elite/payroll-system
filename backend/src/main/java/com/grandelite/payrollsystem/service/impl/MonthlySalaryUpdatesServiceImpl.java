@@ -61,7 +61,6 @@ public class MonthlySalaryUpdatesServiceImpl implements MonthlySalaryUpdatesServ
                     // Update the fields with the new values
                     existing.setBonus(salaryUpdate.getBonus());
                     existing.setIncentives(salaryUpdate.getIncentives());
-                    existing.setServiceAllowance(salaryUpdate.getServiceAllowance());
                     existing.setSalaryAdvance(salaryUpdate.getSalaryAdvance());
                     existing.setFoodBill(salaryUpdate.getFoodBill());
                     existing.setArrears(salaryUpdate.getArrears());

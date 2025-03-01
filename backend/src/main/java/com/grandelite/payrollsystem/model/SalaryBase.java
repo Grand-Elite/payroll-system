@@ -30,6 +30,9 @@ public class SalaryBase {
     @Column(name = "performance_allowance")
     private Double performanceAllowance;
 
+    @Column(name = "encouragement_allowance")
+    private Double encouragementAllowance;
+
     @Column(name="ot_1_rate")
     private Double ot1Rate;
 

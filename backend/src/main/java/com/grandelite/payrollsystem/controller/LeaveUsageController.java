@@ -75,6 +75,7 @@ public class LeaveUsageController {
             leaveUsage.setOther(leaveUsage.getOther() != null ? leaveUsage.getOther() : 0L);
             leaveUsage.setNoPayLeaves(leaveUsage.getNoPayLeaves() != null ? leaveUsage.getNoPayLeaves() : 0L);
             leaveUsage.setMonthlyMandatoryLeaves(leaveUsage.getMonthlyMandatoryLeaves() != null ? leaveUsage.getMonthlyMandatoryLeaves() : 0L);
+            leaveUsage.setLeaveApproval(leaveUsage.getLeaveApproval() != null ? leaveUsage.getLeaveApproval() : true); // Default to false if null
 
             Long employeeId = leaveUsage.getEmployee().getEmployeeId(); // Extract employeeId
             String year = leaveUsage.getYear();
@@ -97,6 +98,8 @@ public class LeaveUsageController {
                 existingDetails.setOther(leaveUsage.getOther());
                 existingDetails.setNoPayLeaves(leaveUsage.getNoPayLeaves());
                 existingDetails.setMonthlyMandatoryLeaves(leaveUsage.getMonthlyMandatoryLeaves());
+                // Ensure leaveApproval is not null, and set default if necessary
+                existingDetails.setLeaveApproval(leaveUsage.getLeaveApproval() != null ? leaveUsage.getLeaveApproval() : false); // Default to false if null
                 repository.save(existingDetails); // Save updated details
             } else {
                 // Save new leave details

@@ -35,6 +35,7 @@ function SalaryBase({ selectedMonth, selectedYear }) {
     attendanceAllowance: '',
     transportAllowance: '',
     performanceAllowance: '',
+    encouragementAllowance: '',
     ot1Rate: '',
     ot2Rate: '',
     workingHours: '',
@@ -50,7 +51,6 @@ function SalaryBase({ selectedMonth, selectedYear }) {
   const [monthlyData, setMonthlyData] = useState({
     bonus: '',
     incentives: '',
-    serviceAllowance: '',
     salaryAdvance: '',
     foodBill: '',
     arrears: '',
@@ -106,13 +106,14 @@ function SalaryBase({ selectedMonth, selectedYear }) {
         attendanceAllowance: salaryDetails.attendanceAllowance || '',
         transportAllowance: salaryDetails.transportAllowance || '',
         performanceAllowance: salaryDetails.performanceAllowance || '',  
+        encouragementAllowance: salaryDetails.encouragementAllowance || '',
         ot1Rate: salaryDetails.ot1Rate || '',
         ot2Rate: salaryDetails.ot2Rate || '',
         workingHours : salaryDetails.workingHours || '',
         compulsoryOt1HoursPerDay: salaryDetails.compulsoryOt1HoursPerDay || '',
         lateChargesPerMin: calculateLateChargesPerMin(salaryDetails.basicSalary || 0, salaryDetails.workingHours || 0),
         compulsoryOt1AmountPerDay: calculateCompulsoryOt1AmountPerDay(salaryDetails.basicSalary || 0, salaryDetails.workingHours || 0, salaryDetails.ot1Rate || 0, salaryDetails.compulsoryOt1HoursPerDay || 0),
-        monthlyTotal: calculateMonthlyTotal( salaryDetails.basicSalary || 0 ,salaryDetails.performanceAllowance || 0, salaryDetails.transportAllowance || 0,  salaryDetails.attendanceAllowance || 0, salaryDetails.compulsoryOt1AmountPerDay || 0),
+        monthlyTotal: calculateMonthlyTotal( salaryDetails.basicSalary || 0 ,salaryDetails.performanceAllowance || 0, salaryDetails.encouragementAllowance || 0 ,salaryDetails.transportAllowance || 0,  salaryDetails.attendanceAllowance || 0, salaryDetails.compulsoryOt1AmountPerDay || 0),
         ot1PerHour: calculateOt1PerHour(salaryDetails.basicSalary || 0, salaryDetails.workingHours || 0 , salaryDetails.ot1Rate || 0),
         ot2SatFullDay : calculateOt2SatFullDay(salaryDetails.basicSalary || 0,  salaryDetails.workingHours || 0, salaryDetails.ot2Rate || 0),
       });
@@ -120,7 +121,6 @@ function SalaryBase({ selectedMonth, selectedYear }) {
       setMonthlyData({
         bonus: monthlySalaryDetails.bonus || '',
         incentives: monthlySalaryDetails.incentives || '',
-        serviceAllowance: monthlySalaryDetails.serviceAllowance || '',
         salaryAdvance: monthlySalaryDetails.salaryAdvance || '',
         foodBill: monthlySalaryDetails.foodBill || '',
         arrears: monthlySalaryDetails.arrears || '',
@@ -154,6 +154,7 @@ function SalaryBase({ selectedMonth, selectedYear }) {
       const attendanceAllowance = parseFloat(updatedData.attendanceAllowance) || 0;
       const transportAllowance = parseFloat(updatedData.transportAllowance) || 0;
       const performanceAllowance = parseFloat(updatedData.performanceAllowance) || 0;
+      const encouragementAllowance = parseFloat(updatedData.encouragementAllowance) || 0;
       const ot2Rate = parseFloat(updatedData.ot2Rate) || 0;
   
       switch (name) {
@@ -168,6 +169,7 @@ function SalaryBase({ selectedMonth, selectedYear }) {
           updatedData.monthlyTotal = calculateMonthlyTotal(
             basicSalary,
             performanceAllowance,
+            encouragementAllowance,
             transportAllowance,
             attendanceAllowance,
             updatedData.compulsoryOt1AmountPerDay
@@ -182,6 +184,7 @@ function SalaryBase({ selectedMonth, selectedYear }) {
           updatedData.monthlyTotal = calculateMonthlyTotal(
             basicSalary,
             performanceAllowance,
+            encouragementAllowance,
             transportAllowance,
             attendanceAllowance,
             updatedData.compulsoryOt1AmountPerDay
@@ -191,10 +194,12 @@ function SalaryBase({ selectedMonth, selectedYear }) {
         case 'attendanceAllowance':
         case 'transportAllowance':
         case 'performanceAllowance':
+        case 'encouragementAllowance':  
           // Use the existing value of compulsoryOt1AmountPerDay
           updatedData.monthlyTotal = calculateMonthlyTotal(
             basicSalary,
             performanceAllowance,
+            encouragementAllowance,
             transportAllowance,
             attendanceAllowance,
             updatedData.compulsoryOt1AmountPerDay
@@ -242,8 +247,8 @@ const calculateCompulsoryOt1AmountPerDay = (basicSalary, workingHours, ot1Rate, 
   return result;
 };
 
-const calculateMonthlyTotal = (basicSalary, performanceAllowance, transportAllowance,attendanceAllowance, compulsoryOt1AmountPerDay) => {
-  let result = ((basicSalary + performanceAllowance) +(26*(transportAllowance+attendanceAllowance+compulsoryOt1AmountPerDay)));
+const calculateMonthlyTotal = (basicSalary, performanceAllowance, encouragementAllowance, transportAllowance,attendanceAllowance, compulsoryOt1AmountPerDay) => {
+  let result = ((basicSalary + performanceAllowance + encouragementAllowance) +(26*(transportAllowance+attendanceAllowance+compulsoryOt1AmountPerDay)));
   result = parseFloat(result.toFixed(2)); // Round to 2 decimal places and convert to number
   return result;
 };
@@ -370,7 +375,7 @@ const calculateOt2SatFullDay = (basicSalary, workingHours,ot2Rate) => {
                 {/* Left Column: Salary Base Updates */}
                 <Grid item xs={5}>
                   <h3 style={{ marginBottom: '10px' }}>Salary Base Updates</h3>
-                  {['basicSalary', 'attendanceAllowance', 'transportAllowance', 'performanceAllowance', 'ot1Rate', 'ot2Rate', 'workingHours', 'compulsoryOt1HoursPerDay','lateChargesPerMin','compulsoryOt1AmountPerDay' ,'monthlyTotal', 'ot1PerHour', 'ot2SatFullDay'].map((field) => (
+                  {['basicSalary', 'attendanceAllowance', 'transportAllowance', 'performanceAllowance','encouragementAllowance' , 'ot1Rate', 'ot2Rate', 'workingHours', 'compulsoryOt1HoursPerDay','lateChargesPerMin','compulsoryOt1AmountPerDay' ,'monthlyTotal', 'ot1PerHour', 'ot2SatFullDay'].map((field) => (
                     <Grid container spacing={1} alignItems="center" key={field}>
                       <Grid item xs={5}>
                         <Typography variant="subtitle1">
@@ -449,7 +454,7 @@ const calculateOt2SatFullDay = (basicSalary, workingHours,ot2Rate) => {
                     </Grid>
                   </Grid>
 
-                  {['bonus', 'incentives','encouragementAllowance', 'salaryAdvance', 'foodBill', 'arrears', 'otherDeductions'].map((field) => (
+                  {['bonus', 'incentives','salaryAdvance', 'foodBill', 'arrears', 'otherDeductions'].map((field) => (
                     <Grid container spacing={1} alignItems="center" key={field}>
                       <Grid item xs={5}>
                         <Typography variant="subtitle1">

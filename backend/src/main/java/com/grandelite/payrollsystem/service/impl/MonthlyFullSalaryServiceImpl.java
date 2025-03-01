@@ -179,6 +179,10 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
             mfs.setPerformanceAllowance(Objects.requireNonNullElse(
                     salaryBase.getPerformanceAllowance(),Double.valueOf(0)));
 
+            //Encouragement Allowance
+            mfs.setEncouragementAllowance(Objects.requireNonNullElse(
+                    salaryBase.getEncouragementAllowance(),Double.valueOf(0)));
+
 
             // Extract the month and year
             Month monthEnum = Month.valueOf(mfs.getMonth().toUpperCase());
@@ -203,19 +207,13 @@ public class MonthlyFullSalaryServiceImpl implements MonthlyFullSalaryService {
 
             mfs.setIncentives(incentives);
 
-
-            //Service Allowance (Direct Amount)
-            mfs.setServiceAllowance(Objects.requireNonNullElse(
-                    monthlySalaryUpdates.getServiceAllowance(),Double.valueOf(0)));
-
-
             //Total Allowance Calculation (Summation of the Attendance Allowance, Transport Allowance, Performance Allowance, and the other Incentives
             mfs.setTotalAllowance(
                     Objects.requireNonNullElse(mfs.getAttendanceAllowance(), 0d) +
                             Objects.requireNonNullElse(mfs.getTransportAllowance(), 0d) +
                             Objects.requireNonNullElse(mfs.getPerformanceAllowance(), 0d) +
                             Objects.requireNonNullElse(mfs.getIncentives(), 0d)+
-                            Objects.requireNonNullElse(mfs.getServiceAllowance(),0d)
+                            Objects.requireNonNullElse(mfs.getEncouragementAllowance(),0d)
             );
 
             //Total Monthly Salary

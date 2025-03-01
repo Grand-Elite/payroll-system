@@ -41,9 +41,13 @@ public class EmployeeMonthlyLeaveUsage {
     @Column(name="monthly_mandatory_leaves")
     private Long monthlyMandatoryLeaves;
 
+    @Column(name= "leave_approval")
+    private Boolean leaveApproval;
+
     @Column(name="year", nullable = false)
     private String year;
 
     @Column(name="month", nullable = false)
     private String month;
+
 }

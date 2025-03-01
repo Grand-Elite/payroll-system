@@ -487,6 +487,7 @@ export const saveLeaveUsage = async ({
   other = 0,
   noPayLeaves = 0,
   monthlyMandatoryLeaves = 0,
+  leaveApproval = false,
   year,
   month,
 }) => {
@@ -502,6 +503,7 @@ export const saveLeaveUsage = async ({
       other,
       noPayLeaves,
       monthlyMandatoryLeaves,
+      leaveApproval,
       year,
       month,
     };
