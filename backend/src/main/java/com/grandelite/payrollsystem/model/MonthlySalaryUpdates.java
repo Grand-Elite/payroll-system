@@ -28,6 +28,9 @@ public class MonthlySalaryUpdates {
     @Column(name = "incentives")
     private Double incentives;
 
+    @Column(name = "month_encouragement_allowance")
+    private Double monthEncouragementAllowance;
+
     @Column(name = "salary_advance")
     private Double salaryAdvance;
 

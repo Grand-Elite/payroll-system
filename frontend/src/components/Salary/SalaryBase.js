@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { toast } from 'react-toastify';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -40,12 +40,17 @@ function SalaryBase({ selectedMonth, selectedYear }) {
     monthlyMandatoryLeaves: 0,
     leaveApproval: false,
   });
-  
-  const totalLeaves = leaveData.annual + leaveData.casual + leaveData.medical + 
-                    leaveData.abOnPublicHoliday + leaveData.other + 
-                    leaveData.noPayLeaves + leaveData.monthlyMandatoryLeaves;
 
-  const isEligible = totalLeaves <= 6 && leaveData.noPayLeaves === 0 && leaveData.leaveApproval;                  
+  const totalLeaves =
+    leaveData.annual +
+    leaveData.casual +
+    leaveData.medical +
+    leaveData.abOnPublicHoliday +
+    leaveData.other +
+    leaveData.noPayLeaves +
+    leaveData.monthlyMandatoryLeaves;
+
+  const isEligible = totalLeaves <= 6 && leaveData.noPayLeaves === 0 && leaveData.leaveApproval;
 
   const [formData, setFormData] = useState({
     basicSalary: '',
@@ -62,18 +67,34 @@ function SalaryBase({ selectedMonth, selectedYear }) {
     monthlyTotal: '0.0',
     ot1PerHour: '0.0',
     ot2SatFullDay: '0.0',
-
   });
+
   const [monthlyData, setMonthlyData] = useState({
     bonus: '',
     incentives: '',
+    monthEncouragementAllowance: '',
     salaryAdvance: '',
     foodBill: '',
     arrears: '',
     otherDeductions: '',
-    year: '', 
+    year: '',
     month: '',
   });
+
+  // Automatically update "monthEncouragementAllowance" based on eligibility
+  useEffect(() => {
+    if (isEligible) {
+      setMonthlyData((prev) => ({
+        ...prev,
+        monthEncouragementAllowance: formData.encouragementAllowance,
+      }));
+    } else {
+      setMonthlyData((prev) => ({
+        ...prev,
+        monthEncouragementAllowance: '0',
+      }));
+    }
+  }, [isEligible, formData.encouragementAllowance]);
 
   useEffect(() => {
     const loadEmployees = async () => {
@@ -90,80 +111,116 @@ function SalaryBase({ selectedMonth, selectedYear }) {
     loadEmployees();
   }, []);
 
-  const handleEmployeeChange = useCallback(async (employee) => {
-    if (!employee) {
-      setSelectedEmployee(null);
-      setSalaryDetailsNotFound(false);
-      return;
-    }
-
-    setSelectedEmployee(employee);
-    setLoadingSalaryDetails(true);
-
-    try {
-      const salaryDetails = await getSalaryDetailByEmployeeId(employee.employeeId);
-      const monthlySalaryDetails = await getMonthlySalaryDetails(employee.employeeId, selectedYear, selectedMonth);
-      const leaveUsage = await fetchLeaveUsage(employee.employeeId, selectedYear, selectedMonth);
-      const isSalaryEmpty = Object.values(salaryDetails || {}).every(
-        (value) => value === 0 || value === false || value === null
-      );
-
-      const isMonthlySalaryEmpty = Object.values(monthlySalaryDetails || {}).every(
-        (value) => value === 0 || value === false || value === null
-      );
-      setSalaryDetailsNotFound(isSalaryEmpty);
-      setMonthlySalaryDetailsNotFound(isMonthlySalaryEmpty);
-
-      setFormData({
-        basicSalary: salaryDetails.basicSalary || '',
-        attendanceAllowance: salaryDetails.attendanceAllowance || '',
-        transportAllowance: salaryDetails.transportAllowance || '',
-        performanceAllowance: salaryDetails.performanceAllowance || '',  
-        encouragementAllowance: salaryDetails.encouragementAllowance || '',
-        ot1Rate: salaryDetails.ot1Rate || '',
-        ot2Rate: salaryDetails.ot2Rate || '',
-        workingHours : salaryDetails.workingHours || '',
-        compulsoryOt1HoursPerDay: salaryDetails.compulsoryOt1HoursPerDay || '',
-        lateChargesPerMin: calculateLateChargesPerMin(salaryDetails.basicSalary || 0, salaryDetails.workingHours || 0),
-        compulsoryOt1AmountPerDay: calculateCompulsoryOt1AmountPerDay(salaryDetails.basicSalary || 0, salaryDetails.workingHours || 0, salaryDetails.ot1Rate || 0, salaryDetails.compulsoryOt1HoursPerDay || 0),
-        monthlyTotal: calculateMonthlyTotal( salaryDetails.basicSalary || 0 ,salaryDetails.performanceAllowance || 0, salaryDetails.encouragementAllowance || 0 ,salaryDetails.transportAllowance || 0,  salaryDetails.attendanceAllowance || 0, salaryDetails.compulsoryOt1AmountPerDay || 0),
-        ot1PerHour: calculateOt1PerHour(salaryDetails.basicSalary || 0, salaryDetails.workingHours || 0 , salaryDetails.ot1Rate || 0),
-        ot2SatFullDay : calculateOt2SatFullDay(salaryDetails.basicSalary || 0,  salaryDetails.workingHours || 0, salaryDetails.ot2Rate || 0),
-      });
-
-      setMonthlyData({
-        bonus: monthlySalaryDetails.bonus || '',
-        incentives: monthlySalaryDetails.incentives || '',
-        salaryAdvance: monthlySalaryDetails.salaryAdvance || '',
-        foodBill: monthlySalaryDetails.foodBill || '',
-        arrears: monthlySalaryDetails.arrears || '',
-        otherDeductions: monthlySalaryDetails.otherDeductions || '',
-        year: monthlySalaryDetails.year || '',
-        month: monthlySalaryDetails.month || '',
-      });
-    if (leaveUsage) {
-        setLeaveData({
-          annual: leaveUsage.annual || 0,
-          medical: leaveUsage.medical || 0,
-          casual: leaveUsage.casual || 0,
-          abOnPublicHoliday: leaveUsage.abOnPublicHoliday || 0,
-          other: leaveUsage.other || 0,
-          noPayLeaves: leaveUsage.noPayLeaves || 0,
-          monthlyMandatoryLeaves: leaveUsage.monthlyMandatoryLeaves || 0,
-          leaveApproval: leaveUsage.leaveApproval || false,
-        });
+  const handleEmployeeChange = useCallback(
+    async (employee) => {
+      if (!employee) {
+        setSelectedEmployee(null);
+        setSalaryDetailsNotFound(false);
+        return;
       }
-    } catch (error) {
-      console.error('Error fetching salary details:', error);
-      setSalaryDetailsNotFound(true);
-    } finally {
-      setLoadingSalaryDetails(false);
-    }
-  },[selectedMonth,selectedYear]);
+
+      setSelectedEmployee(employee);
+      setLoadingSalaryDetails(true);
+
+      try {
+        const salaryDetails = await getSalaryDetailByEmployeeId(employee.employeeId);
+        const monthlySalaryDetails = await getMonthlySalaryDetails(
+          employee.employeeId,
+          selectedYear,
+          selectedMonth
+        );
+        const leaveUsage = await fetchLeaveUsage(employee.employeeId, selectedYear, selectedMonth);
+
+        const isSalaryEmpty = Object.values(salaryDetails || {}).every(
+          (value) => value === 0 || value === false || value === null
+        );
+
+        const isMonthlySalaryEmpty = Object.values(monthlySalaryDetails || {}).every(
+          (value) => value === 0 || value === false || value === null
+        );
+
+        setSalaryDetailsNotFound(isSalaryEmpty);
+        setMonthlySalaryDetailsNotFound(isMonthlySalaryEmpty);
+
+        setFormData({
+          basicSalary: salaryDetails.basicSalary || '',
+          attendanceAllowance: salaryDetails.attendanceAllowance || '',
+          transportAllowance: salaryDetails.transportAllowance || '',
+          performanceAllowance: salaryDetails.performanceAllowance || '',
+          encouragementAllowance: salaryDetails.encouragementAllowance || '',
+          ot1Rate: salaryDetails.ot1Rate || '',
+          ot2Rate: salaryDetails.ot2Rate || '',
+          workingHours: salaryDetails.workingHours || '',
+          compulsoryOt1HoursPerDay: salaryDetails.compulsoryOt1HoursPerDay || '',
+          lateChargesPerMin: calculateLateChargesPerMin(
+            salaryDetails.basicSalary || 0,
+            salaryDetails.workingHours || 0
+          ),
+          compulsoryOt1AmountPerDay: calculateCompulsoryOt1AmountPerDay(
+            salaryDetails.basicSalary || 0,
+            salaryDetails.workingHours || 0,
+            salaryDetails.ot1Rate || 0,
+            salaryDetails.compulsoryOt1HoursPerDay || 0
+          ),
+          monthlyTotal: calculateMonthlyTotal(
+            salaryDetails.basicSalary || 0,
+            salaryDetails.performanceAllowance || 0,
+            salaryDetails.encouragementAllowance || 0,
+            salaryDetails.transportAllowance || 0,
+            salaryDetails.attendanceAllowance || 0,
+            salaryDetails.compulsoryOt1AmountPerDay || 0
+          ),
+          ot1PerHour: calculateOt1PerHour(
+            salaryDetails.basicSalary || 0,
+            salaryDetails.workingHours || 0,
+            salaryDetails.ot1Rate || 0
+          ),
+          ot2SatFullDay: calculateOt2SatFullDay(
+            salaryDetails.basicSalary || 0,
+            salaryDetails.workingHours || 0,
+            salaryDetails.ot2Rate || 0
+          ),
+        });
+
+        setMonthlyData({
+          bonus: monthlySalaryDetails.bonus || '',
+          incentives: monthlySalaryDetails.incentives || '',
+          monthEncouragementAllowance: isEligible
+            ? salaryDetails.encouragementAllowance || ''
+            : '0',
+          salaryAdvance: monthlySalaryDetails.salaryAdvance || '',
+          foodBill: monthlySalaryDetails.foodBill || '',
+          arrears: monthlySalaryDetails.arrears || '',
+          otherDeductions: monthlySalaryDetails.otherDeductions || '',
+          year: monthlySalaryDetails.year || '',
+          month: monthlySalaryDetails.month || '',
+        });
+
+        if (leaveUsage) {
+          setLeaveData({
+            annual: leaveUsage.annual || 0,
+            medical: leaveUsage.medical || 0,
+            casual: leaveUsage.casual || 0,
+            abOnPublicHoliday: leaveUsage.abOnPublicHoliday || 0,
+            other: leaveUsage.other || 0,
+            noPayLeaves: leaveUsage.noPayLeaves || 0,
+            monthlyMandatoryLeaves: leaveUsage.monthlyMandatoryLeaves || 0,
+            leaveApproval: leaveUsage.leaveApproval || false,
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching salary details:', error);
+        setSalaryDetailsNotFound(true);
+      } finally {
+        setLoadingSalaryDetails(false);
+      }
+    },
+    [selectedMonth, selectedYear, isEligible]
+  );
 
   useEffect(() => {
     handleEmployeeChange(selectedEmployee);
-  }, [selectedMonth,selectedYear,handleEmployeeChange,selectedEmployee]);
+  }, [selectedMonth, selectedYear, handleEmployeeChange, selectedEmployee]);
 
   const handleFormChange = (event) => {
     const { name, value } = event.target;
@@ -344,7 +401,7 @@ const calculateOt2SatFullDay = (basicSalary, workingHours,ot2Rate) => {
 
   return (
     <Box className="salary-updates-container">
-      <Typography className="salary-updates-header" variant="h4" style={{ marginBottom: '5px' }}>
+     <Typography className="salary-updates-header" variant="h4" style={{ marginBottom: '5px' }}>
         Salary Updates
       </Typography>
 
@@ -388,8 +445,6 @@ const calculateOt2SatFullDay = (basicSalary, workingHours,ot2Rate) => {
           No salary details available for {selectedEmployee.shortName}. Please insert new salary details.
         </Typography>
       )}
-
-
       {selectedEmployee && (
         <>
           {loadingSalaryDetails ? (
@@ -397,53 +452,61 @@ const calculateOt2SatFullDay = (basicSalary, workingHours,ot2Rate) => {
           ) : (
             <Box className="employee-form-container" mt={5} p={2}>
               <Grid container spacing={4}>
-                {/* Left Column: Salary Base Updates */}
-<Grid item xs={5}>
-  <h3 style={{ marginBottom: '10px' }}>Salary Base Updates</h3>
-  <p style={{ 
-      color: isEligible ? "green" : "red", 
-      margin: "20px 0", // Adds space above and below
-      fontWeight: "bold" // Optional: Makes it stand out
-  }}>
-    Encouragement Allowance Eligibility for {selectedMonth} : {isEligible ? "Yes" : "No"}
-  </p>
+              {/* Left Column: Salary Base Updates */}
+              <Grid item xs={5}>
+                                <h3 style={{ marginBottom: '10px' }}>Salary Base Updates</h3>
+                                <p style={{ 
+                                    color: isEligible ? "green" : "red", 
+                                    margin: "20px 0", // Adds space above and below
+                                    fontWeight: "bold" // Optional: Makes it stand out
+                                }}>
+                                  Encouragement Allowance Eligibility for {selectedMonth} : {isEligible ? "Yes" : "No"}
+                                </p>
 
-  {['basicSalary', 'attendanceAllowance', 'transportAllowance', 'performanceAllowance','encouragementAllowance' , 'ot1Rate', 'ot2Rate', 'workingHours', 'compulsoryOt1HoursPerDay','lateChargesPerMin','compulsoryOt1AmountPerDay' ,'monthlyTotal', 'ot1PerHour', 'ot2SatFullDay'].map((field) => (
-    <Grid container spacing={1} alignItems="center" key={field}>
-      <Grid item xs={5}>
-        <Typography variant="subtitle1">
-          {field === 'lateChargesPerMin'
-            ? 'Late Charges Per Minutes (Calculated)'
-            : field.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
-        </Typography>
-      </Grid>
-      <Grid item xs={7}>
-        <TextField
-          fullWidth
-          name={field}
-          value={field === 'encouragementAllowance' ? (isEligible ? formData[field] : 0) : formData[field]} // Set encouragementAllowance to 0 if not eligible
-          onChange={handleFormChange}
-          disabled={field === 'lateChargesPerMin'|| 
-                    field === 'monthlyTotal'||
-                    field === 'compulsoryOt1AmountPerDay' ||
-                    field === 'ot1PerHour' ||
-                    field === 'ot2SatFullDay'
-                  }
-          size="small"
-          sx={{ marginBottom: '16px' }}
-        />
-      </Grid>
-    </Grid>
-  ))}
-      <Button
-        variant="contained"
-        onClick={handleSalaryBaseSubmit}
-        color="primary"
-        sx={{ marginTop: '20px' }}
-      >
-        {salaryDetailsNotFound ? 'Create' : 'Update'} Salary Base Details
-      </Button>
-    </Grid>
+                                {['basicSalary', 'attendanceAllowance', 'transportAllowance', 'performanceAllowance', 'encouragementAllowance', 'ot1Rate', 'ot2Rate', 'workingHours', 'compulsoryOt1HoursPerDay', 'lateChargesPerMin', 'compulsoryOt1AmountPerDay', 'monthlyTotal', 'ot1PerHour', 'ot2SatFullDay'].map((field) => (
+                <Grid container spacing={1} alignItems="center" key={field}>
+                  <Grid item xs={5}>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{
+                        color: field === 'encouragementAllowance' ? (isEligible ? 'green' : 'red') : 'inherit', // Change label color for this field
+                        fontWeight: field === 'encouragementAllowance' ? 'bold' : 'normal', // Optional: Make the label bold
+                      }}
+                    >
+                      {field === 'lateChargesPerMin'
+                        ? 'Late Charges Per Minutes (Calculated)'
+                        : field.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={7}>
+                    <TextField
+                      fullWidth
+                      name={field}
+                      value={formData[field]}
+                      onChange={handleFormChange}
+                      disabled={
+                        field === 'lateChargesPerMin' ||
+                        field === 'monthlyTotal' ||
+                        field === 'compulsoryOt1AmountPerDay' ||
+                        field === 'ot1PerHour' ||
+                        field === 'ot2SatFullDay'
+                      }
+                      size="small"
+                      sx={{ marginBottom: '16px' }}
+                    />
+                  </Grid>
+                </Grid>
+              ))}
+                  <Button
+                    variant="contained"
+                    onClick={handleSalaryBaseSubmit}
+                    color="primary"
+                    sx={{ marginTop: '20px' }}
+                  >
+                    {salaryDetailsNotFound ? 'Create' : 'Update'} Salary Base Details
+                  </Button>
+                </Grid>
+
                 {/* Right Column: Monthly Salary Updates */}
                 <Grid item xs={7}>
                   <h3 style={{ marginBottom: '10px' }}>Monthly Salary Updates</h3>
@@ -484,25 +547,33 @@ const calculateOt2SatFullDay = (basicSalary, workingHours,ot2Rate) => {
                     </Grid>
                   </Grid>
 
-                  {['bonus', 'incentives','salaryAdvance', 'foodBill', 'arrears', 'otherDeductions'].map((field) => (
-                    <Grid container spacing={1} alignItems="center" key={field}>
-                      <Grid item xs={5}>
-                        <Typography variant="subtitle1">
-                          {field.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
-                        </Typography>
-                      </Grid>
-                      <Grid item xs={7}>
-                        <TextField
-                          fullWidth
-                          name={field}
-                          value={monthlyData[field]}
-                          onChange={handleMonthlyDataChange}
-                          size="small"
-                          sx={{ marginBottom: '16px' }}
-                        />
-                      </Grid>
-                    </Grid>
-                  ))}
+                  {['bonus', 'incentives', 'monthEncouragementAllowance', 'salaryAdvance', 'foodBill', 'arrears', 'otherDeductions'].map((field) => (
+  <Grid container spacing={1} alignItems="center" key={field}>
+    <Grid item xs={5}>
+      <Typography
+        variant="subtitle1"
+        sx={{
+          color: field === 'monthEncouragementAllowance' ? (isEligible ? 'green' : 'red') : 'inherit', // Change label color for this field
+          fontWeight: field === 'monthEncouragementAllowance' ? 'bold' : 'normal', // Optional: Make the label bold
+        }}
+      >
+        {field.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
+      </Typography>
+    </Grid>
+    <Grid item xs={7}>
+      <TextField
+        fullWidth
+        name={field}
+        value={monthlyData[field]}
+        onChange={handleMonthlyDataChange}
+        size="small"
+        sx={{ marginBottom: '16px' }}
+        //disabled={field === 'monthEncouragementAllowance' && !isEligible} // Disable if not eligible
+        disabled={field === 'monthEncouragementAllowance'}
+      />
+    </Grid>
+  </Grid>
+))}
                   <Button
                     variant="contained"
                     onClick={handleMonthlySalarySubmit}
@@ -528,13 +599,11 @@ const calculateOt2SatFullDay = (basicSalary, workingHours,ot2Rate) => {
                   <ToastContainer />
                 </Button>
               </Grid>
-            </Box>
-            
+            </Box>  
           )}
         </>
       )}
     </Box>
-    
   );
 }
 
