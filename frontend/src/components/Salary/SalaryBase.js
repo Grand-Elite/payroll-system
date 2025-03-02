@@ -15,6 +15,7 @@ import {
   fetchEmployees,
   getSalaryDetailByEmployeeId,
   getMonthlySalaryDetails,
+  fetchLeaveUsage,
   updateSalaryDetails,
   createSalaryDetails,
   createMonthlySalaryUpdate,
@@ -29,6 +30,22 @@ function SalaryBase({ selectedMonth, selectedYear }) {
   const [loadingSalaryDetails, setLoadingSalaryDetails] = useState(false);
   const [salaryDetailsNotFound, setSalaryDetailsNotFound] = useState(false);
   const [monthlySalaryDetailsNotFound, setMonthlySalaryDetailsNotFound] = useState(false);
+  const [leaveData, setLeaveData] = useState({
+    annual: 0,
+    medical: 0,
+    casual: 0,
+    abOnPublicHoliday: 0,
+    other: 0,
+    noPayLeaves: 0,
+    monthlyMandatoryLeaves: 0,
+    leaveApproval: false,
+  });
+  
+  const totalLeaves = leaveData.annual + leaveData.casual + leaveData.medical + 
+                    leaveData.abOnPublicHoliday + leaveData.other + 
+                    leaveData.noPayLeaves + leaveData.monthlyMandatoryLeaves;
+
+  const isEligible = totalLeaves <= 6 && leaveData.noPayLeaves === 0 && leaveData.leaveApproval;                  
 
   const [formData, setFormData] = useState({
     basicSalary: '',
@@ -47,7 +64,6 @@ function SalaryBase({ selectedMonth, selectedYear }) {
     ot2SatFullDay: '0.0',
 
   });
-
   const [monthlyData, setMonthlyData] = useState({
     bonus: '',
     incentives: '',
@@ -87,7 +103,7 @@ function SalaryBase({ selectedMonth, selectedYear }) {
     try {
       const salaryDetails = await getSalaryDetailByEmployeeId(employee.employeeId);
       const monthlySalaryDetails = await getMonthlySalaryDetails(employee.employeeId, selectedYear, selectedMonth);
-
+      const leaveUsage = await fetchLeaveUsage(employee.employeeId, selectedYear, selectedMonth);
       const isSalaryEmpty = Object.values(salaryDetails || {}).every(
         (value) => value === 0 || value === false || value === null
       );
@@ -95,9 +111,6 @@ function SalaryBase({ selectedMonth, selectedYear }) {
       const isMonthlySalaryEmpty = Object.values(monthlySalaryDetails || {}).every(
         (value) => value === 0 || value === false || value === null
       );
-
-      
-
       setSalaryDetailsNotFound(isSalaryEmpty);
       setMonthlySalaryDetailsNotFound(isMonthlySalaryEmpty);
 
@@ -128,7 +141,18 @@ function SalaryBase({ selectedMonth, selectedYear }) {
         year: monthlySalaryDetails.year || '',
         month: monthlySalaryDetails.month || '',
       });
-
+    if (leaveUsage) {
+        setLeaveData({
+          annual: leaveUsage.annual || 0,
+          medical: leaveUsage.medical || 0,
+          casual: leaveUsage.casual || 0,
+          abOnPublicHoliday: leaveUsage.abOnPublicHoliday || 0,
+          other: leaveUsage.other || 0,
+          noPayLeaves: leaveUsage.noPayLeaves || 0,
+          monthlyMandatoryLeaves: leaveUsage.monthlyMandatoryLeaves || 0,
+          leaveApproval: leaveUsage.leaveApproval || false,
+        });
+      }
     } catch (error) {
       console.error('Error fetching salary details:', error);
       setSalaryDetailsNotFound(true);
@@ -358,12 +382,13 @@ const calculateOt2SatFullDay = (basicSalary, workingHours,ot2Rate) => {
           ))}
         </Box>
       )}
-
+ 
       {salaryDetailsNotFound && selectedEmployee && (
         <Typography color="error" variant="body1" style={{ marginTop: '10px' }}>
           No salary details available for {selectedEmployee.shortName}. Please insert new salary details.
         </Typography>
       )}
+
 
       {selectedEmployee && (
         <>
@@ -373,46 +398,52 @@ const calculateOt2SatFullDay = (basicSalary, workingHours,ot2Rate) => {
             <Box className="employee-form-container" mt={5} p={2}>
               <Grid container spacing={4}>
                 {/* Left Column: Salary Base Updates */}
-                <Grid item xs={5}>
-                  <h3 style={{ marginBottom: '10px' }}>Salary Base Updates</h3>
-                  {['basicSalary', 'attendanceAllowance', 'transportAllowance', 'performanceAllowance','encouragementAllowance' , 'ot1Rate', 'ot2Rate', 'workingHours', 'compulsoryOt1HoursPerDay','lateChargesPerMin','compulsoryOt1AmountPerDay' ,'monthlyTotal', 'ot1PerHour', 'ot2SatFullDay'].map((field) => (
-                    <Grid container spacing={1} alignItems="center" key={field}>
-                      <Grid item xs={5}>
-                        <Typography variant="subtitle1">
-                          {field === 'lateChargesPerMin'
-                            ? 'Late Charges Per Minutes (Calculated)'
-                            : field.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
-                        </Typography>
-                      </Grid>
-                      <Grid item xs={7}>
-                        <TextField
-                          fullWidth
-                          name={field}
-                          value={formData[field]}
-                          onChange={handleFormChange}
-                          disabled={field === 'lateChargesPerMin'|| 
-                                    field === 'monthlyTotal'||
-                                    field === 'compulsoryOt1AmountPerDay' ||
-                                    field === 'ot1PerHour' ||
-                                    field === 'ot2SatFullDay'
-                                  }
-                           size="small"
-                           sx={{ marginBottom: '16px' }}
-                        />
-                      </Grid>
-                    </Grid>
-                  ))}
-                 
-                  <Button
-                    variant="contained"
-                    onClick={handleSalaryBaseSubmit}
-                    color="primary"
-                    sx={{ marginTop: '20px' }}
-                  >
-                    {salaryDetailsNotFound ? 'Create' : 'Update'} Salary Base Details
-                  </Button>
-                </Grid>
+<Grid item xs={5}>
+  <h3 style={{ marginBottom: '10px' }}>Salary Base Updates</h3>
+  <p style={{ 
+      color: isEligible ? "green" : "red", 
+      margin: "20px 0", // Adds space above and below
+      fontWeight: "bold" // Optional: Makes it stand out
+  }}>
+    Encouragement Allowance Eligibility for {selectedMonth} : {isEligible ? "Yes" : "No"}
+  </p>
 
+  {['basicSalary', 'attendanceAllowance', 'transportAllowance', 'performanceAllowance','encouragementAllowance' , 'ot1Rate', 'ot2Rate', 'workingHours', 'compulsoryOt1HoursPerDay','lateChargesPerMin','compulsoryOt1AmountPerDay' ,'monthlyTotal', 'ot1PerHour', 'ot2SatFullDay'].map((field) => (
+    <Grid container spacing={1} alignItems="center" key={field}>
+      <Grid item xs={5}>
+        <Typography variant="subtitle1">
+          {field === 'lateChargesPerMin'
+            ? 'Late Charges Per Minutes (Calculated)'
+            : field.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
+        </Typography>
+      </Grid>
+      <Grid item xs={7}>
+        <TextField
+          fullWidth
+          name={field}
+          value={field === 'encouragementAllowance' ? (isEligible ? formData[field] : 0) : formData[field]} // Set encouragementAllowance to 0 if not eligible
+          onChange={handleFormChange}
+          disabled={field === 'lateChargesPerMin'|| 
+                    field === 'monthlyTotal'||
+                    field === 'compulsoryOt1AmountPerDay' ||
+                    field === 'ot1PerHour' ||
+                    field === 'ot2SatFullDay'
+                  }
+          size="small"
+          sx={{ marginBottom: '16px' }}
+        />
+      </Grid>
+    </Grid>
+  ))}
+      <Button
+        variant="contained"
+        onClick={handleSalaryBaseSubmit}
+        color="primary"
+        sx={{ marginTop: '20px' }}
+      >
+        {salaryDetailsNotFound ? 'Create' : 'Update'} Salary Base Details
+      </Button>
+    </Grid>
                 {/* Right Column: Monthly Salary Updates */}
                 <Grid item xs={7}>
                   <h3 style={{ marginBottom: '10px' }}>Monthly Salary Updates</h3>
@@ -448,8 +479,7 @@ const calculateOt2SatFullDay = (basicSalary, workingHours,ot2Rate) => {
                         fullWidth
                         size="small"
                         sx={{ marginBottom: '16px' }}
-                      >
-                        
+                      >    
                       </TextField>
                     </Grid>
                   </Grid>
