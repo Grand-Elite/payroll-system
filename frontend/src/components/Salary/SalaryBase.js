@@ -16,6 +16,7 @@ import {
   getSalaryDetailByEmployeeId,
   getMonthlySalaryDetails,
   fetchLeaveUsage,
+  fetchAttendanceSummary,
   updateSalaryDetails,
   createSalaryDetails,
   createMonthlySalaryUpdate,
@@ -30,6 +31,7 @@ function SalaryBase({ selectedMonth, selectedYear }) {
   const [loadingSalaryDetails, setLoadingSalaryDetails] = useState(false);
   const [salaryDetailsNotFound, setSalaryDetailsNotFound] = useState(false);
   const [monthlySalaryDetailsNotFound, setMonthlySalaryDetailsNotFound] = useState(false);
+  const [attendanceSummary,setAttendanceSummary] = useState([]);
   const [leaveData, setLeaveData] = useState({
     annual: 0,
     medical: 0,
@@ -50,7 +52,12 @@ function SalaryBase({ selectedMonth, selectedYear }) {
     leaveData.noPayLeaves +
     leaveData.monthlyMandatoryLeaves;
 
-  const isEligible = totalLeaves <= 6 && leaveData.noPayLeaves === 0 && leaveData.leaveApproval;
+  const isEligible = 
+      totalLeaves <= 6 && 
+      leaveData.noPayLeaves === 0 && 
+      leaveData.leaveApproval &&
+      attendanceSummary.lateDaysSum <= 3
+      ;
 
   const [formData, setFormData] = useState({
     basicSalary: '',
@@ -124,12 +131,9 @@ function SalaryBase({ selectedMonth, selectedYear }) {
 
       try {
         const salaryDetails = await getSalaryDetailByEmployeeId(employee.employeeId);
-        const monthlySalaryDetails = await getMonthlySalaryDetails(
-          employee.employeeId,
-          selectedYear,
-          selectedMonth
-        );
+        const monthlySalaryDetails = await getMonthlySalaryDetails(employee.employeeId,selectedYear,selectedMonth);
         const leaveUsage = await fetchLeaveUsage(employee.employeeId, selectedYear, selectedMonth);
+        const attendanceSummary = await fetchAttendanceSummary(employee.employeeId, selectedYear, selectedMonth);
 
         const isSalaryEmpty = Object.values(salaryDetails || {}).every(
           (value) => value === 0 || value === false || value === null
@@ -208,6 +212,13 @@ function SalaryBase({ selectedMonth, selectedYear }) {
             leaveApproval: leaveUsage.leaveApproval || false,
           });
         }
+
+        if (attendanceSummary) {
+          setAttendanceSummary({
+            lateDaysSum: attendanceSummary.lateDaysSum || '0',
+          });
+        }
+
       } catch (error) {
         console.error('Error fetching salary details:', error);
         setSalaryDetailsNotFound(true);
@@ -460,7 +471,7 @@ const calculateOt2SatFullDay = (basicSalary, workingHours,ot2Rate) => {
                                     margin: "20px 0", // Adds space above and below
                                     fontWeight: "bold" // Optional: Makes it stand out
                                 }}>
-                                  Encouragement Allowance Eligibility for {selectedMonth} : {isEligible ? "Yes" : "No"}
+                                 Encouragement Allowance Eligibility for {selectedMonth} : {isEligible ? "Yes" : "No"}
                                 </p>
 
                                 {['basicSalary', 'attendanceAllowance', 'transportAllowance', 'performanceAllowance', 'encouragementAllowance', 'ot1Rate', 'ot2Rate', 'workingHours', 'compulsoryOt1HoursPerDay', 'lateChargesPerMin', 'compulsoryOt1AmountPerDay', 'monthlyTotal', 'ot1PerHour', 'ot2SatFullDay'].map((field) => (
