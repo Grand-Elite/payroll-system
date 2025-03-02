@@ -52,18 +52,19 @@ public interface AttendanceRepository extends JpaRepository<Attendance,String> {
             "CASE " +
             "   WHEN oas.updatedAttendanceStatus IS NOT NULL THEN " +
             "       CASE " +
-            "           WHEN oas.updatedAttendanceStatus = '1' THEN 1.0" +
+            "           WHEN oas.updatedAttendanceStatus = '1' THEN 1.0 " +
             "           WHEN oas.updatedAttendanceStatus = '0.5' THEN 0.5 " +
             "           ELSE 0.0 " +
             "       END " +
             "   ELSE " +
             "       CASE " +
-            "           WHEN a.attendance = '1' THEN 1.0" +
+            "           WHEN a.attendance = '1' THEN 1.0 " +
             "           WHEN a.attendance = '0.5' THEN 0.5 " +
             "           ELSE 0.0 " +
             "       END " +
             "END" +
-            ") AS attendanceCount,"+
+            ") AS attendanceCount, " +
+
             "SUM(" +
             "    CASE " +
             "        WHEN FUNCTION('DAYOFWEEK', a.date) <> 7 AND hc.holidayDate IS NULL THEN " +
@@ -73,93 +74,109 @@ public interface AttendanceRepository extends JpaRepository<Attendance,String> {
             "            END " +
             "        ELSE 0.0 " +
             "    END" +
-            ") / 60.0 AS ot1HoursSum," +
+            ") / 60.0 AS ot1HoursSum, " +
+
             "SUM(" +
             "    CASE " +
             "        WHEN a.employee.department.name = 'Cleaning & Maintenance' THEN " +
             "            CASE " +
-            "                WHEN a.workMins > 9.5*60 THEN 0.5 " +
-            "                ELSE 0.0 "+
+            "                WHEN a.workMins > 9.5 * 60 THEN 0.5 " +
+            "                ELSE 0.0 " +
             "            END " +
             "        WHEN a.employee.department.name = 'Front Office' THEN " +
             "            CASE " +
-            "                WHEN a.workMins > 12*60 THEN 3 " +
-            "                ELSE 0.0 "+
+            "                WHEN a.workMins > 12 * 60 THEN 3 " +
+            "                ELSE 0.0 " +
             "            END " +
             "        ELSE 0.0 " +
             "    END" +
-            ") AS ot1CompulsoryHoursSum," +
+            ") AS ot1CompulsoryHoursSum, " +
+
             "SUM(" +
             "    CASE " +
             "        WHEN FUNCTION('DAYOFWEEK', a.date) = 7 THEN " +
-                        "CASE " +
-                        "   WHEN oas.updatedAttendanceStatus IS NOT NULL THEN " +
-                        "       CASE " +
-                        "           WHEN oas.updatedAttendanceStatus = '1' THEN 1.0" +
-                        "           WHEN oas.updatedAttendanceStatus = '0.5' THEN 0.5 " +
-                        "           ELSE 0.0 " +
-                        "       END " +
-                        "   ELSE " +
-                        "       CASE " +
-                        "           WHEN a.attendance = '1' THEN 1.0" +
-                        "           WHEN a.attendance = '0.5' THEN 0.5 " +
-                        "           ELSE 0.0 " +
-                        "       END " +
-                        "END" +
+            "            CASE " +
+            "                WHEN oas.updatedAttendanceStatus IS NOT NULL THEN " +
+            "                    CASE " +
+            "                        WHEN oas.updatedAttendanceStatus = '1' THEN 1.0 " +
+            "                        WHEN oas.updatedAttendanceStatus = '0.5' THEN 0.5 " +
+            "                        ELSE 0.0 " +
+            "                    END " +
+            "                ELSE " +
+            "                    CASE " +
+            "                        WHEN a.attendance = '1' THEN 1.0 " +
+            "                        WHEN a.attendance = '0.5' THEN 0.5 " +
+            "                        ELSE 0.0 " +
+            "                    END " +
+            "            END " +
             "        ELSE 0.0 " +
             "    END" +
-            ") AS saturdayWorkedCount,"+
+            ") AS saturdayWorkedCount, " +
+
             "SUM(" +
             "    CASE " +
             "        WHEN hc.holidayDate IS NOT NULL AND hc.mandatory = true AND FUNCTION('DAYOFWEEK', a.date) = 7 THEN " +
-                        "CASE " +
-                        "   WHEN oas.updatedAttendanceStatus IS NOT NULL THEN " +
-                        "       CASE " +
-                        "           WHEN oas.updatedAttendanceStatus = '1' THEN 1.0" +
-                        "           WHEN oas.updatedAttendanceStatus = '0.5' THEN 0.5 " +
-                        "           ELSE 0.0 " +
-                        "       END " +
-                        "   ELSE " +
-                        "       CASE " +
-                        "           WHEN a.attendance = '1' THEN 1.0" +
-                        "           WHEN a.attendance = '0.5' THEN 0.5 " +
-                        "           ELSE 0.0 " +
-                        "       END " +
-                        "END" +
+            "            CASE " +
+            "                WHEN oas.updatedAttendanceStatus IS NOT NULL THEN " +
+            "                    CASE " +
+            "                        WHEN oas.updatedAttendanceStatus = '1' THEN 1.0 " +
+            "                        WHEN oas.updatedAttendanceStatus = '0.5' THEN 0.5 " +
+            "                        ELSE 0.0 " +
+            "                    END " +
+            "                ELSE " +
+            "                    CASE " +
+            "                        WHEN a.attendance = '1' THEN 1.0 " +
+            "                        WHEN a.attendance = '0.5' THEN 0.5 " +
+            "                        ELSE 0.0 " +
+            "                    END " +
+            "            END " +
             "        ELSE 0.0 " +
             "    END" +
-            ") AS poyaOnSaturdayWorkedCount,"+
+            ") AS poyaOnSaturdayWorkedCount, " +
+
             "SUM(CASE " +
             "   WHEN oas.updatedTotalLcMins IS NOT NULL " +
             "   THEN oas.updatedTotalLcMins " +
             "   ELSE a.lcMins " +
             "END) / 60.0 AS lateHoursSum, " +
+
             "SUM(" +
             "    CASE " +
             "        WHEN hc.holidayDate IS NOT NULL AND hc.mandatory = true AND FUNCTION('DAYOFWEEK', a.date) <> 7 THEN " +
-                        "CASE " +
-                        "   WHEN oas.updatedAttendanceStatus IS NOT NULL THEN " +
-                        "       CASE " +
-                        "           WHEN oas.updatedAttendanceStatus = '1' THEN 1.0" +
-                        "           WHEN oas.updatedAttendanceStatus = '0.5' THEN 0.5 " +
-                        "           ELSE 0.0 " +
-                        "       END " +
-                        "   ELSE " +
-                        "       CASE " +
-                        "           WHEN a.attendance = '1' THEN 1.0" +
-                        "           WHEN a.attendance = '0.5' THEN 0.5 " +
-                        "           ELSE 0.0 " +
-                        "       END " +
-                        "END" +
+            "            CASE " +
+            "                WHEN oas.updatedAttendanceStatus IS NOT NULL THEN " +
+            "                    CASE " +
+            "                        WHEN oas.updatedAttendanceStatus = '1' THEN 1.0 " +
+            "                        WHEN oas.updatedAttendanceStatus = '0.5' THEN 0.5 " +
+            "                        ELSE 0.0 " +
+            "                    END " +
+            "                ELSE " +
+            "                    CASE " +
+            "                        WHEN a.attendance = '1' THEN 1.0 " +
+            "                        WHEN a.attendance = '0.5' THEN 0.5 " +
+            "                        ELSE 0.0 " +
+            "                    END " +
+            "            END " +
             "        ELSE 0.0 " +
             "    END" +
-            ") AS poyaNotSaturdayWorkedCount"+
-            ") FROM" +
-            " Attendance a" +
-            " LEFT JOIN OverwrittenAttendanceStatus oas ON a.attendanceRecordId = oas.attendanceRecordId" +
-            " LEFT JOIN HolidayCalendar hc ON a.date=hc.holidayDate "+
-            " WHERE a.employee.employeeId = :employeeId" +
-            " AND EXTRACT(YEAR FROM a.date)=:year" +
-            " AND EXTRACT(MONTH FROM a.date)=:month")
+            ") AS poyaNotSaturdayWorkedCount, " +
+
+            "SUM(" +
+            "    CASE " +
+            "        WHEN (oas.updatedTotalLcMins IS NOT NULL AND oas.updatedTotalLcMins > 0) " +
+            "        OR (oas.updatedTotalLcMins IS NULL AND a.lcMins > 0) " +
+            "        THEN 1.0 " +
+            "        ELSE 0.0 " +
+            "    END" +
+            ") AS lateDaysSum " +
+
+            ") FROM " +
+            " Attendance a " +
+            " LEFT JOIN OverwrittenAttendanceStatus oas ON a.attendanceRecordId = oas.attendanceRecordId " +
+            " LEFT JOIN HolidayCalendar hc ON a.date = hc.holidayDate " +
+            " WHERE a.employee.employeeId = :employeeId " +
+            " AND EXTRACT(YEAR FROM a.date) = :year " +
+            " AND EXTRACT(MONTH FROM a.date) = :month")
     AttendanceSummary findAggregatedMonthlyAttendanceSummary(Long employeeId, String year, int month);
+
 }

@@ -738,7 +738,7 @@ const handleAdjustedAttendanceSubmit = async () => {
             </span>
           </div>
         <div>
-          Total Late Hours: {attendanceSummary.lateHoursSum}
+         Total Late Hours: {attendanceSummary.lateHoursSum}
           <span className="adjustment-container">
             Adjustments if needed:
             <input
@@ -747,6 +747,9 @@ const handleAdjustedAttendanceSubmit = async () => {
               onChange={(e) => setAdjustedLateTime(e.target.value)} // Update state on change
             />
           </span>
+        </div>
+        <div>
+          Total Late Days : {attendanceSummary.lateDaysSum}
         </div>
         <button
           type="button"
