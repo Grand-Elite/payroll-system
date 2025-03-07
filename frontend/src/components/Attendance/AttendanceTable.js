@@ -686,12 +686,12 @@ const handleAdjustedAttendanceSubmit = async () => {
               <TableCell>Total No. of Saturday Attendance</TableCell>
               <TableCell>{attendanceSummary.saturdayWorkedCount}</TableCell>
             </TableRow>
-            {props.shifts[0] && 
+            {/*{props.shifts[0] && 
             <TableRow>
               <TableCell>Shift Start Time</TableCell>
               <TableCell>{props.shifts[0].startTime}, {props.shifts[0].shiftPeriod} </TableCell>
             </TableRow>
-            }
+            }*/}
           </TableBody>
         </Table>
       </Box>
@@ -757,6 +757,9 @@ const handleAdjustedAttendanceSubmit = async () => {
               const newTimeIn = e.target.value;
               handleFieldChange(index, 'timeIn', newTimeIn); // Update the actual timeIn value in state
             }}
+            onClick={(e) => {
+              e.preventDefault(); // Prevent the dropdown from opening
+            }}
             size="small"
           />
         </TableCell>
@@ -765,6 +768,9 @@ const handleAdjustedAttendanceSubmit = async () => {
             type="time"
             value={dayjs(day.timeOut).format("HH:mm:ss")}
             onChange={(e) => handleFieldChange(index, 'timeOut', e.target.value)}
+            onClick={(e) => {
+              e.preventDefault(); // Prevent the dropdown from opening
+            }}
             size="small"
           />
         </TableCell>

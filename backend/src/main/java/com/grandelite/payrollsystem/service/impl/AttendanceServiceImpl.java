@@ -105,75 +105,6 @@ public class AttendanceServiceImpl implements AttendanceService {
         return attendanceRepository.findAggregatedMonthlyAttendanceSummary(employeeId,year,Month.valueOf(month.toUpperCase()).getValue());
     }
 
-//    private void processAndSaveAttendance(List<Map<String, String>> records) {
-//        // Parse records and group by Person ID and Adjusted Date
-//        Map<String, Map<LocalDate, List<LocalDateTime>>> groupedRecords = new HashMap<>();
-//        Map<String, String> employeeDepartment = new HashMap<>();
-//        for (Map<String, String> record : records) {
-//            String personName = record.get("Name");
-//            LocalDateTime timestamp = LocalDateTime.parse(record.get("Time"), DATE_TIME_FORMATTER);
-//
-//            // Adjust date to start the day at 3 AM
-//            LocalDate adjustedDate = timestamp.toLocalDate();
-//            if (timestamp.toLocalTime().isBefore(DAY_CHANGE_TIME)) {
-//                adjustedDate = adjustedDate.minusDays(1);
-//            }
-//
-//            // Group by Person ID and adjusted date
-//            groupedRecords
-//                    .computeIfAbsent(personName, k -> new HashMap<>())
-//                    .computeIfAbsent(adjustedDate, k -> new ArrayList<>())
-//                    .add(timestamp);
-//            String departmentName = record.get("Department");
-//            employeeDepartment.put(personName,departmentName);
-//        }
-//        Map<String,Employee> employeeMap = new HashMap<>();
-//        // Process each group to find the clock-in and clock-out times
-//        List<Attendance> summaries = new ArrayList<>();
-//        Map<String,YearMonth> yearMonthMap = new HashMap<>();
-//        for (String personName : groupedRecords.keySet()) {
-//            Employee employee = employeeMap.get(personName);
-//            for (LocalDate date : groupedRecords.get(personName).keySet()) {
-//                yearMonthMap.put(date.getYear()+":"+date.getMonthValue()
-//                        ,new YearMonth(String.valueOf(date.getYear()),date.getMonthValue()));
-//
-//                List<LocalDateTime> times = groupedRecords.get(personName).get(date);
-//                times.sort(LocalDateTime::compareTo);
-//
-//                LocalDateTime clockIn = times.stream().filter(t -> !t.toLocalTime().isBefore(DAY_CHANGE_TIME)).findFirst().orElse(null);
-//                LocalDateTime clockOut = times.stream().filter(t -> t.isBefore(LocalDateTime.of(date.plusDays(1), DAY_CHANGE_TIME)))
-//                        .reduce((first, second) -> second).orElse(null);
-//
-//                if (clockIn != null && clockOut != null) {
-//                    if (employee == null){
-//                        employee =employeeRepository.findByShortName(personName);
-//                        employeeMap.put(personName,employee);
-//                    }
-//                    if(employee==null){
-//                        employee = createEmployee(personName,employeeDepartment.get(personName));
-//                        employeeMap.put(personName,employee);
-//                    }
-//                    Attendance attendance = new Attendance();
-//                    attendance.setAttendanceRecordId(personName + date);
-//                    attendance.setEmployee(employee);
-//                    attendance.setDate(date);
-//                    attendance.setActualStartTime(clockIn);
-//                    attendance.setActualEndTime(clockOut);
-//                    attendance.setWorkMins(Duration.between(clockIn, clockOut).toMinutes());
-//                    attendance.setAttendance(calcAttendance(employee,clockIn,clockOut));
-//                    calcOtAndLateHours(employee,attendance);
-//                    summaries.add(attendance);
-//                }
-//            }
-//            attendanceRepository.saveAll(summaries);
-//            System.out.println(yearMonthMap);
-//            for (YearMonth yearMonth:yearMonthMap.values()) {
-//                monthlyFullSalaryService.calculateMonthlyFullSalary(employee.getEmployeeId(),yearMonth.getYear(),yearMonth.getMonth());
-//            }
-//        }
-//    }
-
-
         private void processAndSaveAttendance(List<Map<String, String>> records) {
         // Parse records and group by Person ID and Adjusted Date
         Map<String, Map<LocalDate, List<LocalDateTime>>> groupedRecords = new HashMap<>();
@@ -308,7 +239,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 
         // Handle early clock-in or late clock-in
         if (earlyClockInOtMins > 0) {
-            attendance.setOtEarlyClockinMins(earlyClockInOtMins);
+            //attendance.setOtEarlyClockinMins(earlyClockInOtMins);
             totalOtMins += earlyClockInOtMins;
         } else {
             long lateClockInMins = Math.abs(earlyClockInOtMins); // Convert negative to positive
