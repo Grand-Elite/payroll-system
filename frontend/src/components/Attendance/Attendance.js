@@ -120,7 +120,7 @@ const handleEmployeeChange = (newValue) => {
             )}
 
             <br />
-            <AttendanceTable employeeId={selectedEmployee.employeeId} selectedMonth={selectedMonth} selectedYear={selectedYear} />
+            <AttendanceTable employeeId={selectedEmployee.employeeId} shifts={shifts} selectedMonth={selectedMonth} selectedYear={selectedYear} />
           </>
         )}
       </Box>
