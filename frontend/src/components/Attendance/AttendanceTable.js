@@ -137,129 +137,151 @@ useEffect(() => {
 
     //props.shifts
  
-  useEffect(() => {
-    const currentMonth = dayjs(`01 ${props.selectedMonth} 2000`, "DD MMMM YYYY").month(); 
-    const currentYear = props.selectedYear;
-    const days = [];
-    const daysInCurrentMonth = dayjs(new Date(currentYear, currentMonth, 1)).daysInMonth();
-
-    for (let i = 1; i <= daysInCurrentMonth; i++) {
-      const date = dayjs(new Date(currentYear, currentMonth, i));
-      const dayOfWeek = date.day();
-      days.push({
-        date: date.format('YYYY-MM-DD'),
-        day: date.format('dddd'),
-        dayOfWeek,
-        timeIn: '',
-        timeOut: '',
-        attendanceStatus: 'ab',
-        originalAttendanceStatus: 'ab', // Store the original status
-        workHours: '',
-        shift: '',
-        otMins: 0,
-        otEarlyClockinMins: 0,
-        updatedOtEarlyClockinMins: 0,
-        otLateClockoutMins:0,
-        updatedOtLateClockoutMins:0,
-        originalOtMins: 0,
-        lateMins: 0,
-        lcLateClockinMins: 0,
-        updatedLcLateClockinMins: 0,
-        lcEarlyClockoutMins: 0,
-        updatedLcEarlyClockoutMins: 0,
-        originalLateMins: 0,
-        overwritten: '',
-      });
-    }
-
-    setDaysInMonth(days);
-
-    const loadEmployeeAttendance = async () => {
-      try {
-        const employeeAttendanceList = await fetchAttendance(props.employeeId,props.selectedYear,props.selectedMonth);
-        
-        const attendanceMap = {};
-        employeeAttendanceList.forEach(record => {
-            attendanceMap[record.date] = record;
+    useEffect(() => {
+      const currentMonth = dayjs(`01 ${props.selectedMonth} 2000`, "DD MMMM YYYY").month();
+      const currentYear = props.selectedYear;
+      const days = [];
+      const daysInCurrentMonth = dayjs(new Date(currentYear, currentMonth, 1)).daysInMonth();
+    
+      for (let i = 1; i <= daysInCurrentMonth; i++) {
+        const date = dayjs(new Date(currentYear, currentMonth, i));
+        const dayOfWeek = date.day();
+        days.push({
+          date: date.format('YYYY-MM-DD'),
+          day: date.format('dddd'),
+          dayOfWeek,
+          timeIn: '',
+          timeOut: '',
+          attendanceStatus: 'ab',
+          originalAttendanceStatus: 'ab', // Store the original status
+          workHours: '',
+          shift: '',
+          otMins: 0,
+          otEarlyClockinMins: 0,
+          updatedOtEarlyClockinMins: 0,
+          otLateClockoutMins: 0,
+          updatedOtLateClockoutMins: 0,
+          originalOtMins: 0,
+          lateMins: 0,
+          lcLateClockinMins: 0,
+          updatedLcLateClockinMins: 0,
+          lcEarlyClockoutMins: 0,
+          updatedLcEarlyClockoutMins: 0,
+          originalLateMins: 0,
+          overwritten: '',
         });
-        console.log(attendanceMap)
-        const updatedDays = days.map(day => {
-          const attendanceRecord = attendanceMap[day.date];
-          if (attendanceRecord) {
-              return {
-                  ...day,
-                  attendanceRecordId: attendanceRecord.attendanceRecordId,
-                  timeIn: attendanceRecord.actualStartTime || '',
-                  timeOut: attendanceRecord.actualEndTime || '',
-                  attendanceStatus: attendanceRecord.overwrittenAttendanceStatus?
-                                    attendanceRecord.overwrittenAttendanceStatus.updatedAttendanceStatus:null 
-                                    || attendanceRecord.attendance || '',
-                  originalAttendanceStatus: attendanceRecord.overwrittenAttendanceStatus?
-                                            attendanceRecord.overwrittenAttendanceStatus.updatedAttendanceStatus:null 
-                                            || attendanceRecord.attendance || '',
-                  workMins: attendanceRecord.workMins || 0,
-                  shift: attendanceRecord.shift?attendanceRecord.shift.shiftPeriod || 'MORNING':'',
-      
-                  otMins: attendanceRecord.overwrittenAttendanceStatus?
-                          attendanceRecord.overwrittenAttendanceStatus.updatedTotalOtMins:null 
-                          ||attendanceRecord.otMins || 0,
-                  originalOtMins: attendanceRecord.overwrittenAttendanceStatus?
-                                  attendanceRecord.overwrittenAttendanceStatus.updatedTotalOtMins:null 
-                                  ||attendanceRecord.otMins || 0,
-                  otEarlyClockinMins: attendanceRecord.overwrittenAttendanceStatus?
-                                      attendanceRecord.overwrittenAttendanceStatus.updatedOtEarlyClockinMins:null 
-                                      || attendanceRecord.otEarlyClockinMins || 0,
-                  updatedOtEarlyClockinMins: attendanceRecord.overwrittenAttendanceStatus?
-                                              attendanceRecord.overwrittenAttendanceStatus.updatedOtEarlyClockinMins:null 
-                                            || attendanceRecord.otEarlyClockinMins || 0,
-                  otLateClockoutMins: attendanceRecord.overwrittenAttendanceStatus?
-                                      attendanceRecord.overwrittenAttendanceStatus.updatedOtLateClockoutMins:null 
-                                      || attendanceRecord.otLateClockoutMins || 0,
-                  updatedOtLateClockoutMins: attendanceRecord.overwrittenAttendanceStatus?
-                                              attendanceRecord.overwrittenAttendanceStatus.updatedOtLateClockoutMins:null 
-                                            || attendanceRecord.otLateClockoutMins || 0,
-      
-                  lateMins: attendanceRecord.overwrittenAttendanceStatus?
-                            attendanceRecord.overwrittenAttendanceStatus.updatedTotalLcMins:null 
-                            || attendanceRecord.lcMins || '',
-                  originalLateMins: attendanceRecord.overwrittenAttendanceStatus?
-                                    attendanceRecord.overwrittenAttendanceStatus.updatedTotalLcMins:null 
-                                  || attendanceRecord.lcMins || '',
-                  lcLateClockinMins: attendanceRecord.overwrittenAttendanceStatus?
-                                      attendanceRecord.overwrittenAttendanceStatus.updatedLcLateClockinMins:null 
-                                      ||attendanceRecord.lcLateClockinMins || 0,
-                  updatedLcLateClockinMins: attendanceRecord.overwrittenAttendanceStatus?
-                                            attendanceRecord.overwrittenAttendanceStatus.updatedLcLateClockinMins:null 
-                                            ||attendanceRecord.lcLateClockinMins || 0,
-                  lcEarlyClockoutMins: attendanceRecord.overwrittenAttendanceStatus?
-                                        attendanceRecord.overwrittenAttendanceStatus.updatedLcEarlyClockoutMins:null 
-                                        ||attendanceRecord.lcEarlyClockoutMins || 0,
-                  updatedLcEarlyClockoutMins: attendanceRecord.overwrittenAttendanceStatus?
-                                              attendanceRecord.overwrittenAttendanceStatus.updatedLcEarlyClockoutMins:null 
-                                              ||attendanceRecord.lcEarlyClockoutMins || 0,
-      
-                  overwritten: attendanceRecord.overwrittenAttendanceStatus?'*':'',
-              };
-          }
-          return day;
-      });
-      
-        setDaysInMonth(updatedDays);
-        
-        const employeeAttendanceSummary = await fetchAttendanceSummary(props.employeeId,props.selectedYear,props.selectedMonth);
-        setAttendanceSummary({
-          daysInCurrentMonth,
-          ...employeeAttendanceSummary
-        });
-
-      } catch (error) {
-        console.error("Error fetching employee attendance:", error);
       }
-    };
-
-    loadEmployeeAttendance();
-  }, [props.employeeId, props.selectedMonth, props.selectedYear]);
-
+    
+      setDaysInMonth(days);
+    
+      const loadEmployeeAttendance = async () => {
+        try {
+          const employeeAttendanceList = await fetchAttendance(props.employeeId, props.selectedYear, props.selectedMonth);
+      
+          const attendanceMap = {};
+          employeeAttendanceList.forEach(record => {
+            attendanceMap[record.date] = record;
+          });
+      
+          console.log(attendanceMap);
+      
+          const updatedDays = days.map(day => {
+            const attendanceRecord = attendanceMap[day.date];
+            if (attendanceRecord) {
+              console.log("Attendance Record:", attendanceRecord);
+              // Determine the shift start time based on the shift type
+              let shiftStartTime = "00:00:00";
+              if(attendanceRecord.shift){
+                shiftStartTime = attendanceRecord.shift.shiftPeriod === "MORNING"
+                ? props.shifts[0].startTime
+                : props.shifts[1].startTime;
+              }
+              
+      
+              // If shiftStartTime is undefined, use a default value (e.g., "00:00:00")
+              const safeShiftStartTime = shiftStartTime || "00:00:00";
+              const safeShiftStartTimeObj = dayjs(`1970-01-01T${safeShiftStartTime}`, "HH:mm:ss");
+              const actualStartTimeStr = dayjs(attendanceRecord.actualStartTime).format("HH:mm:ss");
+              const actualStartTimeObj =  dayjs(`1970-01-01T${actualStartTimeStr}`,"HH:mm:ss");
+              
+              // Determine the displayed timeIn value
+              const displayedTimeIn = actualStartTimeObj.isBefore(safeShiftStartTimeObj)
+                ? safeShiftStartTimeObj // Use shift start time if timeIn is earlier
+                :actualStartTimeObj; // Otherwise, use the actual timeIn value
+              console.log("Shift Start Time:", safeShiftStartTimeObj);
+              console.log("Actual Start Time:", actualStartTimeObj);
+              console.log("Displayed Time In:", displayedTimeIn);
+              return {
+                ...day,
+                attendanceRecordId: attendanceRecord.attendanceRecordId,
+                timeIn: displayedTimeIn, // Use the adjusted timeIn value
+                timeOut: attendanceRecord.actualEndTime || '',
+                attendanceStatus: attendanceRecord.overwrittenAttendanceStatus
+                  ? attendanceRecord.overwrittenAttendanceStatus.updatedAttendanceStatus
+                  : attendanceRecord.attendance || '',
+                originalAttendanceStatus: attendanceRecord.overwrittenAttendanceStatus
+                  ? attendanceRecord.overwrittenAttendanceStatus.updatedAttendanceStatus
+                  : attendanceRecord.attendance || '',
+                workMins: attendanceRecord.workMins || 0,
+                shift: attendanceRecord.shift ? attendanceRecord.shift.shiftPeriod || 'MORNING' : '',
+      
+                otMins: attendanceRecord.overwrittenAttendanceStatus
+                  ? attendanceRecord.overwrittenAttendanceStatus.updatedTotalOtMins
+                  : attendanceRecord.otMins || 0,
+                originalOtMins: attendanceRecord.overwrittenAttendanceStatus
+                  ? attendanceRecord.overwrittenAttendanceStatus.updatedTotalOtMins
+                  : attendanceRecord.otMins || 0,
+                otEarlyClockinMins: attendanceRecord.overwrittenAttendanceStatus
+                  ? attendanceRecord.overwrittenAttendanceStatus.updatedOtEarlyClockinMins
+                  : attendanceRecord.otEarlyClockinMins || 0,
+                updatedOtEarlyClockinMins: attendanceRecord.overwrittenAttendanceStatus
+                  ? attendanceRecord.overwrittenAttendanceStatus.updatedOtEarlyClockinMins
+                  : attendanceRecord.otEarlyClockinMins || 0,
+                otLateClockoutMins: attendanceRecord.overwrittenAttendanceStatus
+                  ? attendanceRecord.overwrittenAttendanceStatus.updatedOtLateClockoutMins
+                  : attendanceRecord.otLateClockoutMins || 0,
+                updatedOtLateClockoutMins: attendanceRecord.overwrittenAttendanceStatus
+                  ? attendanceRecord.overwrittenAttendanceStatus.updatedOtLateClockoutMins
+                  : attendanceRecord.otLateClockoutMins || 0,
+      
+                lateMins: attendanceRecord.overwrittenAttendanceStatus
+                  ? attendanceRecord.overwrittenAttendanceStatus.updatedTotalLcMins
+                  : attendanceRecord.lcMins || '',
+                originalLateMins: attendanceRecord.overwrittenAttendanceStatus
+                  ? attendanceRecord.overwrittenAttendanceStatus.updatedTotalLcMins
+                  : attendanceRecord.lcMins || '',
+                lcLateClockinMins: attendanceRecord.overwrittenAttendanceStatus
+                  ? attendanceRecord.overwrittenAttendanceStatus.updatedLcLateClockinMins
+                  : attendanceRecord.lcLateClockinMins || 0,
+                updatedLcLateClockinMins: attendanceRecord.overwrittenAttendanceStatus
+                  ? attendanceRecord.overwrittenAttendanceStatus.updatedLcLateClockinMins
+                  : attendanceRecord.lcLateClockinMins || 0,
+                lcEarlyClockoutMins: attendanceRecord.overwrittenAttendanceStatus
+                  ? attendanceRecord.overwrittenAttendanceStatus.updatedLcEarlyClockoutMins
+                  : attendanceRecord.lcEarlyClockoutMins || 0,
+                updatedLcEarlyClockoutMins: attendanceRecord.overwrittenAttendanceStatus
+                  ? attendanceRecord.overwrittenAttendanceStatus.updatedLcEarlyClockoutMins
+                  : attendanceRecord.lcEarlyClockoutMins || 0,
+      
+                overwritten: attendanceRecord.overwrittenAttendanceStatus ? '*' : '',
+              };
+            }
+            return day;
+          });
+      
+          setDaysInMonth(updatedDays);
+      
+          const employeeAttendanceSummary = await fetchAttendanceSummary(props.employeeId, props.selectedYear, props.selectedMonth);
+          setAttendanceSummary({
+            daysInCurrentMonth,
+            ...employeeAttendanceSummary,
+          });
+        } catch (error) {
+          console.error("Error fetching employee attendance:", error);
+        }
+      };    
+      loadEmployeeAttendance();
+    }, [props.employeeId, props.selectedMonth, props.selectedYear, props.shifts]); // Added props.shifts to the dependency array
 
   useEffect(() => {
     const loadLeaveUsage = async () => {
@@ -689,97 +711,122 @@ const handleAdjustedAttendanceSubmit = async () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {daysInMonth.map((day, index) => (
-            <TableRow
-              key={index}
-              style={{
-                backgroundColor:
-                  day.attendanceStatus !== 'ab' &&  day.attendanceStatus !== '1'  &&  day.attendanceStatus !== '0.5'? '#ffbaba' : 
-                  day.dayOfWeek === 0 || day.dayOfWeek === 6 ? '#f5f5f5' : 'inherit',
-              }}
-            >
-              <TableCell>
-                <Typography>{day.date} ({day.day})</Typography>
-              </TableCell>
-              <TableCell>
-                <TextField
-                  type="time"
-                  value={dayjs(day.timeIn).format("HH:mm:ss")}
-                  onChange={(e) => handleFieldChange(index, 'timeIn', e.target.value)}
-                  size="small"
-                />
-              </TableCell>
-              <TableCell>
-                <TextField
-                  type="time"
-                  value={dayjs(day.timeOut).format("HH:mm:ss")}
-                  onChange={(e) => handleFieldChange(index, 'timeOut', e.target.value)}
-                  size="small"
-                />
-              </TableCell>
-              <TableCell>
-                <TextField
-                  value={formatHourMins(day.workMins)}
-                  size="small"
-                />
-              </TableCell>
-              <TableCell>
-                  <Select
-                      value={day.shift}
-                      onChange={(e) => handleFieldChange(index, "shift", e.target.value)}
-                      size="small"
-                      displayEmpty
-                  >
-                      <MenuItem value="MORNING">M</MenuItem>
-                      <MenuItem value="EVENING">E</MenuItem>
-                  </Select>
-                </TableCell>
-              <OTHoursCell 
-              day={day} 
-              index={index} 
-              handleFieldChange={handleFieldChange} />
+  {daysInMonth.map((day, index) => {
+    // Ensure props.shifts is defined and has the required shift objects
+    const morningShift = props.shifts?.[0];
+    const eveningShift = props.shifts?.[1];
 
-              <LateHoursCell 
-              day={day} 
-              index={index} 
-              handleFieldChange={handleFieldChange} />
+    // Determine the shift start time based on the shift type
+    const shiftStartTime = day.shift === "MORNING" 
+      ? morningShift?.startTime 
+      : eveningShift?.startTime;
 
+    // If shiftStartTime is undefined, use a default value (e.g., "00:00:00")
+    const safeShiftStartTime = shiftStartTime || "00:00:00";
 
-              <TableCell>
-                  <Select
-                      value={day.attendanceStatus}
-                      onChange={(e) => handleFieldChange(index, "attendanceStatus", e.target.value)}
-                      size="small"
-                      displayEmpty
-                  >
-                      <MenuItem value="ab">ab</MenuItem>
-                      <MenuItem value="0.5">0.5</MenuItem>
-                      <MenuItem value="1">1</MenuItem>
-                  </Select>
-                </TableCell>
+    // Debugging: Log values for verification
+    // console.log("Time In:", day.timeIn);
+    // console.log("Shift Start Time:", safeShiftStartTime);
+    // console.log("Is Time In Before Shift Start Time:", dayjs(day.timeIn).isBefore(dayjs(safeShiftStartTime, "HH:mm:ss")));
 
-{/* 
-Save Button in each individual row separately- Only show the save button if the status has changed */}
-              <TableCell> 
-                  {(day.attendanceStatus !== day.originalAttendanceStatus 
-                  || day.otMins !== day.originalOtMins 
-                  || day.lateMins !== day.originalLateMins )
-                  && (
-                      <Button
-                          variant="contained"
-                          color="primary"
-                          size="small"
-                          onClick={() => handleSave(index)}
-                      >
-                          Save
-                      </Button>
-                  )}
-              </TableCell>
+    // Determine the displayed timeIn value
+    const displayedTimeIn = dayjs(day.timeIn).isBefore(dayjs(safeShiftStartTime, "HH:mm:ss"))
+      ? safeShiftStartTime // Display shift start time if timeIn is earlier
+      : day.timeIn; // Otherwise, display the actual timeIn value
 
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+    return (
+      <TableRow
+        key={index}
+        style={{
+          backgroundColor:
+            day.attendanceStatus !== 'ab' && day.attendanceStatus !== '1' && day.attendanceStatus !== '0.5' 
+              ? '#ffbaba' 
+              : day.dayOfWeek === 0 || day.dayOfWeek === 6 
+                ? '#f5f5f5' 
+                : 'inherit',
+        }}
+      >
+        <TableCell>
+          <Typography>{day.date} ({day.day})</Typography>
+        </TableCell>
+        <TableCell>
+          <TextField
+            type="time"
+            value={dayjs(displayedTimeIn).format("HH:mm:ss")} // Display the calculated timeIn value
+            onChange={(e) => {
+              const newTimeIn = e.target.value;
+              handleFieldChange(index, 'timeIn', newTimeIn); // Update the actual timeIn value in state
+            }}
+            size="small"
+          />
+        </TableCell>
+        <TableCell>
+          <TextField
+            type="time"
+            value={dayjs(day.timeOut).format("HH:mm:ss")}
+            onChange={(e) => handleFieldChange(index, 'timeOut', e.target.value)}
+            size="small"
+          />
+        </TableCell>
+        <TableCell>
+          <TextField
+            value={formatHourMins(day.workMins)}
+            size="small"
+          />
+        </TableCell>
+        <TableCell>
+          <Select
+            value={day.shift}
+            onChange={(e) => handleFieldChange(index, "shift", e.target.value)}
+            size="small"
+            displayEmpty
+          >
+            <MenuItem value="MORNING">M</MenuItem>
+            <MenuItem value="EVENING">E</MenuItem>
+          </Select>
+        </TableCell>
+        <OTHoursCell 
+          day={day} 
+          index={index} 
+          handleFieldChange={handleFieldChange} 
+        />
+        <LateHoursCell 
+          day={day} 
+          index={index} 
+          handleFieldChange={handleFieldChange} 
+        />
+        <TableCell>
+          <Select
+            value={day.attendanceStatus}
+            onChange={(e) => handleFieldChange(index, "attendanceStatus", e.target.value)}
+            size="small"
+            displayEmpty
+          >
+            <MenuItem value="ab">ab</MenuItem>
+            <MenuItem value="0.5">0.5</MenuItem>
+            <MenuItem value="1">1</MenuItem>
+          </Select>
+        </TableCell>
+        <TableCell>
+          {(day.attendanceStatus !== day.originalAttendanceStatus 
+            || day.otMins !== day.originalOtMins 
+            || day.lateMins !== day.originalLateMins) 
+            && (
+              <Button
+                variant="contained"
+                color="primary"
+                size="small"
+                onClick={() => handleSave(index)}
+              >
+                Save
+              </Button>
+            )}
+        </TableCell>
+      </TableRow>
+    );
+  })}
+</TableBody>
+</Table>
     </TableContainer>
 <br></br>
     <Button

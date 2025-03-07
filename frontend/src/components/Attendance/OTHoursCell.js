@@ -14,7 +14,7 @@ import { formatHourMins } from '../../util/DateTimeUtil';
 
 const OTHoursCell = ({ day, index, handleFieldChange }) => {
   const [expanded, setExpanded] = useState(false);
-  const [includeEarly, setIncludeEarly] = useState(true);
+  const [includeEarly, setIncludeEarly] = useState(false); // Early checkbox is unchecked by default
   const [includeLate, setIncludeLate] = useState(true);
 
   const handleExpandClick = () => setExpanded(!expanded);
@@ -45,31 +45,37 @@ const OTHoursCell = ({ day, index, handleFieldChange }) => {
   };
 
   const handleCheckboxChange = (type) => {
-    let newIncludeEarly = includeEarly;
-    let newIncludeLate = includeLate;
-
     if (type === 'early') {
-      newIncludeEarly = !includeEarly;
+      const newIncludeEarly = !includeEarly;
       setIncludeEarly(newIncludeEarly);
+
       // When unchecked, clear the early clock-in value
       if (!newIncludeEarly) {
         handleFieldChange(index, 'updatedOtEarlyClockinMins', 0);
       }
-    } else {
-      newIncludeLate = !includeLate;
+
+      // Recalculate total OT minutes
+      const earlyValue = newIncludeEarly ? day.updatedOtEarlyClockinMins || 0 : 0;
+      const lateValue = includeLate ? day.updatedOtLateClockoutMins || 0 : 0;
+      const newOtMins = earlyValue + lateValue;
+
+      handleFieldChange(index, 'otMins', newOtMins);
+    } else if (type === 'late') {
+      const newIncludeLate = !includeLate;
       setIncludeLate(newIncludeLate);
+
       // When unchecked, clear the late clock-out value
       if (!newIncludeLate) {
         handleFieldChange(index, 'updatedOtLateClockoutMins', 0);
       }
+
+      // Recalculate total OT minutes
+      const earlyValue = includeEarly ? day.updatedOtEarlyClockinMins || 0 : 0;
+      const lateValue = newIncludeLate ? day.updatedOtLateClockoutMins || 0 : 0;
+      const newOtMins = earlyValue + lateValue;
+
+      handleFieldChange(index, 'otMins', newOtMins);
     }
-
-    // Use the new checkbox values to determine the OT minutes to save.
-    const earlyValue = newIncludeEarly ? day.updatedOtEarlyClockinMins || 0 : 0;
-    const lateValue = newIncludeLate ? day.updatedOtLateClockoutMins || 0 : 0;
-    const newOtMins = earlyValue + lateValue;
-
-    handleFieldChange(index, 'otMins', newOtMins);
   };
 
   return (
@@ -102,7 +108,7 @@ const OTHoursCell = ({ day, index, handleFieldChange }) => {
               fullWidth
               margin="dense"
               helperText={`hh:mm - ${formatHourMins(day.updatedOtEarlyClockinMins || 0)}`}
-              disabled={!includeEarly}
+              disabled={!includeEarly} // Disable only if unchecked
             />
           </Box>
           <Box display="flex" alignItems="center" mb={2}>
