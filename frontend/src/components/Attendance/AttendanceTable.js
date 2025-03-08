@@ -215,7 +215,7 @@ useEffect(() => {
                 ...day,
                 attendanceRecordId: attendanceRecord.attendanceRecordId,
                 timeIn: displayedTimeIn, // Use the adjusted timeIn value
-                timeOut: attendanceRecord.actualEndTime || '',
+                timeOut:  attendanceRecord.actualStartTime ===  attendanceRecord.actualEndTime?'':attendanceRecord.actualEndTime || '',
                 attendanceStatus: attendanceRecord.overwrittenAttendanceStatus
                   ? attendanceRecord.overwrittenAttendanceStatus.updatedAttendanceStatus
                   : attendanceRecord.attendance || '',
