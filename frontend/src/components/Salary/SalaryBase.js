@@ -580,7 +580,7 @@ const calculateOt2SatFullDay = (basicSalary, workingHours,ot2Rate) => {
         size="small"
         sx={{ marginBottom: '16px' }}
         //disabled={field === 'monthEncouragementAllowance' && !isEligible} // Disable if not eligible
-        disabled={field === 'monthEncouragementAllowance'}
+        //disabled={field === 'monthEncouragementAllowance'}
       />
     </Grid>
   </Grid>
