@@ -226,7 +226,7 @@ function SalaryBase({ selectedMonth, selectedYear }) {
         setLoadingSalaryDetails(false);
       }
     },
-    [selectedMonth, selectedYear, isEligible]
+    [selectedMonth, selectedYear, isEligible] //monthlyData.monthEncouragementAllowance
   );
 
   useEffect(() => {
@@ -313,12 +313,13 @@ function SalaryBase({ selectedMonth, selectedYear }) {
   
 
 
-const handleMonthlyDataChange = (event) => {
-  const { name, value } = event.target;
-  setMonthlyData((prevData) => {
-    return { ...prevData, [name]: value };
-  });
-};
+  const handleMonthlyDataChange = (event) => {
+    event.preventDefault(); // Prevent form submission
+    const { name, value } = event.target;
+    setMonthlyData((prevData) => {
+      return { ...prevData, [name]: value };
+    });
+  };
 
 
 const calculateLateChargesPerMin = (basicSalary, workingHours) => {
@@ -558,33 +559,35 @@ const calculateOt2SatFullDay = (basicSalary, workingHours,ot2Rate) => {
                     </Grid>
                   </Grid>
 
-                  {['bonus', 'incentives', 'monthEncouragementAllowance', 'salaryAdvance', 'foodBill', 'arrears', 'otherDeductions'].map((field) => (
-  <Grid container spacing={1} alignItems="center" key={field}>
-    <Grid item xs={5}>
-      <Typography
-        variant="subtitle1"
-        sx={{
-          color: field === 'monthEncouragementAllowance' ? (isEligible ? 'green' : 'red') : 'inherit', // Change label color for this field
-          fontWeight: field === 'monthEncouragementAllowance' ? 'bold' : 'normal', // Optional: Make the label bold
-        }}
-      >
-        {field.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
-      </Typography>
-    </Grid>
-    <Grid item xs={7}>
-      <TextField
-        fullWidth
-        name={field}
-        value={monthlyData[field]}
-        onChange={handleMonthlyDataChange}
-        size="small"
-        sx={{ marginBottom: '16px' }}
-        //disabled={field === 'monthEncouragementAllowance' && !isEligible} // Disable if not eligible
-        //disabled={field === 'monthEncouragementAllowance'}
-      />
-    </Grid>
-  </Grid>
-))}
+                  {
+                  ['bonus', 'incentives', 'monthEncouragementAllowance', 'salaryAdvance', 'foodBill', 'arrears', 'otherDeductions']
+                  .map((field) => (
+                      <Grid container spacing={1} alignItems="center" key={field}>
+                        <Grid item xs={5}>
+                          <Typography
+                            variant="subtitle1"
+                            sx={{
+                              color: field === 'monthEncouragementAllowance' ? (isEligible ? 'green' : 'red') : 'inherit', // Change label color for this field
+                              fontWeight: field === 'monthEncouragementAllowance' ? 'bold' : 'normal', // Optional: Make the label bold
+                            }}
+                          >
+                            {field.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={7}>
+                          <TextField
+                            fullWidth
+                            name={field}
+                            value={monthlyData[field]}
+                            onChange={handleMonthlyDataChange}
+                            size="small"
+                            sx={{ marginBottom: '16px' }}
+                            //disabled={field === 'monthEncouragementAllowance' && !isEligible} // Disable if not eligible
+                            //disabled={field === 'monthEncouragementAllowance'}
+                          />
+                        </Grid>
+                      </Grid>
+                    ))}
                   <Button
                     variant="contained"
                     onClick={handleMonthlySalarySubmit}

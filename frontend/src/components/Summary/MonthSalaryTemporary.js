@@ -21,6 +21,7 @@ import { fetchEmployees,
 
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import * as XLSX from "xlsx"; // Import the xlsx library
 
 function MonthSalaryTemporary({ selectedYear, selectedMonth }) {
   const [employees, setEmployees] = useState([]);
@@ -38,7 +39,7 @@ function MonthSalaryTemporary({ selectedYear, selectedMonth }) {
         const employeeList = await fetchEmployees();
         const filteredEmployees = employeeList.filter(
           (employee) => employee.epfNo === null && employee.status === "ACTIVE"
-        ); // Filter employees with non-null epfNo
+        ); // Filter employees with null epfNo
         setEmployees(filteredEmployees);
   
         // Fetch salary details
@@ -79,21 +80,21 @@ function MonthSalaryTemporary({ selectedYear, selectedMonth }) {
   
         // Fetch OT hours for each employee
         const otHoursDataTemp = {};
-for (let employee of filteredEmployees) {
-  try {
-    const adjustedOTHours = await getAdjustedAttendanceSummary(
-      employee.employeeId,
-      selectedYear,
-      selectedMonth
-    );
-    console.log(`OT Hours for ${employee.fullName}:`, adjustedOTHours.adjustedOtHours);
-    otHoursDataTemp[employee.employeeId] = adjustedOTHours.adjustedOtHours;
-  } catch (error) {
-    console.error(`Error fetching OT hours for ${employee.fullName}:`, error);
-  }
-}
-console.log("OT Hours Data Temp:", otHoursDataTemp);
-setAdjustedOTHours(otHoursDataTemp);
+        for (let employee of filteredEmployees) {
+          try {
+            const adjustedOTHours = await getAdjustedAttendanceSummary(
+              employee.employeeId,
+              selectedYear,
+              selectedMonth
+            );
+            console.log(`OT Hours for ${employee.fullName}:`, adjustedOTHours.adjustedOtHours);
+            otHoursDataTemp[employee.employeeId] = adjustedOTHours.adjustedOtHours;
+          } catch (error) {
+            console.error(`Error fetching OT hours for ${employee.fullName}:`, error);
+          }
+        }
+        console.log("OT Hours Data Temp:", otHoursDataTemp);
+        setAdjustedOTHours(otHoursDataTemp);
   
       } catch (error) {
         console.error("Error loading data:", error);
@@ -122,7 +123,7 @@ setAdjustedOTHours(otHoursDataTemp);
     ot2: "OT-2 Amount",
     attendanceTransportAllowance: "Attendance/Transport Allowance",
     performanceAllowance: "Performance Allowance",
-    encouragementAllowance: "Encouragement Allowance",
+    monthEncouragementAllowance: "Encouragement Allowance",
     incentives: "Incentives",
     totalMonthlySalary: "Total Monthly Salary",
     epfEmployeeAmount: "EPF 8% employee Amount",
@@ -144,7 +145,7 @@ setAdjustedOTHours(otHoursDataTemp);
     doc.text(`-${selectedYear}`, 45, 36);
   
     const tableData = employees.map((employee) => {
-      const row = [employee.epfNo, employee.fullName];
+      const row = [employee.epfNo ?? "0", employee.fullName];
       row.push(attendanceData[employee.employeeId]?.attendanceCount ?? "0");
       row.push(leaveUsage[employee.employeeId]?.noPayLeaves ?? "0");
   
@@ -209,6 +210,46 @@ setAdjustedOTHours(otHoursDataTemp);
   
     doc.save(`monthly-salary-payment-temporary-staff-${selectedYear}-${selectedMonth}.pdf`);
   };
+
+  const generateExcel = () => {
+    const worksheetData = employees.map((employee) => {
+      const row = [employee.epfNo ?? "0", employee.fullName];
+      row.push(attendanceData[employee.employeeId]?.attendanceCount ?? "0");
+      row.push(leaveUsage[employee.employeeId]?.noPayLeaves ?? "0");
+  
+      // Add OT Hours here
+      const otHours = adjustedOtHours[employee.employeeId] ?? "0"; // If OT hours are not found, default to 0
+      row.push(formatAmount(otHours));
+  
+      Object.keys(salaryAttributes).forEach((attributeKey) => {
+        if (attributeKey === "attendanceTransportAllowance") {
+          const attendanceAllowance = salaryData[employee.employeeId]?.attendanceAllowance ?? 0;
+          const transportAllowance = salaryData[employee.employeeId]?.transportAllowance ?? 0;
+          row.push(formatAmount(attendanceAllowance + transportAllowance));
+        } else {
+          row.push(formatAmount(salaryData[employee.employeeId]?.[attributeKey] ?? 0));
+        }
+      });
+      row.push(""); // Signature column
+      return row;
+    });
+  
+    const columns = [
+      "EPF No",
+      "Name",
+      "Attendance",
+      "No Pay Leaves",
+      "OT Hours",  // Ensure OT Hours is part of the column headers
+      ...Object.values(salaryAttributes),
+      "Signature",
+    ];
+  
+    const worksheet = XLSX.utils.aoa_to_sheet([columns, ...worksheetData]);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Salary Payments");
+  
+    XLSX.writeFile(workbook, `monthly-salary-payment-temporary-staff-${selectedYear}-${selectedMonth}.xlsx`);
+  };
   
   return (
     <Box>
@@ -263,7 +304,6 @@ setAdjustedOTHours(otHoursDataTemp);
                             : "normal",
                       }}
                     >
-
                       {attributeKey === "attendanceTransportAllowance"
                         ? formatAmount(
                             (salaryData[employee.employeeId]?.attendanceAllowance ?? 0) +
@@ -284,9 +324,17 @@ setAdjustedOTHours(otHoursDataTemp);
         variant="contained"
         color="primary"
         onClick={generatePDF}
-        sx={{ marginTop: "20px" }}
+        sx={{ marginTop: "20px", marginRight: "10px" }}
       >
         Download PDF
+      </Button>
+      <Button
+        variant="contained"
+        color="success"
+        onClick={generateExcel}
+        sx={{ marginTop: "20px" }}
+      >
+        Download Excel
       </Button>
     </Box>
   );
