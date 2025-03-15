@@ -30,6 +30,7 @@ function MonthSalaryPermanent({ selectedYear, selectedMonth }) {
   const [leaveUsage, setLeaveUsage] = useState({});
   const [adjustedOtHours, setAdjustedOTHours] = useState({});
   const [loading, setLoading] = useState(true);
+  const [totalNetSalary, setTotalNetSalary] = useState(0);
 
   useEffect(() => {
     const loadData = async () => {
@@ -105,9 +106,16 @@ function MonthSalaryPermanent({ selectedYear, selectedMonth }) {
   
     loadData();
   }, [selectedMonth, selectedYear]);
-  
-  // Ensure OT Hours is rendered correctly
-  console.log("Rendered OT Hours State:", adjustedOtHours);
+
+  useEffect(() => {
+    // Calculate total net salary whenever salaryData changes
+    let total = 0;
+    employees.forEach((employee) => {
+      const netSalary = salaryData[employee.employeeId]?.netSalary ?? 0;
+      total += parseFloat(netSalary);
+    });
+    setTotalNetSalary(total);
+  }, [employees, salaryData]);
 
   const formatAmount = (value) => {
     if (isNaN(value) || value === null || value === undefined) return "0.00";
@@ -212,15 +220,26 @@ function MonthSalaryPermanent({ selectedYear, selectedMonth }) {
   };
   
   const generateExcel = () => {
+    // Define the columns array first
+    const columns = [
+      "EPF No",
+      "Name",
+      "Attendance",
+      "No Pay Leaves",
+      "OT Hours",  // Ensure OT Hours is part of the column headers
+      ...Object.values(salaryAttributes),
+      "Signature",
+    ];
+
     const worksheetData = employees.map((employee) => {
       const row = [employee.epfNo, employee.fullName];
       row.push(attendanceData[employee.employeeId]?.attendanceCount ?? "0");
       row.push(leaveUsage[employee.employeeId]?.noPayLeaves ?? "0");
-  
+
       // Add OT Hours here
       const otHours = adjustedOtHours[employee.employeeId] ?? "0"; // If OT hours are not found, default to 0
       row.push(formatAmount(otHours));
-  
+
       Object.keys(salaryAttributes).forEach((attributeKey) => {
         if (attributeKey === "attendanceTransportAllowance") {
           const attendanceAllowance = salaryData[employee.employeeId]?.attendanceAllowance ?? 0;
@@ -233,21 +252,17 @@ function MonthSalaryPermanent({ selectedYear, selectedMonth }) {
       row.push(""); // Signature column
       return row;
     });
-  
-    const columns = [
-      "EPF No",
-      "Name",
-      "Attendance",
-      "No Pay Leaves",
-      "OT Hours",  // Ensure OT Hours is part of the column headers
-      ...Object.values(salaryAttributes),
-      "Signature",
-    ];
-  
+
+    // Add a row for the total net salary
+    const totalRow = Array(columns.length).fill(""); // Create an empty row with the same number of columns
+    totalRow[0] = "Total Salary Payment Amount:"; // Place the label in the first column
+    totalRow[totalRow.length - 2] = `Rs. ${formatAmount(totalNetSalary)}`; // Place the value in the second last column (before the signature column)
+    worksheetData.push(totalRow);
+
     const worksheet = XLSX.utils.aoa_to_sheet([columns, ...worksheetData]);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Salary Payments");
-  
+
     XLSX.writeFile(workbook, `monthly-salary-payment-permanent-staff-${selectedYear}-${selectedMonth}.xlsx`);
   };
   
@@ -319,6 +334,10 @@ function MonthSalaryPermanent({ selectedYear, selectedMonth }) {
           </Table>
         </TableContainer>
       )}
+
+      <Typography variant="h6" style={{ marginTop: "20px" }}>
+        Total Salary Payment Amount for Permanent Staff {selectedMonth}: Rs. {formatAmount(totalNetSalary)}
+      </Typography>
 
       <Button
         variant="contained"
