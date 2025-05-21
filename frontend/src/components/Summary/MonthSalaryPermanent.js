@@ -118,7 +118,7 @@ function MonthSalaryPermanent({ selectedYear, selectedMonth }) {
   }, [employees, salaryData]);
 
   const formatAmount = (value) => {
-    if (isNaN(value) || value === null || value === undefined) return "0.00";
+    if (isNaN(value) || value === null || value === undefined) return 0.00;
     return parseFloat(value).toFixed(2);
   };
 
@@ -233,20 +233,20 @@ function MonthSalaryPermanent({ selectedYear, selectedMonth }) {
 
     const worksheetData = employees.map((employee) => {
       const row = [employee.epfNo, employee.fullName];
-      row.push(attendanceData[employee.employeeId]?.attendanceCount ?? "0");
-      row.push(leaveUsage[employee.employeeId]?.noPayLeaves ?? "0");
+      row.push({ v: attendanceData[employee.employeeId]?.attendanceCount ?? 0, t: 'n' });
+      row.push({ v: leaveUsage[employee.employeeId]?.noPayLeaves ?? 0, t:'n'});
 
       // Add OT Hours here
-      const otHours = adjustedOtHours[employee.employeeId] ?? "0"; // If OT hours are not found, default to 0
-      row.push(formatAmount(otHours));
+      const otHours = adjustedOtHours[employee.employeeId] ?? 0; // If OT hours are not found, default to 0
+      row.push({ v: formatAmount(otHours), t:'n'});
 
       Object.keys(salaryAttributes).forEach((attributeKey) => {
         if (attributeKey === "attendanceTransportAllowance") {
           const attendanceAllowance = salaryData[employee.employeeId]?.attendanceAllowance ?? 0;
           const transportAllowance = salaryData[employee.employeeId]?.transportAllowance ?? 0;
-          row.push(formatAmount(attendanceAllowance + transportAllowance));
+          row.push({v:formatAmount(attendanceAllowance + transportAllowance),t:'n'});
         } else {
-          row.push(formatAmount(salaryData[employee.employeeId]?.[attributeKey] ?? 0));
+          row.push({v:formatAmount(salaryData[employee.employeeId]?.[attributeKey] ?? 0),t:'n'});
         }
       });
       row.push(""); // Signature column
