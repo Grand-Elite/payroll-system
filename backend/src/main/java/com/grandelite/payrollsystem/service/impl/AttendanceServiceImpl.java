@@ -168,7 +168,17 @@ public class AttendanceServiceImpl implements AttendanceService {
             attendanceRepository.saveAll(summaries);
             System.out.println(yearMonthMap);
             for (YearMonth yearMonth:yearMonthMap.values()) {
-                monthlyFullSalaryService.calculateMonthlyFullSalary(employee.getEmployeeId(),yearMonth.getYear(),yearMonth.getMonth());
+                if (employee == null){
+                    employee =employeeRepository.findByShortName(personName);
+                    employeeMap.put(personName,employee);
+                }
+                if(employee==null){
+                    employee = createEmployee(personName,employeeDepartment.get(personName));
+                    employeeMap.put(personName,employee);
+                }
+                if(employee!=null) {
+                    monthlyFullSalaryService.calculateMonthlyFullSalary(employee.getEmployeeId(), yearMonth.getYear(), yearMonth.getMonth());
+                }
             }
         }
     }
