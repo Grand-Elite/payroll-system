@@ -281,7 +281,7 @@ useEffect(() => {
         }
       };    
       loadEmployeeAttendance();
-    }, [props.employeeId, props.selectedMonth, props.selectedYear, props.shifts]); // Added props.shifts to the dependency array
+    }, [props.employeeId, props.selectedMonth, props.selectedYear, props.shifts,saving]); // Added props.shifts to the dependency array
 
   useEffect(() => {
     const loadLeaveUsage = async () => {
@@ -322,6 +322,7 @@ useEffect(() => {
 /*   To save the attendance record changes individually row wise*/
 
 const handleSave = async (index) => {
+  setSaving(true)
   const day = daysInMonth[index];
   if (
     day.attendanceStatus !== day.originalAttendanceStatus ||
@@ -359,9 +360,11 @@ const handleSave = async (index) => {
         originalOtMins: day.otMins
       };
       setDaysInMonth(updatedDays);
+      setSaving(false)
       toast.success('Attendance record updated successfully',{autoClose: 5000});
     } catch (error) {
       console.error('Error updating attendance record:', error);
+      setSaving(false)
       alert('Failed to update attendance record');
     }
   }
@@ -370,6 +373,7 @@ const handleSave = async (index) => {
 
 const handleSaveAll = async () => {
   if (Array.isArray(daysInMonth)) {
+    setSaving(true);
     // Iterate through each day in the month
     for (let index = 0; index < daysInMonth.length; index++) {
       const day = daysInMonth[index];
@@ -413,14 +417,17 @@ const handleSaveAll = async () => {
           };
 
           setDaysInMonth(updatedDays);
+          setSaving(false);
           toast.success('Attendance record updated successfully', { autoClose: 5000 });
         } catch (error) {
           console.error('Error updating attendance record:', error);
+          setSaving(false);
           alert('Failed to update attendance record');
         }
       }
     }
   } else {
+    setSaving(false);
     console.error('daysInMonth is not an array');
   }
 };
