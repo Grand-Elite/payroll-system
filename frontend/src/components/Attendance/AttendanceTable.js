@@ -215,6 +215,7 @@ useEffect(() => {
                 ...day,
                 attendanceRecordId: attendanceRecord.attendanceRecordId,
                 timeIn: displayedTimeIn, // Use the adjusted timeIn value
+                originalTimeIn: actualStartTimeObj,
                 timeOut:  attendanceRecord.actualStartTime ===  attendanceRecord.actualEndTime?'':attendanceRecord.actualEndTime || '',
                 attendanceStatus: attendanceRecord.overwrittenAttendanceStatus
                   ? attendanceRecord.overwrittenAttendanceStatus.updatedAttendanceStatus
@@ -769,6 +770,20 @@ const handleAdjustedAttendanceSubmit = async () => {
             }}
             size="small"
           />
+          {
+            (day.originalTimeIn!==day.timeIn && displayedTimeIn)?
+            <TextField
+            value={'Actual clock in:'+dayjs(day.originalTimeIn).format("HH:mm:ss")}
+            variant="standard" // removes the border and keeps only the bottom line
+            InputProps={{
+              disableUnderline: true, // removes even the bottom line
+              style: { fontSize: '0.8rem' }, // makes text smaller
+            }}
+            sx={{ width: 'auto' }} // optional: shrink width to content
+          />:''
+          }
+         
+
         </TableCell>
         <TableCell>
           <TextField
