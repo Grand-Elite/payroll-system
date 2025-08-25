@@ -22,7 +22,7 @@ COPY backend/src ./src
 COPY --from=frontend-builder /app/frontend/build ./src/main/resources/static
 
 # build spring boot app
-RUN ./mvnw clean package -DskipTests
+RUN mvn clean package -DskipTests
 
 
 # ---------- RUNTIME STAGE ----------
