@@ -57,4 +57,13 @@ public class Employee {
 
     @Column(name = "Note")
     private String note;
+
+    @Column(name = "service_charge_eligibility")
+    private Boolean serviceChargeEligibility = false;
+
+    @Column(name = "eligible_without_attendance")
+    private Boolean eligibleWithoutAttendance = false;
+
+    @Column(name = "service_charge_percentage")
+    private Double serviceChargePercentage = 0.0;
 }

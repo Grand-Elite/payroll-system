@@ -13,7 +13,10 @@ function ViewEmployee() {
         employeeType: '',
         epfNo: '',
         joiningDate: '',
-        note: ''
+        note: '',
+        serviceChargeEligibility: false,
+        eligibleWithoutAttendance: false,
+        serviceChargePercentage: 0
     });
 
 
@@ -87,6 +90,21 @@ function ViewEmployee() {
                 <div className='employee-detail' style={{ marginBottom: '20px', paddingBottom: '10px', borderBottom: '1px dashed #ccc' }}>
                     <label style={{ display: 'inline-block', width: '200px' }}><strong>Joining Date:</strong></label>
                     <span>{formatValue(employeeData.joiningDate)}</span>
+                </div>
+
+                <div className='employee-detail' style={{ marginBottom: '20px', paddingBottom: '10px', borderBottom: '1px dashed #ccc' }}>
+                    <label style={{ display: 'inline-block', width: '200px' }}><strong>Service Charge Eligibility:</strong></label>
+                    <span>{employeeData.serviceChargeEligibility ? 'Yes' : 'No'}</span>
+                </div>
+
+                <div className='employee-detail' style={{ marginBottom: '20px', paddingBottom: '10px', borderBottom: '1px dashed #ccc' }}>
+                    <label style={{ display: 'inline-block', width: '200px' }}><strong>Eligible Without Attendance:</strong></label>
+                    <span>{employeeData.eligibleWithoutAttendance ? 'Yes' : 'No'}</span>
+                </div>
+
+                <div className='employee-detail' style={{ marginBottom: '20px', paddingBottom: '10px', borderBottom: '1px dashed #ccc' }}>
+                    <label style={{ display: 'inline-block', width: '200px' }}><strong>Service Charge Percentage:</strong></label>
+                    <span>{employeeData.serviceChargePercentage ?? 0}%</span>
                 </div>
 
                 <div className='employee-detail' style={{ marginBottom: '20px', paddingBottom: '10px', borderBottom: '1px dashed #ccc' }}>
