@@ -17,6 +17,9 @@ function AddNewEmployee() {
     const [epfNo, setEpfNo] = useState('');
     const [joiningDate, setJoiningDate] = useState(''); // New state for Joining Date input
     const [note, setNote] = useState('');
+    const [serviceChargeEligibility, setServiceChargeEligibility] = useState(false);
+    const [eligibleWithoutAttendance, setEligibleWithoutAttendance] = useState(false);
+    const [serviceChargePercentage, setServiceChargePercentage] = useState('0');
     const [lastEmployeeId, setLastEmployeeId] = useState(null); // State for displaying the last employee ID
 
     const departments = [
@@ -75,6 +78,9 @@ const handleSubmit = async (e) => {
         epfNo: employeeType === 'PERMANENT' ? epfNo : '', // Include EPF No if Permanent
         joiningDate, // Include Joining Date
         note,
+        serviceChargeEligibility,
+        eligibleWithoutAttendance,
+        serviceChargePercentage: Number(serviceChargePercentage) || 0,
         status: "ACTIVE"
     };
 
@@ -102,6 +108,9 @@ const handleSubmit = async (e) => {
     setEpfNo('');
     setJoiningDate('');
     setNote('');
+    setServiceChargeEligibility(false);
+    setEligibleWithoutAttendance(false);
+    setServiceChargePercentage('0');
 };
 
 
@@ -238,6 +247,43 @@ const handleSubmit = async (e) => {
                         />
                     </label>
                 </div>
+
+                <div className='add-new-employee'>
+                    <label>
+                        <span>Service Charge Eligibility:</span>
+                        <input
+                            type="checkbox"
+                            checked={serviceChargeEligibility}
+                            onChange={(e) => setServiceChargeEligibility(e.target.checked)}
+                        />
+                    </label>
+                </div>
+
+                <div className='add-new-employee'>
+                    <label>
+                        <span>Eligible Without Attendance:</span>
+                        <input
+                            type="checkbox"
+                            checked={eligibleWithoutAttendance}
+                            onChange={(e) => setEligibleWithoutAttendance(e.target.checked)}
+                        />
+                    </label>
+                </div>
+
+                <div className='add-new-employee'>
+                    <label>
+                        <span>Service Charge Percentage:</span>
+                        <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            step="0.01"
+                            value={serviceChargePercentage}
+                            onChange={(e) => setServiceChargePercentage(e.target.value)}
+                        />
+                    </label>
+                </div>
+
 
                 <div className='add-new-employee'>
                     <label>

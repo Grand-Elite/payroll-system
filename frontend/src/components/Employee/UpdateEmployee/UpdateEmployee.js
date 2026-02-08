@@ -13,7 +13,10 @@ function UpdateEmployee() {
         employeeType: '',
         epfNo: '',
         joiningDate: '', // Added joiningDate field
-        note:''
+        note:'',
+        serviceChargeEligibility: false,
+        eligibleWithoutAttendance: false,
+        serviceChargePercentage: 0
     });
 
     const departments = [
@@ -214,6 +217,43 @@ function UpdateEmployee() {
                         />
                     </label>
                 </div>
+                <div className='add-new-employee'>
+                    <label>
+                        <span>Service Charge Eligibility:</span>
+                        <input
+                            type="checkbox"
+                            checked={!!employeeData.serviceChargeEligibility}
+                            onChange={(e) => setEmployeeData({ ...employeeData, serviceChargeEligibility: e.target.checked })}
+                        />
+                    </label>
+                </div>
+
+                <div className='add-new-employee'>
+                    <label>
+                        <span>Eligible Without Attendance:</span>
+                        <input
+                            type="checkbox"
+                            checked={!!employeeData.eligibleWithoutAttendance}
+                            onChange={(e) => setEmployeeData({ ...employeeData, eligibleWithoutAttendance: e.target.checked })}
+                        />
+                    </label>
+                </div>
+
+                <div className='add-new-employee'>
+                    <label>
+                        <span>Service Charge Percentage:</span>
+                        <input
+                            type="number"
+                            name="serviceChargePercentage"
+                            min="0"
+                            max="100"
+                            step="0.01"
+                            value={employeeData.serviceChargePercentage ?? 0}
+                            onChange={handleInputChange}
+                        />
+                    </label>
+                </div>
+
                 <div className='add-new-employee'>
                     <label>
                         <span>Special Notes:</span>
